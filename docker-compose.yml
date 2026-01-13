@@ -1,0 +1,160 @@
+version: '3.8'
+
+# 网络配置
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# 卷配置（可选，用于持久化数据）
+volumes:
+  # 后端日志卷（可选）
+  backend-logs:
+    driver: local
+  # 前端静态文件卷（可选，用于开发模式）
+  frontend-static:
+    driver: local
+
+# 服务定义
+services:
+  # 后端服务
+  backend:
+    # 构建配置
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # 容器名称
+    container_name: unified-tools-backend
+    # 端口映射
+    ports:
+      - "8015:8000"
+    # 环境变量
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=info
+      - WORKERS=2
+      - TIMEOUT=30
+    # 卷挂载
+    volumes:
+      # 挂载后端代码用于开发模式（可选）
+      - ./backend:/app:ro
+      # 挂载日志目录（可选）
+      - backend-logs:/app/logs
+    # 网络配置
+    networks:
+      app-network:
+        aliases:
+          - backend
+    # 重启策略
+    restart: unless-stopped
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; response = requests.get('http://localhost:8000/'); response.raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
+        reservations:
+          cpus: '0.5'
+          memory: '512M'
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 前端服务
+  frontend:
+    # 构建配置
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    # 容器名称
+    container_name: unified-tools-frontend
+    # 端口映射
+    ports:
+      - "86:80"
+    # 环境变量（可选，用于前端构建）
+    environment:
+      - NODE_ENV=production
+      - API_BASE_URL=/api
+    # 卷挂载
+    volumes:
+      # 挂载前端代码用于开发模式（可选）
+      # - ./frontend:/app:ro
+      # 挂载前端静态文件（可选）
+      - frontend-static:/usr/share/nginx/html
+    # 网络配置
+    networks:
+      app-network:
+        aliases:
+          - frontend
+    # 依赖关系
+    depends_on:
+      backend:
+        condition: service_healthy
+    # 重启策略
+    restart: unless-stopped
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '512M'
+        reservations:
+          cpus: '0.25'
+          memory: '256M'
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 可选：添加监控服务（如Prometheus和Grafana）
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: unified-tools-prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: unified-tools-grafana
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - prometheus
+  #   restart: unless-stopped
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+
+# 监控相关卷（可选）
+# volumes:
+#   grafana-data:
+#     driver: local
