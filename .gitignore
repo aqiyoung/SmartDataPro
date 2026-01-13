@@ -1,5 +1,17 @@
+# Dependencies
+node_modules/
+pythonvenv/
+.venv/
+.env
+
+# Build outputs
+dist/
+build/
+*.pyc
+__pycache__/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,54 +19,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# OS files
+.DS_Store
+Thumbs.db
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-venv/
-env/
-.env
-
-# Output files
+# Temporary directories
+.versions/
+tmp/
 output/
-*.docx
-*.md
-*.html
-*.pdf
-
-# Allow README files
-!README.md
-!.gitignore
-
-# Backend
-backend.log
-response.txt
+images/
 
 # Test files
-test_*.py
-*.test.py
+*.test.js
+*.spec.js
 
-# OS files
-Thumbs.db
-.DS_Store
-
-# Docker
-.dockerignore
-Dockerfile
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
