@@ -178,35 +178,43 @@ const ConversionPage = ({ conversionType }) => {
       };
       const defaultExt = extensions[conversionType] || '.file';
       
-      // 对于网页转Word，直接使用测试文件名
-      if (conversionType === 'web-to-docx') {
-        filename = '测试网页标题.docx';
-        console.log('为网页转Word设置测试文件名:', filename);
-      } 
-      // 对于其他转换类型
-      else {
-        // 其他转换类型的逻辑保持不变
-        if (contentDisposition) {
-          // 从响应头中提取文件名
-          const matches = /filename="([^"]+)"/.exec(contentDisposition);
+      // 所有转换类型都从响应头中提取文件名
+      if (contentDisposition) {
+        // 从响应头中提取文件名，支持两种格式：
+        // 1. 传统格式: filename="文件名.docx"
+        // 2. RFC 5987格式: filename*=utf-8''%E6%96%87%E4%BB%B6%E5%90%8D.docx
+        let matches;
+        
+        // 先尝试匹配RFC 5987格式
+        matches = /filename\*=utf-8''([^;]+)/.exec(contentDisposition);
+        if (matches && matches[1]) {
+          // 解码URL编码的文件名
+          filename = decodeURIComponent(matches[1]);
+          console.log('从响应头提取到RFC 5987格式的文件名:', filename);
+        } else {
+          // 再尝试匹配传统格式
+          matches = /filename="([^"]+)"/.exec(contentDisposition);
           if (matches && matches[1]) {
             filename = matches[1];
-            console.log('从响应头提取到文件名:', filename);
+            console.log('从响应头提取到传统格式的文件名:', filename);
           }
         }
-        
-        // 如果没有获取到文件名，使用默认逻辑
-        if (!filename) {
-          // 如果有原始文件名，使用原始文件名的基础名称
-          if (selectedFile) {
-            const baseName = selectedFile.name.replace(/\.[^/.]+$/, '');
-            filename = baseName + defaultExt;
-          } else {
-            // 如果没有原始文件名，使用默认文件名
-            filename = 'converted-file' + defaultExt;
-          }
-          console.log('使用默认文件名:', filename);
+      }
+      
+      // 如果没有获取到文件名，使用默认逻辑
+      if (!filename) {
+        // 如果有原始文件名，使用原始文件名的基础名称
+        if (selectedFile) {
+          const baseName = selectedFile.name.replace(/\.[^/.]+$/, '');
+          filename = baseName + defaultExt;
+        } else if (conversionType === 'web-to-docx') {
+          // 对于网页转Word，如果没有获取到文件名，使用默认名称
+          filename = '网页内容.docx';
+        } else {
+          // 如果没有原始文件名，使用默认文件名
+          filename = 'converted-file' + defaultExt;
         }
+        console.log('使用默认文件名:', filename);
       }
       
       console.log('最终使用的文件名:', filename);

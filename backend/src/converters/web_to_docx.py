@@ -59,8 +59,10 @@ class WebToDocxConverter:
         if os.path.exists(url) and os.path.isfile(url):
             self.is_local_file = True
             self.local_file_path = url
-            self.base_url = ""
+            # 对于本地文件，base_url设置为文件所在目录的绝对路径
+            self.base_url = f"file:///{os.path.dirname(os.path.abspath(url))}/"
             print(f"[DEBUG] 检测到本地HTML文件: {url}")
+            print(f"[DEBUG] 本地文件base_url: {self.base_url}")
         else:
             self.base_url = self._get_base_url(url)
         
@@ -189,6 +191,12 @@ class WebToDocxConverter:
             print(f"[DEBUG] 开始下载HTML: {self.url}")
             print(f"[DEBUG] 超时设置: {self.timeout} 秒")
             
+            # 检查URL格式是否正确
+            if not self.url.startswith(('http://', 'https://')):
+                print(f"[DEBUG] URL格式错误: {self.url}")
+                self._update_progress(f"URL格式错误: {self.url}", 0)
+                return False
+            
             # 简化请求头，只保留必要的User-Agent
             simple_headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -282,33 +290,87 @@ class WebToDocxConverter:
             # 尝试从微信公众号特定位置获取标题
             if self.soup:
                 try:
-                    # 微信公众号标题选择器
+                    # 微信公众号标题选择器，增加更多选择器覆盖更多网页类型
                     wechat_title_selectors = [
-                        "h1.rich_media_title",
-                        "title",
-                        "h1[class*='title']",
-                        "h2[class*='title']"
+                        "h1.rich_media_title",  # 微信公众号标题
+                        "title",  # HTML标题
+                        "h1",  # 一级标题
+                        "h1[class*='title']",  # 包含title的h1
+                        "h2[class*='title']",  # 包含title的h2
+                        "h3[class*='title']",  # 包含title的h3
+                        "div[class*='title']",  # 包含title的div
+                        "header[class*='title']",  # 包含title的header
+                        "article h1",  # 文章内的h1
+                        "main h1",  # 主内容区的h1
+                        "h2",  # 二级标题
+                        "h3"   # 三级标题
                     ]
                     
                     print(f"[DEBUG] 尝试获取标题")
                     for selector in wechat_title_selectors:
                         title_element = self.soup.select_one(selector)
                         if title_element and title_element.get_text():
-                            self.title = title_element.get_text().strip()
-                            print(f"[DEBUG] 从选择器 {selector} 获取到标题: {self.title}")
-                            break
+                            title_text = title_element.get_text().strip()
+                            # 过滤掉过短的标题
+                            if len(title_text) > 3:
+                                self.title = title_text
+                                print(f"[DEBUG] 从选择器 {selector} 获取到标题: {self.title}")
+                                break
                 except Exception as e:
                     print(f"[DEBUG] 获取标题失败: {str(e)}")
             
-            if not self.title or self.title == "网页内容":
+            if not self.title or self.title == "网页内容" or len(self.title) <= 3:
                 # 尝试从meta标签获取标题
                 try:
-                    meta_title = self.soup.find("meta", property="og:title")
-                    if meta_title and meta_title.get("content"):
-                        self.title = meta_title.get("content").strip()
-                        print(f"[DEBUG] 从meta标签获取到标题: {self.title}")
+                    # 尝试多种meta标签获取标题
+                    meta_selectors = [
+                        {"property": "og:title"},  # Open Graph标题
+                        {"name": "title"},  # 普通meta标题
+                        {"name": "og:site_name"},  # 网站名称
+                        {"name": "description"}  # 描述信息（备选）
+                    ]
+                    
+                    for selector in meta_selectors:
+                        meta_title = self.soup.find("meta", selector)
+                        if meta_title and meta_title.get("content"):
+                            meta_content = meta_title.get("content").strip()
+                            if meta_content and len(meta_content) > 3:
+                                self.title = meta_content
+                                print(f"[DEBUG] 从meta标签 {selector} 获取到标题: {self.title}")
+                                break
                 except Exception as e:
                     print(f"[DEBUG] 从meta标签获取标题失败: {str(e)}")
+            
+            # 最终检查，如果标题仍不满意，尝试从body中提取第一个有意义的文本作为标题
+            if not self.title or self.title == "网页内容" or len(self.title) <= 3:
+                try:
+                    if self.soup.body:
+                        # 提取body中的所有文本
+                        all_text = self.soup.body.get_text(separator="\n", strip=True)
+                        lines = all_text.split("\n")
+                        # 找到第一个长度合适的文本行作为标题
+                        for line in lines:
+                            if line and len(line) > 3 and len(line) < 100:
+                                self.title = line.strip()
+                                print(f"[DEBUG] 从body文本中提取到标题: {self.title}")
+                                break
+                except Exception as e:
+                    print(f"[DEBUG] 从body提取标题失败: {str(e)}")
+            
+            # 确保标题不是默认值
+            if not self.title or self.title == "网页内容" or len(self.title) <= 3:
+                # 使用URL的最后一部分作为标题
+                try:
+                    parsed_url = urlparse(self.url)
+                    path_parts = parsed_url.path.strip("/").split("/")
+                    # 找到最后一个有意义的路径部分
+                    for part in reversed(path_parts):
+                        if part and len(part) > 3:
+                            self.title = part.replace("-", " ").replace("_", " ").capitalize()
+                            print(f"[DEBUG] 从URL中提取到标题: {self.title}")
+                            break
+                except Exception as e:
+                    print(f"[DEBUG] 从URL提取标题失败: {str(e)}")
 
             # 获取主要内容 - 特别优化微信公众号文章
             self.content = None
@@ -496,46 +558,93 @@ class WebToDocxConverter:
             return False
 
     def _download_image(self, img_url, img_index):
-        """下载单个图片"""
+        """下载单个图片，支持本地文件和网络图片"""
         try:
-            # 构建完整URL
-            if not img_url.startswith(("http://", "https://")):
-                img_url = urljoin(self.base_url, img_url)
-
-            # 下载图片，添加重试机制
-            import urllib3
-            from requests.adapters import HTTPAdapter
-            from urllib3.util.retry import Retry
+            # 构建完整URL或路径
+            final_img_url = img_url
+            is_local_image = False
             
-            session = requests.Session()
-            retry = Retry(
-                total=2,  # 总共重试2次
-                backoff_factor=0.1,  # 重试间隔时间系数
-                status_forcelist=[429, 500, 502, 503, 504],  # 哪些状态码需要重试
-                allowed_methods=["HEAD", "GET", "OPTIONS"]  # 哪些HTTP方法需要重试
-            )
-            adapter = HTTPAdapter(max_retries=retry)
-            session.mount("http://", adapter)
-            session.mount("https://", adapter)
-            
-            response = session.get(img_url, headers=self.headers, timeout=5)  # 缩短超时时间到5秒
-            response.raise_for_status()
+            # 处理本地HTML文件中的图片
+            if self.is_local_file:
+                # 对于本地文件，处理相对路径
+                if not img_url.startswith(("http://", "https://", "file://")):
+                    # 如果是相对路径，使用本地文件目录作为基准
+                    local_img_path = os.path.join(os.path.dirname(self.local_file_path), img_url)
+                    # 检查文件是否存在
+                    if os.path.exists(local_img_path):
+                        final_img_url = local_img_path
+                        is_local_image = True
+                        print(f"[DEBUG] 本地图片路径: {final_img_url}")
+                    else:
+                        # 尝试使用base_url构建完整URL
+                        final_img_url = urljoin(self.base_url, img_url)
+                elif img_url.startswith("file://"):
+                    # 处理file://协议的本地图片
+                    # 移除file://前缀，转换为本地路径
+                    final_img_url = img_url.replace("file:///", "").replace("file://", "")
+                    is_local_image = True
+                    print(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
+            else:
+                # 网络文件处理
+                if not img_url.startswith(("http://", "https://")):
+                    final_img_url = urljoin(self.base_url, img_url)
 
-            # 提取文件名
-            img_name = f"image_{img_index}_{int(time.time())}.jpg"
+            # 提取文件名，保留原始文件扩展名
+            import re
+            img_ext = ".jpg"  # 默认扩展名
+            if is_local_image:
+                # 从本地文件路径提取扩展名
+                _, ext = os.path.splitext(final_img_url)
+                if ext:
+                    img_ext = ext.lower()
+            else:
+                # 从URL提取扩展名
+                ext_match = re.search(r'\.(jpg|jpeg|png|gif|webp|bmp)($|\?)', final_img_url, re.IGNORECASE)
+                if ext_match:
+                    img_ext = f".{ext_match.group(1).lower()}"
+            
+            img_name = f"image_{img_index}_{int(time.time())}{img_ext}"
             img_path = os.path.join(self.images_dir, img_name)
 
-            # 保存图片
-            with open(img_path, "wb") as f:
-                f.write(response.content)
+            if is_local_image:
+                # 本地图片直接复制
+                import shutil
+                shutil.copy2(final_img_url, img_path)
+                print(f"[DEBUG] 本地图片复制成功: {final_img_url} -> {img_path}")
+            else:
+                # 网络图片下载，添加重试机制
+                import urllib3
+                from requests.adapters import HTTPAdapter
+                from urllib3.util.retry import Retry
+                
+                session = requests.Session()
+                retry = Retry(
+                    total=2,  # 总共重试2次
+                    backoff_factor=0.1,  # 重试间隔时间系数
+                    status_forcelist=[429, 500, 502, 503, 504],  # 哪些状态码需要重试
+                    allowed_methods=["HEAD", "GET", "OPTIONS"]  # 哪些HTTP方法需要重试
+                )
+                adapter = HTTPAdapter(max_retries=retry)
+                session.mount("http://", adapter)
+                session.mount("https://", adapter)
+                
+                response = session.get(final_img_url, headers=self.headers, timeout=5)  # 缩短超时时间到5秒
+                response.raise_for_status()
+
+                # 保存图片
+                with open(img_path, "wb") as f:
+                    f.write(response.content)
+                print(f"[DEBUG] 网络图片下载成功: {final_img_url} -> {img_path}")
 
             self.downloaded_images.append(
-                {"url": img_url, "path": img_path, "name": img_name}
+                {"url": img_url, "path": img_path, "name": img_name, "final_url": final_img_url}
             )
 
             return img_path
         except Exception as e:
-            print(f"图片下载失败: {img_url}, 错误: {str(e)}")
+            print(f"图片下载/复制失败: {img_url}, 错误: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def _download_all_images(self):
@@ -553,6 +662,7 @@ class WebToDocxConverter:
                     return True
             
             total_images = len(images)
+            actual_image_count = 0
 
             if total_images == 0:
                 self._update_progress("未找到图片", 60)
@@ -568,26 +678,38 @@ class WebToDocxConverter:
                         # 微信公众号图片可能使用data-src、data-original等属性存储真实URL
                         img_url = img.get("src")
                         
-                        # 如果src为空，检查其他可能的属性
-                        if not img_url or img_url == "" or "placeholder" in img_url:
-                            # 微信公众号常用的图片URL属性
-                            img_attrs = [
-                                "data-src",
-                                "data-original",
-                                "data-loaded",
-                                "data-lazyload",
-                                "data-lazy-src",
-                                "lazy-src",
-                                "original-src"
-                            ]
-                            
-                            for attr in img_attrs:
-                                img_url = img.get(attr)
-                                if img_url and img_url != "":
-                                    break
+                        # 检查所有可能的图片URL属性
+                        all_img_attrs = [
+                            "src",
+                            "data-src",
+                            "data-original",
+                            "data-loaded",
+                            "data-lazyload",
+                            "data-lazy-src",
+                            "lazy-src",
+                            "original-src"
+                        ]
                         
-                        if img_url:
-                            self._download_image(img_url, i)
+                        final_img_url = None
+                        for attr in all_img_attrs:
+                            attr_url = img.get(attr)
+                            if attr_url and attr_url != "" and "placeholder" not in attr_url:
+                                final_img_url = attr_url
+                                break
+                        
+                        if final_img_url:
+                            actual_image_count += 1
+                            # 处理微信公众号图片URL，可能包含特殊格式
+                            import re
+                            final_img_url = re.sub(r'&amp;', '&', final_img_url)
+                            final_img_url = re.sub(r'&quot;', '"', final_img_url)
+                            final_img_url = re.sub(r'&#39;', "'", final_img_url)
+                            
+                            # 构建完整URL
+                            if not final_img_url.startswith(("http://", "https://")):
+                                final_img_url = urljoin(self.base_url, final_img_url)
+                            
+                            self._download_image(final_img_url, i)
                 except Exception as e:
                     # 跳过无法处理的图片
                     print(f"处理图片时出错: {str(e)}")
@@ -736,42 +858,74 @@ class WebToDocxConverter:
                             continue
                     elif child.name == "p":
                         try:
-                            text = child.get_text(strip=True)
-                            # 清理文本
-                            text = self._clean_text(text)
-                            if text:
-                                self.doc.add_paragraph(text)
-                            # 检查段落内图片
-                            try:
-                                imgs_in_paragraph = child.find_all("img")
+                            print(f"[DEBUG] 处理段落元素")
+                            # 首先检查段落内的图片，确保图片在正确位置
+                            imgs_in_paragraph = child.find_all("img")
+                            print(f"[DEBUG] 段落内找到 {len(imgs_in_paragraph)} 张图片")
+                            if imgs_in_paragraph:
+                                # 先添加段落文本（如果有）
+                                text = child.get_text(strip=True)
+                                # 清理文本
+                                text = self._clean_text(text)
+                                if text:
+                                    self.doc.add_paragraph(text)
+                                    print(f"[DEBUG] 成功添加段落文本: {text[:20]}...")
+                                
+                                # 然后添加图片
                                 for img in imgs_in_paragraph:
                                     if img:
-                                        # 微信公众号图片可能使用data-src、data-original等属性存储真实URL
-                                        img_url = img.get("src")
+                                        print(f"[DEBUG] 处理段落内图片")
+                                        # 检查所有可能的图片URL属性
+                                        all_img_attrs = [
+                                            "src",
+                                            "data-src",
+                                            "data-original",
+                                            "data-loaded",
+                                            "data-lazyload",
+                                            "data-lazy-src",
+                                            "lazy-src",
+                                            "original-src"
+                                        ]
                                         
-                                        # 如果src为空，检查其他可能的属性
-                                        if not img_url or img_url == "" or "placeholder" in img_url:
-                                            # 微信公众号常用的图片URL属性
-                                            img_attrs = [
-                                                "data-src",
-                                                "data-original",
-                                                "data-loaded",
-                                                "data-lazyload",
-                                                "data-lazy-src",
-                                                "lazy-src",
-                                                "original-src"
-                                            ]
+                                        final_img_url = None
+                                        for attr in all_img_attrs:
+                                            attr_url = img.get(attr)
+                                            print(f"[DEBUG] 检查{attr}属性: {attr_url}")
+                                            if attr_url and attr_url != "" and "placeholder" not in attr_url:
+                                                final_img_url = attr_url
+                                                print(f"[DEBUG] 从{attr}属性获取到图片URL: {final_img_url}")
+                                                break
+                                        
+                                        if final_img_url:
+                                            # 处理微信公众号图片URL，可能包含特殊格式
+                                            import re
+                                            final_img_url = re.sub(r'&amp;', '&', final_img_url)
+                                            final_img_url = re.sub(r'&quot;', '"', final_img_url)
+                                            final_img_url = re.sub(r'&#39;', "'", final_img_url)
+                                            print(f"[DEBUG] 处理特殊字符后URL: {final_img_url}")
                                             
-                                            for attr in img_attrs:
-                                                img_url = img.get(attr)
-                                                if img_url and img_url != "":
-                                                    break
-                                        
-                                        if img_url and img_url != "":
-                                            self._add_image_to_document(img_url)
-                            except Exception:
-                                continue
-                        except Exception:
+                                            # 构建完整URL
+                                            if not final_img_url.startswith(("http://", "https://")):
+                                                final_img_url = urljoin(self.base_url, final_img_url)
+                                                print(f"[DEBUG] 构建完整URL: {final_img_url}")
+                                            
+                                            print(f"[DEBUG] 准备插入段落内图片: {final_img_url}")
+                                            self._add_image_to_document(final_img_url)
+                                            print(f"[DEBUG] 段落内图片插入完成")
+                            else:
+                                # 没有图片，只添加文本
+                                text = child.get_text(strip=True)
+                                # 清理文本
+                                text = self._clean_text(text)
+                                if text:
+                                    self.doc.add_paragraph(text)
+                                    print(f"[DEBUG] 成功添加段落文本（无图片）: {text[:20]}...")
+                                else:
+                                    print(f"[DEBUG] 段落文本为空，跳过")
+                        except Exception as e:
+                            print(f"[DEBUG] 处理段落时出错: {str(e)}")
+                            import traceback
+                            traceback.print_exc()
                             continue
                     elif child.name == "ul" or child.name == "ol":
                         try:
@@ -780,30 +934,50 @@ class WebToDocxConverter:
                             continue
                     elif child.name == "img":
                         try:
-                            # 微信公众号图片可能使用data-src、data-original等属性存储真实URL
-                            img_url = child.get("src")
+                            print(f"[DEBUG] 发现直接子元素图片")
+                            # 检查所有可能的图片URL属性
+                            all_img_attrs = [
+                                "src",
+                                "data-src",
+                                "data-original",
+                                "data-loaded",
+                                "data-lazyload",
+                                "data-lazy-src",
+                                "lazy-src",
+                                "original-src"
+                            ]
                             
-                            # 如果src为空，检查其他可能的属性
-                            if not img_url or img_url == "" or "placeholder" in img_url:
-                                # 微信公众号常用的图片URL属性
-                                img_attrs = [
-                                    "data-src",
-                                    "data-original",
-                                    "data-loaded",
-                                    "data-lazyload",
-                                    "data-lazy-src",
-                                    "lazy-src",
-                                    "original-src"
-                                ]
+                            final_img_url = None
+                            for attr in all_img_attrs:
+                                attr_url = child.get(attr)
+                                print(f"[DEBUG] 检查{attr}属性: {attr_url}")
+                                if attr_url and attr_url != "" and "placeholder" not in attr_url:
+                                    final_img_url = attr_url
+                                    print(f"[DEBUG] 从{attr}属性获取到图片URL: {final_img_url}")
+                                    break
+                            
+                            if final_img_url:
+                                # 处理微信公众号图片URL，可能包含特殊格式
+                                import re
+                                final_img_url = re.sub(r'&amp;', '&', final_img_url)
+                                final_img_url = re.sub(r'&quot;', '"', final_img_url)
+                                final_img_url = re.sub(r'&#39;', "'", final_img_url)
+                                print(f"[DEBUG] 处理特殊字符后URL: {final_img_url}")
                                 
-                                for attr in img_attrs:
-                                    img_url = child.get(attr)
-                                    if img_url and img_url != "":
-                                        break
-                            
-                            if img_url and img_url != "":
-                                self._add_image_to_document(img_url)
-                        except Exception:
+                                # 构建完整URL
+                                if not final_img_url.startswith(("http://", "https://")):
+                                    final_img_url = urljoin(self.base_url, final_img_url)
+                                    print(f"[DEBUG] 构建完整URL: {final_img_url}")
+                                
+                                print(f"[DEBUG] 调用_add_image_to_document插入图片: {final_img_url}")
+                                self._add_image_to_document(final_img_url)
+                                print(f"[DEBUG] _add_image_to_document 调用完成")
+                            else:
+                                print(f"[DEBUG] 未找到有效图片URL")
+                        except Exception as e:
+                            print(f"[DEBUG] 处理直接子元素图片时出错: {str(e)}")
+                            import traceback
+                            traceback.print_exc()
                             continue
                     elif child.name == "pre":
                         try:
@@ -898,133 +1072,188 @@ class WebToDocxConverter:
         无法插入图片时预留空间并将图片下载到本地
         """
         try:
-            # 首先确保图片已下载
-            if img_url not in [img['url'] for img in self.downloaded_images]:
-                # 如果图片未下载，调用_download_image方法下载
-                img_index = len(self.downloaded_images) + 1
-                self._download_image(img_url, img_index)
-            
-            # 尝试将图片添加到文档
             import tempfile
             import os
             import requests
             import re
             
-            # 处理微信公众号图片URL，可能包含特殊格式
-            # 移除可能的HTML实体和特殊字符
-            img_url = re.sub(r'&amp;', '&', img_url)
-            img_url = re.sub(r'&quot;', '"', img_url)
-            img_url = re.sub(r'&#39;', "'", img_url)
+            print(f"[DEBUG] _add_image_to_document 调用，传入URL: {img_url}")
+            print(f"[DEBUG] 当前已下载图片数量: {len(self.downloaded_images)}")
             
-            # 构建完整URL
-            if not img_url.startswith(("http://", "https://")):
-                img_url = urljoin(self.base_url, img_url)
-            
-            # 查找已下载的图片
+            # 简化图片插入逻辑
+            # 遍历已下载的图片，查找匹配项
             img_path = None
-            for img_info in self.downloaded_images:
-                if img_url in img_info["url"] or img_info["url"] in img_url:
-                    img_path = img_info["path"]
+            
+            for i, img_info in enumerate(self.downloaded_images):
+                print(f"[DEBUG] 检查已下载图片 {i+1}/{len(self.downloaded_images)}: {img_info['url']}")
+                
+                # 检查多种匹配方式
+                if (img_url == img_info['url'] or 
+                    img_url in img_info['url'] or 
+                    img_info['url'] in img_url or
+                    # 忽略查询参数的匹配
+                    re.sub(r'\?.+$', '', img_url) == re.sub(r'\?.+$', '', img_info['url'])):
+                    img_path = img_info['path']
+                    print(f"[DEBUG] 找到匹配的已下载图片: {img_url} -> {img_path}")
                     break
             
-            # 如果已下载，直接使用本地路径
+            # 如果没有找到匹配的图片，尝试直接处理
+            if not img_path or not os.path.exists(img_path):
+                print(f"[DEBUG] 未找到匹配的已下载图片，尝试直接下载")
+                
+                # 处理URL中的特殊字符
+                processed_img_url = re.sub(r'&amp;', '&', img_url)
+                processed_img_url = re.sub(r'&quot;', '"', processed_img_url)
+                processed_img_url = re.sub(r'&#39;', "'", processed_img_url)
+                
+                # 构建完整URL
+                final_img_url = processed_img_url
+                if not processed_img_url.startswith(("http://", "https://")):
+                    final_img_url = urljoin(self.base_url, processed_img_url)
+                
+                # 直接下载并插入图片
+                img_index = len(self.downloaded_images) + 1
+                img_path = self._download_image(final_img_url, img_index)
+                print(f"[DEBUG] 直接下载图片结果: {img_path}")
+                
+                # 如果下载成功，更新img_info
+                if img_path and os.path.exists(img_path):
+                    print(f"[DEBUG] 直接下载图片成功，路径: {img_path}")
+            
+            # 初始化变量，避免NameError
+            is_local_image = False
+            final_img_url = img_url
+            processed_img_url = img_url
+            
+            # 检查是否为本地文件
+            if self.is_local_file:
+                # 处理本地HTML文件中的图片
+                if img_url.startswith("file://"):
+                    # file://协议转换为本地路径
+                    final_img_url = img_url.replace("file:///", "").replace("file://", "")
+                    is_local_image = True
+                    print(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
+                elif not img_url.startswith(("http://", "https://")):
+                    # 检查是否为本地文件路径
+                    local_img_path = os.path.join(os.path.dirname(self.local_file_path), img_url)
+                    if os.path.exists(local_img_path):
+                        final_img_url = local_img_path
+                        is_local_image = True
+                        print(f"[DEBUG] 本地相对路径图片: {final_img_url}")
+            
+            # 尝试将图片添加到文档
             if img_path and os.path.exists(img_path):
                 try:
                     # 添加图片到文档，保持原始尺寸比例
                     self.doc.add_picture(img_path, width=Inches(5.0))
-                    print(f"成功添加图片到文档: {img_url}")
+                    print(f"[DEBUG] 成功在原位置添加图片: {processed_img_url}")
                     return
                 except Exception as e:
-                    print(f"使用本地图片插入失败: {str(e)}")
+                    print(f"[DEBUG] 使用本地图片插入失败: {str(e)}")
             
-            # 如果未下载或本地插入失败，尝试直接下载并插入
-            else:
-                # 微信公众号图片可能有防盗链，需要添加Referer头
-                img_headers = self.headers.copy()
-                img_headers['Referer'] = self.url
-                
-                print(f"下载图片: {img_url}")
-                # 使用带重试机制的会话
-                import urllib3
-                from requests.adapters import HTTPAdapter
-                from urllib3.util.retry import Retry
-                
-                session = requests.Session()
-                retry = Retry(
-                    total=2,
-                    backoff_factor=0.1,
-                    status_forcelist=[429, 500, 502, 503, 504],
-                    allowed_methods=["HEAD", "GET", "OPTIONS"]
-                )
-                adapter = HTTPAdapter(max_retries=retry)
-                session.mount("http://", adapter)
-                session.mount("https://", adapter)
-                
-                response = session.get(img_url, headers=img_headers, timeout=5)  # 缩短超时时间到5秒
-                response.raise_for_status()
-                
-                # 检查是否为图片文件
-                if not response.headers.get('Content-Type', '').startswith('image/'):
-                    print(f"不是图片文件: {img_url}, Content-Type: {response.headers.get('Content-Type')}")
-                    # 预留图片空间
-                    placeholder_para = self.doc.add_paragraph("[图片占位符]")
-                    placeholder_para.space_before = Pt(12)
-                    placeholder_para.space_after = Pt(12)
-                    return
-                
-                # 创建临时文件保存图片
-                # 根据Content-Type确定文件扩展名
-                content_type = response.headers.get('Content-Type', 'image/jpeg')
-                if 'png' in content_type:
-                    suffix = '.png'
-                elif 'gif' in content_type:
-                    suffix = '.gif'
-                elif 'webp' in content_type:
-                    suffix = '.webp'
-                else:
-                    suffix = '.jpg'
-                
-                with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-                    temp_file.write(response.content)
-                    temp_file_path = temp_file.name
-                
+            # 如果未找到图片或插入失败，处理本地文件情况
+            if is_local_image and os.path.exists(final_img_url):
                 try:
-                    # 添加图片到文档，保持原始尺寸比例
-                    self.doc.add_picture(temp_file_path, width=Inches(5.0))
-                    print(f"成功添加图片到文档: {img_url}")
+                    # 直接使用本地图片路径
+                    self.doc.add_picture(final_img_url, width=Inches(5.0))
+                    print(f"[DEBUG] 直接使用本地图片: {final_img_url}")
+                    return
                 except Exception as e:
-                    print(f"添加图片到文档失败: {str(e)}")
-                    # 预留图片空间
-                    placeholder_para = self.doc.add_paragraph("[图片占位符]")
-                    placeholder_para.space_before = Pt(12)
-                    placeholder_para.space_after = Pt(12)
-                    placeholder_para.add_run(f" (URL: {img_url})")
-                    # 仍然保存图片到本地
-                    img_index = len(self.downloaded_images) + 1
-                    img_name = f"image_{img_index}_{int(time.time())}{suffix}"
-                    local_img_path = os.path.join(self.images_dir, img_name)
-                    with open(local_img_path, "wb") as f:
-                        f.write(response.content)
-                    self.downloaded_images.append(
-                        {"url": img_url, "path": local_img_path, "name": img_name}
+                    print(f"[DEBUG] 直接使用本地图片失败: {str(e)}")
+            
+            # 对于网络图片，如果未下载或插入失败，尝试直接下载并插入
+            else:
+                try:
+                    # 微信公众号图片可能有防盗链，需要添加Referer头
+                    img_headers = self.headers.copy()
+                    img_headers['Referer'] = self.url
+                    
+                    print(f"[DEBUG] 直接下载图片: {final_img_url}")
+                    # 使用带重试机制的会话
+                    import urllib3
+                    from requests.adapters import HTTPAdapter
+                    from urllib3.util.retry import Retry
+                    
+                    session = requests.Session()
+                    retry = Retry(
+                        total=2,
+                        backoff_factor=0.1,
+                        status_forcelist=[429, 500, 502, 503, 504],
+                        allowed_methods=["HEAD", "GET", "OPTIONS"]
                     )
-                    print(f"图片已保存到本地: {local_img_path}")
-                finally:
-                    # 删除临时文件
-                    os.unlink(temp_file_path)
+                    adapter = HTTPAdapter(max_retries=retry)
+                    session.mount("http://", adapter)
+                    session.mount("https://", adapter)
+                    
+                    response = session.get(final_img_url, headers=img_headers, timeout=5)  # 缩短超时时间到5秒
+                    response.raise_for_status()
+                    
+                    # 检查是否为图片文件
+                    if not response.headers.get('Content-Type', '').startswith('image/'):
+                        print(f"[DEBUG] 不是图片文件: {final_img_url}, Content-Type: {response.headers.get('Content-Type')}")
+                        # 预留图片空间
+                        placeholder_para = self.doc.add_paragraph("[图片占位符]")
+                        placeholder_para.space_before = Pt(12)
+                        placeholder_para.space_after = Pt(12)
+                        placeholder_para.add_run(f" (不是图片文件: {processed_img_url})")
+                        return
+                    
+                    # 创建临时文件保存图片
+                    # 根据Content-Type确定文件扩展名
+                    content_type = response.headers.get('Content-Type', 'image/jpeg')
+                    if 'png' in content_type:
+                        suffix = '.png'
+                    elif 'gif' in content_type:
+                        suffix = '.gif'
+                    elif 'webp' in content_type:
+                        suffix = '.webp'
+                    else:
+                        suffix = '.jpg'
+                    
+                    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+                        temp_file.write(response.content)
+                        temp_file_path = temp_file.name
+                    
+                    try:
+                        # 添加图片到文档，保持原始尺寸比例
+                        self.doc.add_picture(temp_file_path, width=Inches(5.0))
+                        print(f"[DEBUG] 成功直接添加图片到文档: {final_img_url}")
+                    except Exception as e:
+                        print(f"[DEBUG] 直接添加图片到文档失败: {str(e)}")
+                        # 预留图片空间
+                        placeholder_para = self.doc.add_paragraph("[图片占位符]")
+                        placeholder_para.space_before = Pt(12)
+                        placeholder_para.space_after = Pt(12)
+                        placeholder_para.add_run(f" (插入失败: {processed_img_url})")
+                        # 仍然保存图片到本地
+                        img_index = len(self.downloaded_images) + 1
+                        img_name = f"image_{img_index}_{int(time.time())}{suffix}"
+                        local_img_path = os.path.join(self.images_dir, img_name)
+                        with open(local_img_path, "wb") as f:
+                            f.write(response.content)
+                        self.downloaded_images.append(
+                            {"url": processed_img_url, "path": local_img_path, "name": img_name, "final_url": final_img_url}
+                        )
+                        print(f"[DEBUG] 图片已保存到本地: {local_img_path}")
+                    finally:
+                        # 删除临时文件
+                        os.unlink(temp_file_path)
+                except Exception as direct_e:
+                    print(f"[DEBUG] 直接下载图片失败: {str(direct_e)}")
+            
+            # 所有方法都失败，添加占位符
+            placeholder_para = self.doc.add_paragraph("[图片占位符]")
+            placeholder_para.space_before = Pt(12)
+            placeholder_para.space_after = Pt(12)
+            placeholder_para.add_run(f" (无法处理: {processed_img_url})")
+            print(f"[DEBUG] 无法处理图片，添加占位符: {processed_img_url}")
         except Exception as e:
-            print(f"添加图片到文档失败: {str(e)}")
+            print(f"[DEBUG] 处理图片时发生异常: {str(e)}")
             # 预留图片空间
             placeholder_para = self.doc.add_paragraph("[图片占位符]")
             placeholder_para.space_before = Pt(12)
             placeholder_para.space_after = Pt(12)
-            placeholder_para.add_run(f" (URL: {img_url})")
-            # 尝试下载图片到本地
-            try:
-                img_index = len(self.downloaded_images) + 1
-                self._download_image(img_url, img_index)
-            except Exception as download_e:
-                print(f"下载图片失败: {str(download_e)}")
+            placeholder_para.add_run(f" (处理失败: {img_url})")
             # 打印详细错误信息，便于调试
             import traceback
             traceback.print_exc()
@@ -1084,10 +1313,26 @@ class WebToDocxConverter:
             success = self._download_html()
             if not success:
                 print("[DEBUG] HTML下载失败，使用后备转换逻辑")
-                # HTML下载失败，使用简单的后备转换逻辑
-                self.html_content = f"<html><head><title>简单转换结果</title></head><body><h1>简单转换结果</h1><p>URL: {self.url}</p><p>转换时间: {time.strftime('%Y-%m-%d %H:%M:%S')}</p></body></html>"
+                # 从URL中提取有意义的部分作为标题
+                try:
+                    from urllib.parse import urlparse
+                    parsed_url = urlparse(self.url)
+                    # 使用URL路径的最后一部分作为标题
+                    path_parts = parsed_url.path.strip("/").split("/")
+                    # 找到最后一个有意义的路径部分
+                    fallback_title = "网页转换结果"
+                    for part in reversed(path_parts):
+                        if part and len(part) > 3:
+                            fallback_title = part.replace("-", " ").replace("_", " ").capitalize()
+                            break
+                except Exception as e:
+                    print(f"[DEBUG] 从URL提取标题失败: {str(e)}")
+                    fallback_title = "网页转换结果"
+                    
+                # HTML下载失败，使用简单的后备转换逻辑，使用从URL提取的标题
+                self.html_content = f"<html><head><title>{fallback_title}</title></head><body><h1>{fallback_title}</h1><p>URL: {self.url}</p><p>转换时间: {time.strftime('%Y-%m-%d %H:%M:%S')}</p><p>注意: 由于网络问题，无法获取完整网页内容，只显示基本信息。</p></body></html>"
                 self.soup = BeautifulSoup(self.html_content, "html.parser")
-                self.title = "简单转换结果"
+                self.title = fallback_title
                 self.content = self.soup.body
             
             if time.time() - start_time > max_execution_time:
@@ -1097,7 +1342,8 @@ class WebToDocxConverter:
             if not success:
                 print("[DEBUG] HTML解析失败，使用后备解析逻辑")
                 # HTML解析失败，使用简单的后备解析逻辑
-                self.title = "简单转换结果"
+                # 保持之前的标题，不要重置为默认值
+                # self.title = "简单转换结果"
                 self.content = self.soup.body if self.soup and hasattr(self.soup, 'body') else self.soup
             
             if time.time() - start_time > max_execution_time:
