@@ -39,6 +39,10 @@ output/
 *.html
 *.pdf
 
+# Allow README files
+!README.md
+!.gitignore
+
 # Backend
 backend.log
 response.txt
