@@ -228,8 +228,8 @@ unified-tools-web/
 ## 联系方式
 
 如有问题或建议，请通过以下方式联系：
-- 项目Issues：https://github.com/your-username/unified-tools-web/issues
-- 邮箱：your-email@example.com
+- 项目Issues：https://github.com/aqiyoung/unified-tools-web/issues
+- 邮箱：aqiyoung@163.com
 
 ## 更新日志
 
