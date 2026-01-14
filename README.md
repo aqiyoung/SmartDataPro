@@ -90,7 +90,7 @@
 │   ├── App.jsx         # 主应用
 │   └── main.jsx        # 入口文件
 ├── start-all.cmd       # Windows 启动脚本
-├── start-all.ps1       # PowerShell 启动脚本
+├── start-all.ps1       # PowerShell 脚本
 └── README.md           # 项目说明
 ```
 
@@ -123,4 +123,38 @@ python main.py  # 启动开发服务器
 
 ## 许可证
 
-MIT
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 联系方式
+
+如有问题或建议，请通过以下方式联系：
+- 项目Issues：https://github.com/aqiyoung/unified-tools-web/issues
+- 邮箱：aqiyoung@163.com
+
+## 更新日志
+
+### v1.3.0 (2026-01-14)
+- 修复转换无反应问题
+- 解决端口冲突问题，配置代理
+- 实现Markdown转HTML实时预览
+- 统一UI样式，修复布局和对齐问题
+- 优化移动端适配
+- 添加上传、复制、下载控件
+- 修复转换后文件名错误问题
+- 修复文件类型识别问题
+
+### v1.2.0 (2026-01-13)
+- 修复网页转Word功能的500错误
+- 优化中文文件名处理
+- 完善错误处理机制
+
+### v1.1.0 (2026-01-10)
+- 新增PDF转Word功能
+- 新增Word转PDF功能
+- 优化Markdown转HTML样式
+
+### v1.0.0 (2026-01-05)
+- 初始版本
+- 支持Word转Markdown
+- 支持Markdown转HTML
+- 支持网页转Word
