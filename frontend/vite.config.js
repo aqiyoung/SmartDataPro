@@ -10,7 +10,7 @@ export default defineConfig({
     host: '0.0.0.0', // 监听所有地址，允许局域网访问
     proxy: {
       '/api': {
-        target: 'http://localhost:8005',
+        target: 'http://localhost:8015',
         changeOrigin: true
       }
     }
