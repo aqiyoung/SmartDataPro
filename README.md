@@ -63,9 +63,9 @@ pip install -r requirements.txt
 # 运行服务
 python main.py
 # 或使用uvicorn直接运行
-uvicorn app:app --host 0.0.0.0 --port 8005
+uvicorn app:app --host 0.0.0.0 --port 8015
 ```
-后端服务将运行在 http://localhost:8005
+后端服务将运行在 http://localhost:8015
 
 #### 3. 运行前端服务
 ```bash
