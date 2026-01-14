@@ -35,6 +35,11 @@ Thumbs.db
 tmp/
 output/
 images/
+temp_image_*.png
+*.png
+
+# Docker files
+docker-compose.override.yml
 
 # Test files
 *.test.js

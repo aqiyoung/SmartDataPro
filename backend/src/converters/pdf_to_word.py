@@ -1,16 +1,62 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-PDF文档转Word转换器
+PDF文档转Word转换器 - 支持OCR
 """
 
 import os
 import uuid
-from datetime import datetime
+import re
 import pdfplumber
 from docx import Document
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+import pytesseract
+from PIL import Image
+import numpy as np
+import cv2
+from io import BytesIO
+
+
+def _perform_ocr(image, lang='chi_sim+eng'):
+    """
+    对图像执行OCR文字识别
+    
+    Args:
+        image: PIL Image对象或图像数据
+        lang: 识别语言，默认中文+英文
+    
+    Returns:
+        str: 识别到的文字
+    """
+    try:
+        # 如果是字节数据，先转换为PIL Image
+        if isinstance(image, bytes):
+            image = Image.open(BytesIO(image))
+        
+        # 转换为RGB模式（OCR需要）
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # 转换为OpenCV格式进行预处理
+        img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        
+        # 图像预处理
+        # 1. 转换为灰度图
+        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+        
+        # 2. 二值化处理
+        _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        
+        # 3. 转换回PIL Image
+        processed_image = Image.fromarray(binary)
+        
+        # 执行OCR
+        text = pytesseract.image_to_string(processed_image, lang=lang)
+        return text
+    except Exception as e:
+        print(f"OCR识别失败: {str(e)}")
+        return ""
 
 
 def convert_pdf_to_word(input_file, output_file=None, options=None):
@@ -21,12 +67,18 @@ def convert_pdf_to_word(input_file, output_file=None, options=None):
         input_file (str): 输入的PDF文件路径
         output_file (str, optional): 输出的Word文件路径
         options (dict, optional): 转换选项
+            - use_ocr: 是否使用OCR识别文字（默认True）
+            - ocr_lang: OCR识别语言（默认'chi_sim+eng'）
 
     Returns:
         dict: 转换结果信息
     """
     if options is None:
         options = {}
+    
+    # 解析OCR选项，默认启用OCR
+    use_ocr = options.get('use_ocr', True)
+    ocr_lang = options.get('ocr_lang', 'chi_sim+eng')
 
     # 解析输出路径
     if output_file:
@@ -40,15 +92,13 @@ def convert_pdf_to_word(input_file, output_file=None, options=None):
     # 确保输出目录存在
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    # 检查文件扩展名
-    file_extension = os.path.splitext(input_file)[1].lower()
-    
-    if file_extension != '.pdf':
-        raise Exception(f"不支持的文件格式: {file_extension}，仅支持PDF格式")
+    # 检查文件格式
+    if not input_file.lower().endswith('.pdf'):
+        raise Exception(f"不支持的文件格式，仅支持PDF格式")
 
-    # 使用pdfplumber处理PDF格式文件
     try:
         print(f"开始转换PDF文件: {input_file}")
+        print(f"OCR设置: use_ocr={use_ocr}, ocr_lang={ocr_lang}")
         
         # 创建Word文档对象
         doc = Document()
@@ -59,53 +109,96 @@ def convert_pdf_to_word(input_file, output_file=None, options=None):
             print(f"PDF文件共有 {page_count} 页")
             
             # 遍历所有页面
-            for page_num, page in enumerate(pdf.pages, 1):
-                print(f"正在处理第 {page_num}/{page_count} 页")
+            for page_num in range(page_count):
+                print(f"正在处理第 {page_num + 1}/{page_count} 页")
+                page = pdf.pages[page_num]
                 
-                # 提取页面文本
+                # 1. 提取并处理文本
                 text = page.extract_text()
                 
-                if text:
-                    # 添加页码标题
-                    doc.add_heading(f'第 {page_num} 页', level=2)
+                # 将整个页面转换为图像，用于OCR和图片插入
+                print(f"将第 {page_num + 1} 页转换为图像")
+                page_image = page.to_image(resolution=300)
+                original_image = page_image.original
+                
+                # 保存页面图像到临时文件
+                temp_img_path = f"temp_page_{page_num + 1}.png"
+                original_image.save(temp_img_path, format='PNG')
+                print(f"保存页面图像到: {temp_img_path}")
+                
+                # 2. 执行OCR获取文本
+                if use_ocr:
+                    print(f"对第 {page_num + 1} 页执行OCR")
+                    ocr_text = _perform_ocr(original_image, lang=ocr_lang)
+                    print(f"OCR识别结果长度: {len(ocr_text)} 字符")
                     
-                    # 添加页面文本
-                    # 按段落分割文本
-                    paragraphs = text.split('\n')
-                    for para in paragraphs:
-                        if para.strip():
-                            doc.add_paragraph(para.strip())
-                
-                # 提取页面表格
-                tables = page.extract_tables()
-                if tables:
-                    print(f"第 {page_num} 页包含 {len(tables)} 个表格")
-                    for table in tables:
-                        # 创建Word表格
-                        table_rows = len(table)
-                        table_cols = len(table[0])
+                    if ocr_text.strip():
+                        # 合并原始文本和OCR文本
+                        if text:
+                            combined_text = text + "\n" + ocr_text
+                        else:
+                            combined_text = ocr_text
                         
-                        if table_rows > 0 and table_cols > 0:
-                            # 添加表格标题
-                            doc.add_paragraph('表格', style='Heading 3')
+                        # 处理合并后的文本
+                        lines = combined_text.split('\n')
+                        for line in lines:
+                            line = line.strip()
+                            if not line:
+                                continue
+                                
+                            # 跳过包含页码或图像标记的行
+                            if any(keyword in line for keyword in ['第1页', '第 1 页', '[图像', '图像 1']):
+                                print(f"跳过行: {line}")
+                                continue
+                                
+                            # 清理行内的标记
+                            clean_line = re.sub(r'第\s*\d+\s*页', '', line)
+                            clean_line = re.sub(r'\[图像\s+\d+\]:?', '', clean_line)
+                            clean_line = re.sub(r'\s+', ' ', clean_line).strip()
                             
-                            # 创建表格
-                            doc_table = doc.add_table(rows=table_rows, cols=table_cols)
+                            if clean_line:
+                                doc.add_paragraph(clean_line)
+                                print(f"添加行: {clean_line}")
+                else:
+                    # 仅使用原始文本
+                    if text and text.strip():
+                        lines = text.split('\n')
+                        for line in lines:
+                            line = line.strip()
+                            if not line:
+                                continue
+                                
+                            # 跳过包含页码或图像标记的行
+                            if any(keyword in line for keyword in ['第1页', '第 1 页', '[图像', '图像 1']):
+                                continue
+                                
+                            # 清理行内的标记
+                            clean_line = re.sub(r'第\s*\d+\s*页', '', line)
+                            clean_line = re.sub(r'\[图像\s+\d+\]:?', '', clean_line)
+                            clean_line = re.sub(r'\s+', ' ', clean_line).strip()
                             
-                            # 填充表格内容
-                            for i, row in enumerate(table):
-                                for j, cell_value in enumerate(row):
-                                    if cell_value:
-                                        doc_table.cell(i, j).text = cell_value.strip()
-                            
-                            # 添加表格后的空行
-                            doc.add_paragraph()
+                            if clean_line:
+                                doc.add_paragraph(clean_line)
                 
-                # 提取页面图片
-                # 注意：pdfplumber提取图片的功能有限，这里暂不实现图片提取
+                # 3. 插入页面图像到Word文档
+                print(f"将第 {page_num + 1} 页图像插入到Word文档")
+                try:
+                    # 直接从临时文件插入图片
+                    doc.add_picture(temp_img_path, width=Inches(5.0))
+                    doc.add_paragraph()
+                    print(f"成功插入第 {page_num + 1} 页图像")
+                except Exception as e:
+                    print(f"插入图片失败: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
                 
-                # 除了最后一页，其他页面添加分页符
-                if page_num < page_count:
+                # 删除临时图像文件
+                if os.path.exists(temp_img_path):
+                    os.remove(temp_img_path)
+                    print(f"删除临时图像文件: {temp_img_path}")
+                
+                # 4. 添加分页符（除了最后一页）
+                if page_num < page_count - 1:
                     doc.add_page_break()
         
         # 保存Word文档
@@ -115,7 +208,8 @@ def convert_pdf_to_word(input_file, output_file=None, options=None):
         return {
             "output_file": output_file,
             "page_count": page_count,
-            "success": True
+            "success": True,
+            "ocr_used": use_ocr
         }
     except Exception as e:
         print(f"PDF文件转换失败: {str(e)}")

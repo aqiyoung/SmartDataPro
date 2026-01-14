@@ -6,45 +6,27 @@ import './App.css';
 const App = () => {
   const [conversionType, setConversionType] = useState(null);
 
-  // 检查并处理根路径重定向
-  useEffect(() => {
-    // 如果当前路径是根路径，重定向到index.html
-    if (window.location.pathname === '/') {
-      window.location.replace('/index.html');
-      return;
-    }
-  }, []);
-
   // 监听URL变化，更新转换类型
   useEffect(() => {
     const handleUrlChange = () => {
-      // 检查hash路由
-      const hashMatch = window.location.hash.match(/^#\/convert\/(\w+[-\w]*)$/);
-      if (hashMatch) {
-        setConversionType(hashMatch[1]);
-        return;
-      }
-      
-      // 检查普通路由
+      // 检查普通路由（优先处理）
       const pathMatch = window.location.pathname.match(/^\/convert\/(\w+[-\w]*)$/);
       if (pathMatch) {
         setConversionType(pathMatch[1]);
         return;
       }
       
-      // 不是转换页面
+      // 不是转换页面，渲染首页
       setConversionType(null);
     };
 
     // 初始调用一次，处理当前URL
     handleUrlChange();
 
-    // 监听hashchange和popstate事件
-    window.addEventListener('hashchange', handleUrlChange);
+    // 监听popstate事件处理路由变化
     window.addEventListener('popstate', handleUrlChange);
 
     return () => {
-      window.removeEventListener('hashchange', handleUrlChange);
       window.removeEventListener('popstate', handleUrlChange);
     };
   }, []);

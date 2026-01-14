@@ -59,14 +59,10 @@ const ConversionPage = ({ conversionType }) => {
       formData.append('file', tempFile, 'temp.md');
       formData.append('style', theme);
       
-      // 调用后端API进行转换，直接使用/api/convert/markdown-to-html路径
+      // 调用后端API进行转换
       const response = await axios.post('/api/convert/markdown-to-html', formData);
-      
-      console.log('实时预览响应:', response.data); // 添加调试日志
       setHtmlPreview(response.data);
     } catch (err) {
-      console.error('实时预览失败:', err);
-      console.error('错误详情:', err.response); // 添加错误详情日志
       // 实时预览失败时，不显示错误，保持现有预览
     }
   };
@@ -90,14 +86,11 @@ const ConversionPage = ({ conversionType }) => {
       let response;
       const apiBaseUrl = '/api/convert'; // 使用相对路径，让Vite代理生效
       
-      console.log(`[DEBUG] 开始转换，类型: ${conversionType}`);
-      
       switch (conversionType) {
         case 'word-to-md':
           if (!selectedFile) throw new Error('请选择文件');
           const formData1 = new FormData();
           formData1.append('file', selectedFile);
-          console.log(`[DEBUG] 发送请求: ${apiBaseUrl}/docx-to-md`);
           response = await axios.post(`${apiBaseUrl}/docx-to-md`, formData1, {
             responseType: 'blob',
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -108,7 +101,6 @@ const ConversionPage = ({ conversionType }) => {
           if (!selectedFile) throw new Error('请选择文件');
           const formData2 = new FormData();
           formData2.append('file', selectedFile);
-          console.log(`[DEBUG] 发送请求: ${apiBaseUrl}/pdf-to-word`);
           response = await axios.post(`${apiBaseUrl}/pdf-to-word`, formData2, {
             responseType: 'blob',
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -119,7 +111,6 @@ const ConversionPage = ({ conversionType }) => {
           if (!selectedFile) throw new Error('请选择文件');
           const formData3 = new FormData();
           formData3.append('file', selectedFile);
-          console.log(`[DEBUG] 发送请求: ${apiBaseUrl}/word-to-pdf`);
           response = await axios.post(`${apiBaseUrl}/word-to-pdf`, formData3, {
             responseType: 'blob',
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -128,17 +119,13 @@ const ConversionPage = ({ conversionType }) => {
           
         case 'web-to-docx':
           if (!url) throw new Error('请输入URL');
-          console.log(`[DEBUG] URL: ${url}`);
           // 使用URLSearchParams来处理application/x-www-form-urlencoded数据
           const params = new URLSearchParams();
           params.append('url', url);
-          console.log(`[DEBUG] 发送请求: ${apiBaseUrl}/web-to-docx`);
-          console.log(`[DEBUG] 请求参数: ${params.toString()}`);
           response = await axios.post(`${apiBaseUrl}/web-to-docx`, params, {
             responseType: 'blob',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
           });
-          console.log(`[DEBUG] 响应状态: ${response.status}`);
           break;
           
         case 'md-to-html':
@@ -150,7 +137,6 @@ const ConversionPage = ({ conversionType }) => {
           const formData5 = new FormData();
           formData5.append('file', tempFile, 'temp.md');
           formData5.append('style', theme);
-          console.log(`[DEBUG] 发送请求: ${apiBaseUrl}/markdown-to-html`);
           response = await axios.post(`${apiBaseUrl}/markdown-to-html`, formData5, {
             responseType: 'blob',
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -162,10 +148,7 @@ const ConversionPage = ({ conversionType }) => {
       }
       
       // 处理响应，下载文件
-      console.log('完整响应:', response);
-      console.log('响应头:', response.headers);
       const contentDisposition = response.headers['content-disposition'];
-      console.log('Content-Disposition:', contentDisposition);
       let filename = '';
       
       // 根据转换类型设置默认扩展名
@@ -190,13 +173,11 @@ const ConversionPage = ({ conversionType }) => {
         if (matches && matches[1]) {
           // 解码URL编码的文件名
           filename = decodeURIComponent(matches[1]);
-          console.log('从响应头提取到RFC 5987格式的文件名:', filename);
         } else {
           // 再尝试匹配传统格式
           matches = /filename="([^"]+)"/.exec(contentDisposition);
           if (matches && matches[1]) {
             filename = matches[1];
-            console.log('从响应头提取到传统格式的文件名:', filename);
           }
         }
       }
@@ -214,10 +195,7 @@ const ConversionPage = ({ conversionType }) => {
           // 如果没有原始文件名，使用默认文件名
           filename = 'converted-file' + defaultExt;
         }
-        console.log('使用默认文件名:', filename);
       }
-      
-      console.log('最终使用的文件名:', filename);
       
       // 设置正确的MIME类型
       const mimeTypes = {
@@ -243,7 +221,6 @@ const ConversionPage = ({ conversionType }) => {
       
       setSuccess('转换成功！文件已开始下载');
     } catch (err) {
-      console.error('转换失败:', err);
       setError(err.message || '转换失败，请重试');
     } finally {
       setIsConverting(false);

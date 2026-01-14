@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: document-converter-backend
+    ports:
+      - "8006:8006"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
+    volumes:
+      - /tmp:/tmp  # 挂载临时目录用于文件处理
+    networks:
+      - converter-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: document-converter-frontend
+    ports:
+      - "5180:80"
+    depends_on:
+      - backend
+    networks:
+      - converter-network
+    restart: unless-stopped
+
+networks:
+  converter-network:
+    driver: bridge
+    name: document-converter-network

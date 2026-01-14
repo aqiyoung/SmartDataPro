@@ -1,27 +1,28 @@
-FROM node:18-alpine AS build
+# 使用官方Node.js镜像作为基础镜像
+FROM node:18-alpine as build
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制依赖文件
-COPY package.json package-lock.json* ./
+# 复制package.json和package-lock.json
+COPY package*.json ./
 
 # 安装依赖
-RUN npm ci --no-audit
+RUN npm install
 
-# 复制应用代码
+# 复制项目代码
 COPY . .
 
 # 构建生产版本
 RUN npm run build
 
-# 使用Nginx作为服务器
-FROM nginx:stable-alpine
+# 使用Nginx作为生产服务器
+FROM nginx:alpine
 
-# 复制构建产物到Nginx静态目录
+# 复制构建好的前端文件到Nginx的静态文件目录
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# 复制自定义Nginx配置
+# 复制自定义Nginx配置文件
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # 暴露端口

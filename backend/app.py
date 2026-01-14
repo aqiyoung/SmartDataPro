@@ -1,29 +1,34 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import tempfile
-from src.converters import convert_docx_to_md, convert_markdown_to_html, convert_web_to_docx, convert_word_to_pdf, convert_pdf_to_word
+from src.converters import (
+    convert_docx_to_md, 
+    convert_markdown_to_html, 
+    convert_web_to_docx, 
+    convert_word_to_pdf, 
+    convert_pdf_to_word
+)
 
 app = FastAPI(
     title="统一文档转换工具API",
-    description="提供文档格式转换服务，支持docx转md、markdown转html、网页转docx",
-    version="1.0.0"
+    description="提供文档格式转换服务，支持多种格式转换",
+    version="1.3.0"
 )
 
 # 添加CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5180", "http://localhost:8000", "http://localhost:8001", "http://localhost:8002", "http://localhost:8005"],  # 允许前端访问的地址
+    allow_origins=["http://localhost:5173", "http://localhost:5180"],
     allow_credentials=True,
-    allow_methods=["*"],  # 允许所有HTTP方法
-    allow_headers=["*"],  # 允许所有HTTP头
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # 配置静态文件服务
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-# 将静态文件服务挂载到 /static 路径，这样不会覆盖 API 端点
 app.mount("/static", StaticFiles(directory=frontend_dir), name="frontend")
 
 # 配置临时文件目录
@@ -59,8 +64,8 @@ async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
         if not os.path.exists(output_file):
             raise HTTPException(status_code=500, detail="转换失败: 生成的文件不存在")
         
-        # 转换成功，只清理上传的临时文件，不清理输出文件，因为FileResponse需要它
-        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
+        # 转换成功，清理上传的临时文件
+        if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         
         # 返回转换后的文件
@@ -70,10 +75,7 @@ async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
             media_type="text/markdown"
         )
     except Exception as e:
-        # 添加详细的错误日志
-        import traceback
-        print(f"转换失败的详细错误信息: {traceback.format_exc()}")
-        # 如果发生错误，清理所有文件
+        # 清理临时文件
         if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         if 'output_file' in locals() and os.path.exists(output_file):
@@ -84,16 +86,10 @@ async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
 async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style: str = Form("default")):
     """将Markdown文件转换为HTML"""
     try:
-        # 打印请求信息，方便调试
-        print(f"收到markdown-to-html请求，文件名: {file.filename}, 样式: {style}")
-        
         # 保存上传的文件到临时目录
         # 注意：对于前端发送的Blob对象，file.filename可能是空字符串或临时文件名
         file_name = file.filename if file.filename else 'temp.md'
         file_extension = os.path.splitext(file_name)[1].lower()
-        
-        # 对前端发送的临时文件，直接使用，不限制扩展名
-        print(f"处理文件: {file_name}, 扩展名: {file_extension}")
         
         # 确保文件有正确的扩展名
         if not file_extension:
@@ -413,7 +409,7 @@ def get_styles():
     }
 
 @app.post("/api/convert/pdf-to-word")
-async def convert_pdf_to_word_endpoint(file: UploadFile = File(...)):
+async def convert_pdf_to_word_endpoint(file: UploadFile = File(...), use_ocr: bool = Form(False), ocr_lang: str = Form("chi_sim+eng")):
     """将PDF文件转换为Word文档"""
     try:
         # 保存上传的文件到临时目录
@@ -425,8 +421,12 @@ async def convert_pdf_to_word_endpoint(file: UploadFile = File(...)):
         with open(temp_file_path, "wb") as f:
             f.write(await file.read())
         
-        # 执行转换
-        result = convert_pdf_to_word(temp_file_path)
+        # 执行转换，添加OCR选项
+        options = {
+            "use_ocr": use_ocr,
+            "ocr_lang": ocr_lang
+        }
+        result = convert_pdf_to_word(temp_file_path, options=options)
         output_file = result["output_file"]
         
         # 检查文件是否存在
@@ -455,7 +455,7 @@ async def convert_pdf_to_word_endpoint(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
 
 @app.post("/api/convert/word-to-pdf")
-async def convert_word_to_pdf_endpoint(file: UploadFile = File(...)):
+async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bool = Form(False), ocr_lang: str = Form("chi_sim+eng")):
     """将Word文件转换为PDF文档"""
     try:
         # 保存上传的文件到临时目录
@@ -467,8 +467,12 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...)):
         with open(temp_file_path, "wb") as f:
             f.write(await file.read())
         
-        # 执行转换
-        result = convert_word_to_pdf(temp_file_path)
+        # 执行转换，添加OCR选项
+        options = {
+            "use_ocr": use_ocr,
+            "ocr_lang": ocr_lang
+        }
+        result = convert_word_to_pdf(temp_file_path, options=options)
         output_file = result["output_file"]
         
         # 检查文件是否存在
