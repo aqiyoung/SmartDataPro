@@ -15,7 +15,7 @@ from src.converters import (
 app = FastAPI(
     title="统一文档转换工具API",
     description="提供文档格式转换服务，支持多种格式转换",
-    version="1.3.0"
+    version="1.3.1"
 )
 
 # 添加CORS中间件

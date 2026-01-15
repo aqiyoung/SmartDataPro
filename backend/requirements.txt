@@ -11,3 +11,5 @@ pdfplumber
 reportlab
 pypdf
 urllib3
+pytesseract
+Pillow

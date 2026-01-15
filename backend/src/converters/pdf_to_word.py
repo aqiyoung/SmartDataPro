@@ -14,49 +14,8 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pytesseract
 from PIL import Image
 import numpy as np
-import cv2
 from io import BytesIO
-
-
-def _perform_ocr(image, lang='chi_sim+eng'):
-    """
-    对图像执行OCR文字识别
-    
-    Args:
-        image: PIL Image对象或图像数据
-        lang: 识别语言，默认中文+英文
-    
-    Returns:
-        str: 识别到的文字
-    """
-    try:
-        # 如果是字节数据，先转换为PIL Image
-        if isinstance(image, bytes):
-            image = Image.open(BytesIO(image))
-        
-        # 转换为RGB模式（OCR需要）
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        # 转换为OpenCV格式进行预处理
-        img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-        
-        # 图像预处理
-        # 1. 转换为灰度图
-        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-        
-        # 2. 二值化处理
-        _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-        
-        # 3. 转换回PIL Image
-        processed_image = Image.fromarray(binary)
-        
-        # 执行OCR
-        text = pytesseract.image_to_string(processed_image, lang=lang)
-        return text
-    except Exception as e:
-        print(f"OCR识别失败: {str(e)}")
-        return ""
+from ..utils.ocr_engine import perform_ocr, check_environment
 
 
 def convert_pdf_to_word(input_file, output_file=None, options=None):
@@ -129,7 +88,8 @@ def convert_pdf_to_word(input_file, output_file=None, options=None):
                 # 2. 执行OCR获取文本
                 if use_ocr:
                     print(f"对第 {page_num + 1} 页执行OCR")
-                    ocr_text = _perform_ocr(original_image, lang=ocr_lang)
+                    # 使用新的 OCR 引擎，默认模式
+                    ocr_text = perform_ocr(original_image, lang=ocr_lang)
                     print(f"OCR识别结果长度: {len(ocr_text)} 字符")
                     
                     if ocr_text.strip():
