@@ -7,6 +7,7 @@ const ConversionPage = ({ conversionType }) => {
   const [url, setUrl] = useState('');
   const [markdownText, setMarkdownText] = useState('');
   const [htmlPreview, setHtmlPreview] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [theme, setTheme] = useState('default');
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState('');
@@ -52,6 +53,7 @@ const ConversionPage = ({ conversionType }) => {
       return;
     }
     
+    setIsPreviewLoading(true);
     try {
       // 使用临时文件创建一个Blob对象
       const tempFile = new Blob([text], { type: 'text/markdown' });
@@ -63,7 +65,10 @@ const ConversionPage = ({ conversionType }) => {
       const response = await axios.post('/api/convert/markdown-to-html', formData);
       setHtmlPreview(response.data);
     } catch (err) {
+      console.error('预览失败:', err);
       // 实时预览失败时，不显示错误，保持现有预览
+    } finally {
+      setIsPreviewLoading(false);
     }
   };
 
@@ -293,6 +298,8 @@ const ConversionPage = ({ conversionType }) => {
                 <option value="modern">现代模式</option>
                 <option value="book">书籍模式</option>
                 <option value="docs">文档模式</option>
+                <option value="tech_blue">科技蓝</option>
+                <option value="dark_mode">暗黑模式</option>
               </select>
             </div>
             <div className="markdown-editor-section">
@@ -313,6 +320,7 @@ const ConversionPage = ({ conversionType }) => {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
+                            setSelectedFile(file); // 保存文件对象以便获取文件名
                             const reader = new FileReader();
                             reader.onload = (event) => {
                               const content = event.target.result;
@@ -322,6 +330,8 @@ const ConversionPage = ({ conversionType }) => {
                             };
                             reader.readAsText(file);
                           }
+                          // 清空input值，允许重复上传同一文件
+                          e.target.value = null;
                         }}
                       />
                     </button>
@@ -356,11 +366,23 @@ const ConversionPage = ({ conversionType }) => {
                     <button 
                       className="download-btn"
                       onClick={() => {
+                        let filename = 'preview.html';
+                        if (selectedFile) {
+                          // 如果有上传的文件，使用文件名
+                          filename = selectedFile.name.replace(/\.[^/.]+$/, '.html');
+                        } else {
+                          // 尝试从Markdown内容中提取一级标题
+                          const match = markdownText.match(/^#\s+(.+)$/m);
+                          if (match) {
+                            filename = match[1].trim() + '.html';
+                          }
+                        }
+
                         const blob = new Blob([htmlPreview], { type: 'text/html' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = 'preview.html';
+                        a.download = filename;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -371,10 +393,25 @@ const ConversionPage = ({ conversionType }) => {
                     </button>
                   </div>
                 </div>
-                <div 
-                  className="html-preview"
-                  dangerouslySetInnerHTML={{ __html: htmlPreview }}
-                ></div>
+                <div className="preview-content">
+                  {isPreviewLoading ? (
+                    <div className="preview-placeholder">
+                      <div className="loading-spinner"></div>
+                      正在生成预览...
+                    </div>
+                  ) : htmlPreview ? (
+                    <iframe
+                      title="HTML Preview"
+                      srcDoc={htmlPreview}
+                      className="html-preview-iframe"
+                      sandbox="allow-scripts"
+                    />
+                  ) : (
+                    <div className="preview-placeholder">
+                      预览区域
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             {error && <div className="error-message">{error}</div>}

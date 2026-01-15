@@ -619,16 +619,20 @@ class WebToDocxConverter:
                 
                 session = requests.Session()
                 retry = Retry(
-                    total=2,  # 总共重试2次
-                    backoff_factor=0.1,  # 重试间隔时间系数
-                    status_forcelist=[429, 500, 502, 503, 504],  # 哪些状态码需要重试
-                    allowed_methods=["HEAD", "GET", "OPTIONS"]  # 哪些HTTP方法需要重试
+                    total=3,  # 增加重试次数
+                    backoff_factor=0.2,
+                    status_forcelist=[429, 500, 502, 503, 504],
+                    allowed_methods=["HEAD", "GET", "OPTIONS"]
                 )
                 adapter = HTTPAdapter(max_retries=retry)
                 session.mount("http://", adapter)
                 session.mount("https://", adapter)
                 
-                response = session.get(final_img_url, headers=self.headers, timeout=5)  # 缩短超时时间到5秒
+                # 添加Referer头，防止防盗链
+                headers = self.headers.copy()
+                headers['Referer'] = self.url
+                
+                response = session.get(final_img_url, headers=headers, timeout=10)  # 增加超时时间
                 response.raise_for_status()
 
                 # 保存图片
@@ -643,8 +647,8 @@ class WebToDocxConverter:
             return img_path
         except Exception as e:
             print(f"图片下载/复制失败: {img_url}, 错误: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            # import traceback
+            # traceback.print_exc()
             return None
 
     def _download_all_images(self):
@@ -1089,6 +1093,7 @@ class WebToDocxConverter:
                 
                 # 检查多种匹配方式
                 if (img_url == img_info['url'] or 
+                    img_url == img_info.get('final_url') or 
                     img_url in img_info['url'] or 
                     img_info['url'] in img_url or
                     # 忽略查询参数的匹配
@@ -1300,7 +1305,7 @@ class WebToDocxConverter:
         """
         import time
         start_time = time.time()
-        max_execution_time = 60  # 最大执行时间限制为60秒
+        max_execution_time = 120  # 最大执行时间限制为120秒
         
         print("[DEBUG] 开始执行转换过程")
         print(f"[DEBUG] 最大执行时间: {max_execution_time} 秒")

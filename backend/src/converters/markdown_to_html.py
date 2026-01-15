@@ -413,38 +413,45 @@ STYLES = {
         "name": "文档模式",
         "css": """
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 16px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            color: #24292f;
             background-color: #ffffff;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
         }
         h1, h2, h3, h4, h5, h6 {
-            color: #ff7800;
-            margin-top: 1.8em;
-            margin-bottom: 0.8em;
+            margin-top: 24px;
+            margin-bottom: 16px;
             font-weight: 600;
+            line-height: 1.25;
+            color: #24292f;
         }
         h1 {
-            font-size: 2.2em;
-            border-bottom: 1px solid #e5e5e5;
+            font-size: 2em;
             padding-bottom: 0.3em;
+            border-bottom: 1px solid #d0d7de;
         }
         h2 {
-            font-size: 1.8em;
-            margin-top: 2em;
+            font-size: 1.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #d0d7de;
         }
         h3 {
-            font-size: 1.5em;
+            font-size: 1.25em;
+        }
+        h4 {
+            font-size: 1em;
         }
         p {
-            margin: 1em 0;
-            text-align: left;
+            margin-top: 0;
+            margin-bottom: 16px;
         }
         a {
-            color: #0066cc;
+            color: #0969da;
             text-decoration: none;
         }
         a:hover {
@@ -452,48 +459,212 @@ STYLES = {
         }
         ul, ol {
             padding-left: 2em;
-            margin: 1em 0;
-        }
-        li {
-            margin: 0.6em 0;
-            text-align: left;
-        }
-        ul li {
-            list-style-type: disc;
-        }
-        ol li {
-            list-style-type: decimal;
+            margin-top: 0;
+            margin-bottom: 16px;
         }
         code {
-            background-color: #f5f5f5;
             padding: 0.2em 0.4em;
-            border-radius: 3px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9em;
+            margin: 0;
+            font-size: 85%;
+            background-color: #afb8c133;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
         }
         pre {
-            background-color: #f5f5f5;
-            padding: 1em;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 1.5em 0;
-            border: 1px solid #e5e5e5;
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            margin-bottom: 16px;
         }
         pre code {
             padding: 0;
             background-color: transparent;
         }
         blockquote {
-            border-left: 3px solid #ff7800;
-            padding-left: 1em;
-            margin: 1em 0;
-            color: #666;
+            padding: 0 1em;
+            color: #57606a;
+            border-left: 0.25em solid #d0d7de;
+            margin: 0 0 16px 0;
+        }
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            display: block;
+            width: max-content;
+            max-width: 100%;
+            overflow: auto;
+            margin-bottom: 16px;
+        }
+        tr {
+            background-color: #ffffff;
+            border-top: 1px solid #d8dee4;
+        }
+        tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+        th, td {
+            padding: 6px 13px;
+            border: 1px solid #d0d7de;
+        }
+        th {
+            font-weight: 600;
         }
         img {
             max-width: 100%;
-            height: auto;
-            display: block;
+            box-sizing: content-box;
+            background-color: #ffffff;
+        }
+        hr {
+            height: 0.25em;
+            padding: 0;
+            margin: 24px 0;
+            background-color: #d0d7de;
+            border: 0;
+        }
+        """
+    },
+    "tech_blue": {
+        "name": "科技蓝",
+        "css": """
+        body {
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #f0f4f8;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #0d47a1;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+        h1 {
+            font-size: 2.2em;
+            border-bottom: 2px solid #0d47a1;
+            padding-bottom: 0.3em;
+        }
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid #bbdefb;
+            padding-bottom: 0.3em;
+        }
+        a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #263238;
+            color: #eceff1;
+            padding: 1.2em;
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        blockquote {
+            border-left: 4px solid #1976d2;
+            padding-left: 1em;
+            background-color: #e3f2fd;
+            padding: 1em;
+            border-radius: 0 4px 4px 0;
+            color: #546e7a;
             margin: 1.5em 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5em 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background-color: white;
+        }
+        th {
+            background-color: #1976d2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 12px;
+        }
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+        """
+    },
+    "dark_mode": {
+        "name": "暗黑模式",
+        "css": """
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #1e1e1e;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #90caf9;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        h1 {
+            border-bottom: 1px solid #424242;
+            padding-bottom: 0.3em;
+        }
+        a {
+            color: #64b5f6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: #333;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #ffcc80;
+        }
+        pre {
+            background-color: #121212;
+            padding: 1.2em;
+            border-radius: 8px;
+            border: 1px solid #333;
+            overflow-x: auto;
+        }
+        blockquote {
+            border-left: 4px solid #64b5f6;
+            padding-left: 1em;
+            color: #bdbdbd;
+            background-color: #263238;
+            padding: 1em;
+            border-radius: 4px;
         }
         table {
             border-collapse: collapse;
@@ -501,16 +672,14 @@ STYLES = {
             margin: 1.5em 0;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #424242;
             padding: 10px;
-            text-align: left;
         }
         th {
-            background-color: #fafafa;
-            font-weight: 600;
+            background-color: #333;
         }
         tr:nth-child(even) {
-            background-color: #fafafa;
+            background-color: #2c2c2c;
         }
         """
     }

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 1. 背景：标准蓝色圆角矩形 -->
+  <rect x="0" y="0" width="64" height="64" rx="12" fill="#3B82F6" />
+
+  <!-- 2. 文档主体：白色，简洁大方，居中 -->
+  <path d="M16 12 h24 l12 12 v28 h-36 z" fill="#FFFFFF" />
+  
+  <!-- 3. 折角：淡蓝色 -->
+  <path d="M40 12 v12 h12" fill="#BFDBFE" />
+
+  <!-- 4. 转换符号：居中，蓝色，极简 -->
+  <g transform="translate(34, 36)" fill="#2563EB">
+    <!-- 两个相互追逐的箭头 -->
+    <path d="M0 -6 A 6 6 0 0 1 6 0 L 10 0 L 5 5 L 0 0 L 4 0 A 4 4 0 0 0 0 -4 Z" />
+    <path d="M0 6 A 6 6 0 0 1 -6 0 L -10 0 L -5 -5 L 0 0 L -4 0 A 4 4 0 0 0 0 4 Z" />
+  </g>
+</svg>

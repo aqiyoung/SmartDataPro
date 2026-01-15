@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -116,16 +116,9 @@ async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style:
         
         print(f"转换成功，完整HTML文件长度: {len(full_html_content)}字节")
         
-        # 对于实时预览，只返回HTML内容，不返回完整的HTML文件
-        # 从完整HTML文件中提取body标签内的内容
-        import re
-        body_match = re.search(r'<body>(.*?)</body>', full_html_content, re.DOTALL)
-        if body_match:
-            html_content = body_match.group(1)
-            print(f"提取的HTML内容长度: {len(html_content)}字节")
-        else:
-            html_content = full_html_content
-            print("无法提取body内容，返回完整HTML文件")
+        # 对于实时预览，直接返回完整的HTML文件，以便前端使用iframe渲染，保证样式一致
+        html_content = full_html_content
+        print(f"返回完整HTML内容长度: {len(html_content)}字节")
         
         # 转换成功，清理所有临时文件
         if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
