@@ -4,7 +4,7 @@ const HomePage = () => {
   // 转换类型选项，与原App.jsx中的conversionOptions保持一致
   const conversionOptions = [
     { value: 'word-to-md', label: 'Word 转 Markdown', icon: '📄', description: '将Word文档转换为简洁的Markdown格式，保留原始排版结构' },
-    { value: 'md-to-html', label: 'Markdown 转 HTML', icon: '📝', description: '将Markdown文本转换为精美的HTML页面，支持多种样式主题' },
+    { value: 'md-to-html', label: 'Markdown 编辑器', icon: '📝', description: '功能强大的Markdown编辑器，支持实时预览、样式定制和多格式导出' },
     { value: 'web-to-docx', label: '网页转 Word', icon: '🌐', description: '将网页内容转换为Word文档，支持普通网页和微信公众号文章' },
     { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
     { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
@@ -21,6 +21,11 @@ const HomePage = () => {
 
   // 处理转换选项点击
   const handleConversionClick = (conversionType) => {
+    // 特殊处理Markdown编辑器
+    if (conversionType === 'md-to-html') {
+      window.location.pathname = '/markdown-editor';
+      return;
+    }
     // 使用普通路由跳转
     window.location.pathname = `/convert/${conversionType}`;
   };

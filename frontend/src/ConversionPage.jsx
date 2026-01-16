@@ -13,21 +13,6 @@ const ConversionPage = ({ conversionType }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 转换类型选项
-  const conversionOptions = [
-    { value: 'word-to-md', label: 'Word 转 Markdown', icon: '📄' },
-    { value: 'md-to-html', label: 'Markdown 转 HTML', icon: '📝' },
-    { value: 'web-to-docx', label: '网页转 Word', icon: '🌐' },
-    { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄' },
-    { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄' },
-  ];
-
-  // 处理转换类型变化
-  const handleConversionTypeChange = (e) => {
-    window.location.href = `/convert/${e.target.value}`;
-    resetForm();
-  };
-
   // 处理文件选择
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -248,7 +233,10 @@ const ConversionPage = ({ conversionType }) => {
     switch (conversionType) {
       case 'word-to-md':
         return (
-          <div className="conversion-card">
+          <div className="conversion-card" style={{ position: 'relative' }}>
+            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+              🏠 返回首页
+            </button>
             <h3>Word 转 Markdown</h3>
             <p>将Word文档转换为简洁的Markdown格式，保留原始排版结构</p>
             <div className="file-upload-section">
@@ -287,7 +275,10 @@ const ConversionPage = ({ conversionType }) => {
       
       case 'md-to-html':
         return (
-          <div className="conversion-card">
+          <div className="conversion-card" style={{ position: 'relative' }}>
+            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+              🏠 返回首页
+            </button>
             <h3>Markdown 转 HTML</h3>
             <p>将Markdown文本转换为精美的HTML页面，支持多种样式主题</p>
             <div className="theme-selector">
@@ -300,6 +291,9 @@ const ConversionPage = ({ conversionType }) => {
                 <option value="docs">文档模式</option>
                 <option value="tech_blue">科技蓝</option>
                 <option value="dark_mode">暗黑模式</option>
+                <option value="wechat">微信公众号</option>
+                <option value="github">GitHub 风格</option>
+                <option value="neurapress">NeuraPress</option>
               </select>
             </div>
             <div className="markdown-editor-section">
@@ -351,14 +345,37 @@ const ConversionPage = ({ conversionType }) => {
                     <button 
                       className="copy-btn"
                       onClick={() => {
-                        navigator.clipboard.writeText(htmlPreview)
-                          .then(() => {
-                            alert('HTML内容已复制到剪贴板');
-                          })
-                          .catch(err => {
+                        const iframe = document.querySelector('.html-preview-iframe');
+                        if (iframe && iframe.contentDocument) {
+                          try {
+                            const doc = iframe.contentDocument;
+                            const selection = iframe.contentWindow.getSelection();
+                            const range = doc.createRange();
+                            range.selectNodeContents(doc.body);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            
+                            const successful = doc.execCommand('copy');
+                            selection.removeAllRanges();
+                            
+                            if (successful) {
+                              alert('已复制渲染后的内容到剪贴板，可直接到公众号后台粘贴');
+                            } else {
+                              throw new Error('复制命令执行失败');
+                            }
+                          } catch (err) {
                             console.error('复制失败:', err);
-                            alert('复制失败，请手动复制');
-                          });
+                            // 降级方案：复制源代码
+                            navigator.clipboard.writeText(htmlPreview)
+                              .then(() => alert('已复制HTML源代码（渲染复制失败）'))
+                              .catch(() => alert('复制失败，请手动复制'));
+                          }
+                        } else {
+                          // 没有iframe时的降级方案
+                          navigator.clipboard.writeText(htmlPreview)
+                            .then(() => alert('HTML内容已复制到剪贴板'))
+                            .catch(err => console.error('复制失败:', err));
+                        }
                       }}
                     >
                       复制
@@ -404,7 +421,7 @@ const ConversionPage = ({ conversionType }) => {
                       title="HTML Preview"
                       srcDoc={htmlPreview}
                       className="html-preview-iframe"
-                      sandbox="allow-scripts"
+                      sandbox="allow-scripts allow-same-origin"
                     />
                   ) : (
                     <div className="preview-placeholder">
@@ -437,7 +454,10 @@ const ConversionPage = ({ conversionType }) => {
       
       case 'web-to-docx':
         return (
-          <div className="conversion-card">
+          <div className="conversion-card" style={{ position: 'relative' }}>
+            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+              🏠 返回首页
+            </button>
             <h3>网页转 Word</h3>
             <p>将网页内容转换为Word文档，支持普通网页和微信公众号文章</p>
             <div className="url-input-section">
@@ -471,7 +491,10 @@ const ConversionPage = ({ conversionType }) => {
       
       case 'pdf-to-word':
         return (
-          <div className="conversion-card">
+          <div className="conversion-card" style={{ position: 'relative' }}>
+            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+              🏠 返回首页
+            </button>
             <h3>PDF 转 Word</h3>
             <p>将PDF文档转换为Word文档，保留原始排版结构</p>
             <div className="file-upload-section">
@@ -510,7 +533,10 @@ const ConversionPage = ({ conversionType }) => {
       
       case 'word-to-pdf':
         return (
-          <div className="conversion-card">
+          <div className="conversion-card" style={{ position: 'relative' }}>
+            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+              🏠 返回首页
+            </button>
             <h3>Word 转 PDF</h3>
             <p>将Word文档转换为PDF文档，保留原始排版结构</p>
             <div className="file-upload-section">
@@ -593,24 +619,6 @@ const ConversionPage = ({ conversionType }) => {
     <div className="app-container">
       <main className="app-main">
         {/* 转换功能区域 - 主要内容 */}
-        <div className="conversion-selector">
-          <div className="conversion-controls">
-            <button className="back-home-btn" onClick={goToHomePage}>
-              🏠 返回首页
-            </button>
-            <div className="conversion-type-container">
-              <label>选择转换类型:</label>
-              <select value={conversionType} onChange={handleConversionTypeChange}>
-                {conversionOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.icon} {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-        
         {renderConversionInterface()}
         
         {/* 功能特性部分 - 辅助内容 */}

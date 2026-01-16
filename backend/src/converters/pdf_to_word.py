@@ -13,6 +13,7 @@ from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pytesseract
 from PIL import Image
+
 import numpy as np
 from io import BytesIO
 from ..utils.ocr_engine import perform_ocr, check_environment

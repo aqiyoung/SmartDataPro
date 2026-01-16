@@ -9,13 +9,14 @@ from src.converters import (
     convert_markdown_to_html, 
     convert_web_to_docx, 
     convert_word_to_pdf, 
-    convert_pdf_to_word
+    convert_pdf_to_word,
+    convert_markdown_to_docx
 )
 
 app = FastAPI(
     title="统一文档转换工具API",
     description="提供文档格式转换服务，支持多种格式转换",
-    version="1.3.1"
+    version="2.0.0"
 )
 
 # 添加CORS中间件
@@ -139,6 +140,58 @@ async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+
+@app.post("/api/convert/markdown-to-docx")
+async def convert_markdown_to_docx_endpoint(file: UploadFile = File(...), style: str = Form("default")):
+    """将Markdown文件转换为Word"""
+    try:
+        # 保存上传的文件到临时目录
+        file_name = file.filename if file.filename else 'temp.md'
+        
+        # 确保文件有正确的扩展名
+        if not file_name.endswith(('.md', '.markdown', '.txt')):
+            file_name = file_name + '.md'
+        
+        temp_file_path = os.path.join(TEMP_DIR, file_name)
+        with open(temp_file_path, "wb") as f:
+            content = await file.read()
+            f.write(content)
+        
+        # 执行转换
+        options = {"style": style, "output_dir": TEMP_DIR}
+        result = convert_markdown_to_docx(temp_file_path, options=options)
+        
+        if not result["success"]:
+            raise Exception(result.get("message", "转换失败"))
+            
+        output_file = result["output_file"]
+        
+        # 检查文件是否存在
+        if not os.path.exists(output_file):
+            raise HTTPException(status_code=500, detail="转换失败: 生成的文件不存在")
+        
+        # 转换成功，清理上传的临时文件
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        
+        # 返回转换后的文件
+        return FileResponse(
+            path=output_file,
+            filename=os.path.basename(output_file),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+    except Exception as e:
+        # 如果发生错误，清理所有文件
+        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        if 'output_file' in locals() and os.path.exists(output_file):
+            os.remove(output_file)
+        # 打印错误信息
+        print(f"Markdown转Word失败: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+
 
 @app.post("/api/convert/web-to-docx")
 async def convert_web_to_docx_endpoint(url: str = Form(...)):

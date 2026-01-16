@@ -13,3 +13,5 @@ pypdf
 urllib3
 pytesseract
 Pillow
+pymdown-extensions
+Pygments

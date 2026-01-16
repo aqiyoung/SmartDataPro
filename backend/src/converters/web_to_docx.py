@@ -137,8 +137,32 @@ class WebToDocxConverter:
             return ""
         
         import re
+        # 移除所有HTML标签，但保留style标签内容
+        import re
+        
+        # 提取所有style标签内容
+        styles_text = ""
+        if self.soup:
+            style_tags = self.soup.find_all("style")
+            for style in style_tags:
+                styles_text += style.get_text() + "\n"
+        
+        # 移除style标签
+        if self.soup:
+            for tag in self.soup.find_all("style"):
+                tag.decompose()
+                
         # 移除所有HTML标签
         text = re.sub(r'<[^>]+>', '', text)
+        
+        # 再次强力清理可能残留的CSS代码
+        # 移除CSS样式块，如 body { ... } 或 .class { ... }
+        text = re.sub(r'[^{}]+\{[^}]+\}', '', text)
+        # 移除独立的CSS属性行，如 font-size: 12px;
+        text = re.sub(r'[\w-]+\s*:\s*[^;]+;', '', text)
+        # 移除残留的CSS选择器和花括号
+        text = re.sub(r'[\w\.-]+\s*\{', '', text)
+        text = re.sub(r'\}', '', text)
         # 移除所有 \xXX 转义字符
         text = re.sub(r'\\x[0-9a-fA-F]{2}', '', text)
         # 移除所有 \uXXXX 转义字符
@@ -985,46 +1009,67 @@ class WebToDocxConverter:
                             continue
                     elif child.name == "pre":
                         try:
-                            code_content = child.get_text(separator="\n")
+                            # 检查pre中是否有code标签
+                            code_element = child.find("code")
+                            if code_element:
+                                # 如果有code标签，获取code的内容
+                                code_content = code_element.get_text(separator="\n")
+                            else:
+                                # 否则直接获取pre的内容
+                                code_content = child.get_text(separator="\n")
+                            
                             # 清理文本，保留换行符和所有格式，标记为代码块
                             code_content = self._clean_text(code_content, preserve_newlines=True, is_code=True)
+                            
                             if code_content:
                                 # 创建一个新的段落，直接添加代码内容
                                 code_para = self.doc.add_paragraph(code_content)
                                 # 设置代码字体
                                 for run in code_para.runs:
                                     run.font.name = "Courier New"
-                                    run.font.size = Pt(11)
+                                    run.font.size = Pt(10.5)
                                 # 设置段落样式，保持代码块的原样
                                 code_para.space_before = Pt(6)
                                 code_para.space_after = Pt(6)
-                                code_para.left_indent = Inches(0.25)
-                                code_para.right_indent = Inches(0.25)
-                                code_para.first_line_indent = Inches(0)
+                                
+                                # 添加灰色背景和边框效果（通过缩进模拟引用块的感觉，Word API对背景色支持有限）
+                                code_para.left_indent = Inches(0.2)
+                                code_para.right_indent = Inches(0.2)
+                                
                                 # 设置段落对齐方式
                                 code_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        except Exception:
+                        except Exception as e:
+                            print(f"[DEBUG] 处理pre代码块出错: {e}")
                             continue
                     elif child.name == "code":
+                        # 行内代码或独立代码块
                         try:
                             code_content = child.get_text(separator="\n")
-                            # 清理文本，保留换行符，标记为代码块
+                            # 检查是否在pre标签内，如果是则跳过（由pre处理）
+                            if child.parent and child.parent.name == "pre":
+                                continue
+                                
+                            # 清理文本
                             code_content = self._clean_text(code_content, preserve_newlines=True, is_code=True)
+                            
                             if code_content:
-                                # 创建一个新的段落，直接添加代码内容
-                                code_para = self.doc.add_paragraph(code_content)
-                                # 设置代码字体
-                                for run in code_para.runs:
-                                    run.font.name = "Courier New"
-                                    run.font.size = Pt(11)
-                                # 设置段落样式，保持代码块的原样
-                                code_para.space_before = Pt(0)
-                                code_para.space_after = Pt(0)
-                                code_para.left_indent = Inches(0)
-                                code_para.right_indent = Inches(0)
-                                code_para.first_line_indent = Inches(0)
-                                # 设置段落对齐方式
-                                code_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                                # 这里的逻辑稍微复杂，如果是行内代码，应该追加到上一个段落
+                                # 但由于docx架构限制，这里简化处理：如果是独立存在的code，作为新段落
+                                # 如果是行内code，通常在p标签处理逻辑中会被作为文本提取出来
+                                
+                                # 判断是否包含换行符，如果有，视为代码块
+                                if "\n" in code_content:
+                                    code_para = self.doc.add_paragraph(code_content)
+                                    for run in code_para.runs:
+                                        run.font.name = "Courier New"
+                                        run.font.size = Pt(10.5)
+                                    code_para.left_indent = Inches(0.2)
+                                else:
+                                    # 行内代码，简单添加为段落（不完美，但能用）
+                                    # 理想情况是在process_block_element中处理混合内容
+                                    p = self.doc.add_paragraph(code_content)
+                                    for run in p.runs:
+                                        run.font.name = "Courier New"
                         except Exception:
                             continue
                     else:

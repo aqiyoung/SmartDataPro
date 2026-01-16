@@ -409,6 +409,430 @@ STYLES = {
         }
         """
     },
+    "wechat": {
+        "name": "微信公众号",
+        "css": """
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            text-align: justify;
+        }
+        h1, h2, h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        h1 { font-size: 22px; border-bottom: 2px solid #07c160; padding-bottom: 10px; text-align: center; }
+        h2 { font-size: 18px; border-left: 4px solid #07c160; padding-left: 10px; margin-top: 2em; }
+        h3 { font-size: 16px; color: #07c160; font-weight: bold; }
+        p { margin-bottom: 1.2em; letter-spacing: 0.05em; text-align: justify; }
+        a { color: #576b95; text-decoration: none; border-bottom: 1px dashed #576b95; }
+        blockquote {
+            border-left: 4px solid #07c160;
+            background-color: #f8f8f8;
+            padding: 15px;
+            margin: 1.5em 0;
+            color: #555;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        ul, ol { padding-left: 20px; margin-bottom: 1.5em; }
+        li { margin-bottom: 0.5em; }
+        img { max-width: 100%; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 10px auto; display: block; }
+        
+        /* 代码块样式 - 仿 Mac 风格 */
+        pre {
+            background: #f8f8f8;
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin: 1.5em 0;
+            font-family: "Fira Code", Consolas, monospace;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        pre::before {
+            content: " ";
+            display: block;
+            height: 12px;
+            width: 12px;
+            background: #ff5f56;
+            border-radius: 50%;
+            box-shadow: 20px 0 #ffbd2e, 40px 0 #27c93f;
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #d63200;
+            font-size: 14px;
+            font-family: Consolas, monospace;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 13px;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        /* 任务列表 */
+        .task-list-item { list-style-type: none; }
+        .task-list-item-checkbox { margin-right: 5px; }
+        
+        /* 细节折叠 */
+        details {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 0.5em 0.5em 0;
+            margin-bottom: 1em;
+        }
+        summary {
+            font-weight: bold;
+            margin: -0.5em -0.5em 0;
+            padding: 0.5em;
+            cursor: pointer;
+            background-color: #f8f8f8;
+        }
+        details[open] { padding: 0.5em; }
+        details[open] summary { border-bottom: 1px solid #eee; margin-bottom: 0.5em; }
+        """
+    },
+    "github": {
+        "name": "GitHub 风格",
+        "css": """
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 16px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            color: #24292f;
+            background-color: #ffffff;
+            max-width: 1012px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+            color: #24292f;
+        }
+        h1 {
+            font-size: 2em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #d0d7de;
+        }
+        h2 {
+            font-size: 1.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #d0d7de;
+        }
+        h3 {
+            font-size: 1.25em;
+        }
+        h4 {
+            font-size: 1em;
+        }
+        h5 {
+            font-size: 0.875em;
+        }
+        h6 {
+            font-size: 0.85em;
+            color: #57606a;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        a {
+            color: #0969da;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        strong {
+            font-weight: 600;
+        }
+        hr {
+            height: 0.25em;
+            padding: 0;
+            margin: 24px 0;
+            background-color: #d0d7de;
+            border: 0;
+        }
+        blockquote {
+            padding: 0 1em;
+            color: #57606a;
+            border-left: 0.25em solid #d0d7de;
+            margin: 0 0 16px 0;
+        }
+        ul, ol {
+            padding-left: 2em;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        li {
+            word-wrap: break-all;
+        }
+        li > p {
+            margin-top: 16px;
+        }
+        li + li {
+            margin-top: 0.25em;
+        }
+        dl {
+            padding: 0;
+        }
+        dl dt {
+            padding: 0;
+            margin-top: 16px;
+            font-size: 1em;
+            font-style: italic;
+            font-weight: 600;
+        }
+        dl dd {
+            padding: 0 16px;
+            margin-bottom: 16px;
+        }
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            display: block;
+            width: max-content;
+            max-width: 100%;
+            overflow: auto;
+            margin-bottom: 16px;
+        }
+        tr {
+            background-color: #ffffff;
+            border-top: 1px solid #d8dee4;
+        }
+        tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+        th, td {
+            padding: 6px 13px;
+            border: 1px solid #d0d7de;
+        }
+        th {
+            font-weight: 600;
+        }
+        img {
+            max-width: 100%;
+            box-sizing: content-box;
+            background-color: #ffffff;
+        }
+        code {
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            white-space: break-spaces;
+            background-color: #afb8c133;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+        }
+        pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        pre code {
+            padding: 0;
+            background-color: transparent;
+            white-space: pre;
+            word-break: normal;
+        }
+        .highlight {
+            margin-bottom: 16px;
+        }
+        .highlight pre {
+            margin-bottom: 0;
+            word-break: normal;
+        }
+        """
+    },
+    "neurapress": {
+        "name": "NeuraPress",
+        "css": """
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.75;
+            color: #3f3f3f;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            text-align: justify;
+        }
+        
+        /* 标题样式 */
+        h1, h2, h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-weight: bold;
+            color: #00b96b;
+        }
+        h1 { 
+            font-size: 20px; 
+            text-align: center;
+            border-bottom: 2px solid #00b96b;
+            padding-bottom: 8px;
+            display: table;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h2 { 
+            font-size: 17px;
+            border-left: 4px solid #00b96b;
+            padding-left: 10px;
+        }
+        h3 { 
+            font-size: 16px;
+        }
+        
+        /* 正文样式 */
+        p { 
+            margin-bottom: 1.2em; 
+            letter-spacing: 0.05em; 
+            text-align: justify; 
+        }
+        
+        /* 链接样式 */
+        a { 
+            color: #00b96b; 
+            text-decoration: none; 
+            border-bottom: 1px solid #00b96b; 
+        }
+        
+        /* 引用块样式 */
+        blockquote {
+            border-left: 4px solid #00b96b;
+            background-color: #f6fbf9;
+            padding: 12px 15px;
+            margin: 1.5em 0;
+            color: #555;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        
+        /* 列表样式 */
+        ul, ol { 
+            padding-left: 20px; 
+            margin-bottom: 1.5em; 
+        }
+        li { 
+            margin-bottom: 0.5em; 
+        }
+        
+        /* 图片样式 */
+        img { 
+            max-width: 100%; 
+            border-radius: 6px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+            margin: 15px auto; 
+            display: block; 
+        }
+        
+        /* 代码块样式 - 浅色背景 */
+        pre {
+            background: #f8f8f8;
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin: 1.5em 0;
+            font-family: "Fira Code", Consolas, monospace;
+            line-height: 1.5;
+            border: 1px solid #eee;
+        }
+        
+        /* 行内代码样式 */
+        code {
+            background-color: #fff5f5;
+            color: #ff502c;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: Consolas, monospace;
+            margin: 0 2px;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 13px;
+            margin: 0;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f6fbf9;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            color: #00b96b;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            color: #555;
+        }
+        tr:nth-child(even) { 
+            background-color: #fcfcfc; 
+        }
+        
+        /* 强调文本 */
+        strong {
+            color: #00b96b;
+            font-weight: bold;
+        }
+        """
+    },
     "docs": {
         "name": "文档模式",
         "css": """
@@ -686,7 +1110,7 @@ STYLES = {
 }
 
 # 生成完整的HTML文件内容
-def generate_html_file(html_content, title="Markdown to HTML", style="default"):
+def generate_html_file(html_content, title="Markdown to HTML", style="default", use_inline_styles=False):
     # 获取选择的样式
     selected_style = STYLES.get(style, STYLES["default"])
     css = selected_style["css"]
@@ -694,6 +1118,9 @@ def generate_html_file(html_content, title="Markdown to HTML", style="default"):
     # 现代模式需要特殊处理，添加content容器
     if style == "modern":
         html_content = f'<div class="content">{html_content}</div>'
+    
+    # 如果需要内联样式（用于Word转换），则不使用style标签，而是尝试内联（这里简化处理，仍然保留style标签，因为WebToDocxConverter会处理）
+    # 但为了更好的Word兼容性，我们可以移除一些不必要的容器和复杂选择器
     
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -735,10 +1162,38 @@ def extract_title_from_markdown(markdown_content):
 def markdown_content_to_html(markdown_content):
     try:
         import markdown
-        # 使用Python markdown库进行转换
-        return markdown.markdown(markdown_content, extensions=["fenced_code", "tables"])
+        # 使用 pymdown-extensions 扩展
+        extensions = [
+            "markdown.extensions.extra",
+            "markdown.extensions.codehilite",
+            "markdown.extensions.toc",
+            "markdown.extensions.admonition",
+            "pymdownx.magiclink",
+            "pymdownx.betterem",
+            "pymdownx.tilde",
+            "pymdownx.emoji",
+            "pymdownx.tasklist",
+            "pymdownx.superfences",
+            "pymdownx.details",
+            "pymdownx.tabbed",
+            "pymdownx.mark",
+        ]
+        extension_configs = {
+            "markdown.extensions.codehilite": {
+                "css_class": "highlight",
+                "linenums": False,
+                "use_pygments": True
+            }
+        }
+        return markdown.markdown(markdown_content, extensions=extensions, extension_configs=extension_configs)
     except Exception as e:
-        raise Exception(f"Markdown转换为HTML错误: {e}")
+        # 如果扩展加载失败，回退到基础模式
+        print(f"高级Markdown扩展加载失败，回退到基础模式: {e}")
+        try:
+            import markdown
+            return markdown.markdown(markdown_content, extensions=["fenced_code", "tables"])
+        except Exception as e2:
+            raise Exception(f"Markdown转换为HTML错误: {e2}")
 
 
 # 写入HTML文件
@@ -817,7 +1272,8 @@ def convert_markdown_to_html(input_file, output_file=None, options=None):
     else:
         title = options.get("title", os.path.splitext(os.path.basename(input_file))[0])
     style = options.get("style", "default")
-    full_html_content = generate_html_file(html_content, title, style)
+    use_inline_styles = options.get("use_inline_styles", False)
+    full_html_content = generate_html_file(html_content, title, style, use_inline_styles)
 
     # 写入文件
     write_html_file(full_html_content, output_file)

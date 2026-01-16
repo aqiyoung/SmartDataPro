@@ -154,22 +154,14 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
             # 处理.docx格式文件
             word_doc = Document(input_file)
             
-            # 1. 首先提取所有图片及其关系
-            image_rels = {}
-            for rel_id, rel in word_doc.part.rels.items():
-                if rel.reltype == RT.IMAGE:
-                    try:
-                        image_data = rel.target_part.blob
-                        content_type = rel.target_part.content_type
-                        image_rels[rel_id] = {
-                            'data': image_data,
-                            'content_type': content_type
-                        }
-                    except Exception as e:
-                        print(f"提取图片关系失败: {str(e)}")
-            
-            total_images = len(image_rels)
-            print(f"提取到 {total_images} 张图片关系")
+            # 定义命名空间
+            nsmap = {
+                'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+                'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                'wp': 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+                'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
+                'v': 'urn:schemas-microsoft-com:vml'
+            }
             
             # 2. 遍历所有文档元素
             for element in word_doc.element.body:
@@ -208,56 +200,87 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                             story.append(p)
                             story.append(Spacer(1, 0.1 * inch))
                         
-                        # 3. 检查段落中是否有图片
-                        has_image = False
-                        p_element = paragraph._element
-                        
-                        # 检查段落是否包含图片元素
-                        for child in p_element.iter():
-                            tag = child.tag
-                            if 'drawing' in tag.lower() or 'pict' in tag.lower() or 'inline' in tag.lower():
-                                has_image = True
-                                break
-                        
-                        # 处理段落中的图片
-                        if has_image and image_rels:
-                            try:
-                                # 获取第一张未处理的图片
-                                rel_id, img_info = next(iter(image_rels.items()))
-                                img_data = img_info['data']
-                                img_stream = BytesIO(img_data)
-                                img = Image(img_stream)
-                                
-                                # 计算合适的图片大小，保持比例
-                                max_width = 5.0 * inch
-                                if img.drawWidth > max_width:
-                                    scale = max_width / img.drawWidth
-                                    img.drawWidth = max_width
-                                    img.drawHeight = img.drawHeight * scale
-                                
-                                # 确保图片高度不超过页面高度
-                                max_height = 8.0 * inch
-                                if img.drawHeight > max_height:
-                                    scale = max_height / img.drawHeight
-                                    img.drawWidth = img.drawWidth * scale
-                                    img.drawHeight = max_height
-                                
-                                # 添加图片到PDF
-                                story.append(img)
-                                
-                                # 如果启用了OCR，对图片执行OCR
-                                if use_ocr:
-                                    print("对图片执行OCR")
-                                    ocr_text = perform_ocr(img_data, lang=ocr_lang)
-                                    if ocr_text.strip():
-                                        story.append(Paragraph("[图像OCR结果]:", normal_style))
-                                        story.append(Paragraph(ocr_text, normal_style))
-                                
-                                story.append(Spacer(1, 0.2 * inch))
-                                # 从字典中移除已处理的图片
-                                del image_rels[rel_id]
-                            except Exception as img_e:
-                                print(f"处理图片时出错: {str(img_e)}")
+                        # 3. 处理段落中的图片
+                        # 遍历段落的所有 run
+                        for run in paragraph.runs:
+                            # 查找所有图片引用 ID
+                            image_ids = []
+                            
+                            # 1. 查找 drawing 中的 blip (Word 2007+)
+                            blips = run._element.findall('.//a:blip', namespaces=nsmap)
+                            for blip in blips:
+                                embed_id = blip.get(f"{{{nsmap['r']}}}embed")
+                                if embed_id:
+                                    image_ids.append(embed_id)
+                                    
+                            # 2. 查找 VML 中的 imagedata (旧版 Word)
+                            imagedatas = run._element.findall('.//v:imagedata', namespaces=nsmap)
+                            for imagedata in imagedatas:
+                                rel_id = imagedata.get(f"{{{nsmap['r']}}}id")
+                                if rel_id:
+                                    image_ids.append(rel_id)
+                                    
+                            # 处理找到的所有图片
+                            for img_id in image_ids:
+                                if img_id in word_doc.part.rels:
+                                    try:
+                                        rel = word_doc.part.rels[img_id]
+                                        if rel.reltype == RT.IMAGE:
+                                            image_data = rel.target_part.blob
+                                            img_stream = BytesIO(image_data)
+                                            
+                                            try:
+                                                # 尝试使用PIL打开图片，验证格式
+                                                pil_img = PILImage.open(img_stream)
+                                                # 如果不是RGB模式，转换一下（比如CMYK或P模式），reportlab可能不支持
+                                                if pil_img.mode not in ('RGB', 'L'):
+                                                    pil_img = pil_img.convert('RGB')
+                                                    new_stream = BytesIO()
+                                                    pil_img.save(new_stream, format='PNG')
+                                                    img_stream = new_stream
+                                                else:
+                                                    # 重置流位置
+                                                    img_stream.seek(0)
+                                            except Exception as pil_e:
+                                                print(f"PIL处理图片失败 (ID: {img_id}): {pil_e}")
+                                                # 如果PIL都打不开，那reportlab肯定也挂，跳过
+                                                continue
+                                                
+                                            img = Image(img_stream)
+                                            
+                                            # 计算合适的图片大小，保持比例
+                                            max_width = 6.0 * inch  # 稍微放宽一点宽度
+                                            # 获取图片原始尺寸
+                                            img_width = img.drawWidth
+                                            img_height = img.drawHeight
+                                            
+                                            if img_width > max_width:
+                                                scale = max_width / img_width
+                                                img.drawWidth = max_width
+                                                img.drawHeight = img_height * scale
+                                            
+                                            # 确保图片高度不超过页面高度
+                                            max_height = 9.0 * inch
+                                            if img.drawHeight > max_height:
+                                                scale = max_height / img.drawHeight
+                                                img.drawWidth = img.drawWidth * scale
+                                                img.drawHeight = max_height
+                                            
+                                            # 添加图片到PDF
+                                            story.append(img)
+                                            
+                                            # 如果启用了OCR，对图片执行OCR
+                                            if use_ocr:
+                                                print(f"对图片执行OCR (ID: {img_id})")
+                                                ocr_text = perform_ocr(image_data, lang=ocr_lang)
+                                                if ocr_text.strip():
+                                                    story.append(Paragraph("[图像OCR结果]:", normal_style))
+                                                    story.append(Paragraph(ocr_text, normal_style))
+                                            
+                                            story.append(Spacer(1, 0.1 * inch))
+                                    except Exception as e:
+                                        print(f"处理图片失败 (ID: {img_id}): {str(e)}")
+                                        
                 elif element.tag.endswith('tbl'):  # 表格
                     # 查找对应的表格对象
                     table = None
@@ -295,52 +318,6 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                             
                             story.append(pdf_table)
                             story.append(Spacer(1, 0.2 * inch))
-            
-            # 4. 处理剩余的图片（如果有）
-            for rel_id, img_info in list(image_rels.items()):
-                try:
-                    img_stream = BytesIO(img_info['data'])
-                    img_data = img_info['data']
-                    # 添加图片到PDF
-                    img = Image(img_stream)
-                    # 设置最大宽度，保持原始比例
-                    max_width = 5.0 * inch
-                    # 计算调整后的宽度和高度，保持原始比例
-                    if img.drawWidth > max_width:
-                        # 计算缩放比例
-                        scale = max_width / img.drawWidth
-                        new_width = max_width
-                        new_height = img.drawHeight * scale
-                        # 直接设置宽度和高度
-                        img.drawWidth = new_width
-                        img.drawHeight = new_height
-                    # 确保图片高度不超过页面高度
-                    max_height = 8.0 * inch
-                    if img.drawHeight > max_height:
-                        # 计算缩放比例
-                        scale = max_height / img.drawHeight
-                        new_width = img.drawWidth * scale
-                        new_height = max_height
-                        # 直接设置宽度和高度
-                        img.drawWidth = new_width
-                        img.drawHeight = new_height
-                    story.append(img)
-                    
-                    # 如果启用了OCR，对图片执行OCR
-                    if use_ocr:
-                        print("对剩余图片执行OCR")
-                        ocr_text = perform_ocr(img_data, lang=ocr_lang)
-                        if ocr_text.strip():
-                            story.append(Paragraph("[图像OCR结果]:", normal_style))
-                            story.append(Paragraph(ocr_text, normal_style))
-                    
-                    story.append(Spacer(1, 0.2 * inch))
-                    # 从字典中移除已处理的图片
-                    del image_rels[rel_id]
-                except Exception as img_e:
-                    print(f"处理剩余图片时出错: {str(img_e)}")
-            
-            print(f"处理完成，剩余 {len(image_rels)} 张图片未处理")
         elif file_extension == '.doc':
             # 处理.doc格式文件，使用mammoth转换为HTML，再处理
             try:
