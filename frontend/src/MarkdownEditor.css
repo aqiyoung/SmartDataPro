@@ -15,29 +15,57 @@
   .md-navbar {
     height: auto;
     flex-wrap: wrap;
-    padding: 10px;
-    gap: 8px;
+    padding: 6px;
+    gap: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
   
   .md-navbar-left,
   .md-navbar-right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .md-home-btn {
+    margin-right: auto;
+  }
+  
+  .md-logo {
+    display: none; /* 在手机端隐藏logo，节省空间 */
   }
   
   .md-btn {
-    padding: 4px 10px;
-    font-size: 0.8rem;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    min-width: auto;
+  }
+  
+  .md-toolbar-top {
+    order: 3; /* 将主题选择器放在最后 */
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .md-select {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    min-width: 120px;
   }
   
   /* 主内容区域改为上下布局 */
   .md-main {
     flex-direction: column;
+    flex: 1;
+    overflow: hidden;
   }
   
   .md-pane {
     width: 100%;
-    height: 50%;
+    flex: 1;
+    height: auto;
+    min-height: 50%;
   }
   
   .md-pane.editor {
@@ -49,14 +77,18 @@
   .md-editor-toolbar {
     height: auto;
     flex-wrap: wrap;
-    padding: 8px;
-    gap: 6px;
+    padding: 6px;
+    gap: 4px;
     justify-content: flex-start;
+    max-height: 100px;
+    overflow-y: auto;
+    align-content: flex-start;
   }
   
   .toolbar-btn {
-    min-width: 32px;
-    height: 32px;
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
   }
   
   /* 文本区域优化 */
@@ -64,12 +96,19 @@
     font-size: 14px;
     padding: 10px;
     line-height: 1.5;
+    flex: 1;
   }
   
   /* 预览区域优化 */
   .preview-header {
-    padding: 0 8px;
-    font-size: 0.8rem;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    height: 35px;
+  }
+  
+  .preview-controls-left,
+  .preview-controls-right {
+    gap: 4px;
   }
   
   .preview-controls-left span {
@@ -90,43 +129,103 @@
   /* 设备选择优化 */
   .device-select {
     font-size: 10px;
-    padding: 2px 6px;
+    padding: 2px 4px;
+    min-width: auto;
+  }
+  
+  /* 隐藏一些非必要控件 */
+  .md-navbar-right .md-btn:not(.primary) {
+    display: none;
+  }
+  
+  /* 只保留复制按钮和主题选择器 */
+  .md-navbar-right .md-btn.primary {
+    order: 1;
+  }
+  
+  /* 工具栏精简 */
+  .toolbar-btn[title="插入公式"],
+  .toolbar-btn[title="插入表格"],
+  .toolbar-btn[title="配置 GitHub 图床"] {
+    display: none;
   }
 }
 
 /* 针对小屏手机的额外优化 */
 @media (max-width: 480px) {
-  .md-pane {
-    height: 50vh;
+  /* 进一步精简导航栏 */
+  .md-navbar {
+    padding: 4px;
+    gap: 3px;
   }
   
   .md-navbar-left,
   .md-navbar-right {
-    flex-wrap: wrap;
-    gap: 6px;
+    gap: 3px;
   }
   
   .md-btn {
-    padding: 3px 8px;
-    min-width: 40px;
-    justify-content: center;
+    padding: 3px 6px;
+    font-size: 0.7rem;
+    min-width: auto;
   }
   
-  .md-select {
-    padding: 3px 8px;
-    font-size: 0.8rem;
+  /* 只保留必要的控件 */
+  .md-toolbar-top {
+    display: none; /* 在小屏手机上隐藏主题选择器 */
   }
   
+  /* 进一步精简工具栏 */
+  .md-editor-toolbar {
+    padding: 4px;
+    gap: 3px;
+    max-height: 80px;
+  }
+  
+  .toolbar-btn {
+    min-width: 26px;
+    height: 26px;
+  }
+  
+  /* 只保留最常用的工具栏按钮 */
+  .toolbar-btn[title="一级标题"],
+  .toolbar-btn[title="二级标题"],
+  .toolbar-btn[title="三级标题"],
+  .toolbar-btn[title="引用"],
+  .toolbar-btn[title="代码块"],
+  .toolbar-btn[title="分割线"] {
+    display: none;
+  }
+  
+  /* 文本区域优化 */
   .md-textarea {
     font-size: 13px;
     padding: 8px;
   }
   
-  .toolbar-btn {
-    min-width: 28px;
-    height: 28px;
+  /* 预览区域优化 */
+  .preview-header {
+    display: none; /* 在小屏手机上隐藏预览控制栏 */
   }
   
+  /* 调整编辑区和预览区的比例 */
+  .md-pane.editor {
+    flex: 2;
+  }
+  
+  .md-pane.preview {
+    flex: 1;
+  }
+  
+  /* 简化工具栏显示，只保留最常用的功能 */
+  .md-editor-toolbar {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    justify-items: center;
+    align-items: center;
+  }
+  
+  /* 调整工具栏按钮大小 */
   .toolbar-btn svg {
     width: 14px;
     height: 14px;
