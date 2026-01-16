@@ -44,12 +44,21 @@
 
 #### 方式一：使用启动脚本（推荐）
 
-1. **Windows 批处理脚本**
+1. **Debian/Ubuntu 脚本**
+   ```bash
+   # 赋予脚本执行权限
+   chmod +x start-all.sh
+   
+   # 执行启动脚本
+   ./start-all.sh
+   ```
+
+2. **Windows 批处理脚本**
    ```bash
    start-all.cmd
    ```
 
-2. **PowerShell 脚本**
+3. **PowerShell 脚本**
    ```bash
    .\start-all.ps1
    ```
@@ -72,6 +81,51 @@
 
 - 前端页面：http://localhost:5180/
 - 后端 API：http://localhost:8006/
+
+### Debian/Ubuntu 启动脚本功能说明
+
+**start-all.sh** 脚本提供了以下功能：
+
+1. **自动依赖检查与安装**
+   - 检查并安装系统依赖（Python 3.11、Node.js、tesseract-ocr等）
+   - 自动创建Python虚拟环境
+   - 安装后端Python依赖
+   - 安装前端npm依赖
+
+2. **后台服务启动**
+   - 后端服务：使用uvicorn在8006端口启动
+   - 前端服务：使用npm run dev在5180端口启动
+   - 所有服务后台运行，不阻塞终端
+
+3. **日志管理**
+   - 后端日志：`backend.log`（项目根目录）
+   - 前端日志：`frontend.log`（项目根目录）
+   - 每次启动自动清理旧日志
+
+4. **服务管理**
+   - 查看日志：`tail -f backend.log` 或 `tail -f frontend.log`
+   - 查找进程：`ps aux | grep -E '(uvicorn|npm)'`
+   - 终止服务：`kill <进程ID>`
+
+### 脚本执行过程
+
+执行 `./start-all.sh` 后，脚本将：
+1. 显示启动欢迎信息
+2. 清理旧日志文件
+3. 检查并安装系统依赖
+4. 创建并激活Python虚拟环境
+5. 安装后端依赖
+6. 安装前端依赖
+7. 后台启动后端服务
+8. 后台启动前端服务
+9. 显示服务启动信息和访问地址
+
+### 注意事项
+
+- 脚本需要使用sudo权限安装系统依赖
+- 首次运行会安装所有依赖，可能需要较长时间
+- 确保端口5180和8006未被占用
+- 服务启动后，可通过日志文件查看运行状态
 
 ## 项目结构
 
