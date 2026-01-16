@@ -36,7 +36,9 @@ const MarkdownEditorPage = () => {
     path: localStorage.getItem('github_path') || 'images'
   });
   const [uploading, setUploading] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const textareaRef = useRef(null);
+  const menuRef = useRef(null);
 
   // 默认示例文本
   useEffect(() => {
@@ -261,6 +263,20 @@ pnpm web dev
     };
   }, [githubConfig]); // 依赖配置变化
 
+  // 点击外部关闭菜单
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
+
   // 插入语法
   const insertSyntax = (prefix, suffix = '') => {
     const textarea = textareaRef.current;
@@ -427,49 +443,122 @@ pnpm web dev
       {/* 顶部导航栏 */}
       <nav className="md-navbar">
         <div className="md-navbar-left">
-          <button className="md-home-btn" onClick={goHome} title="返回首页">
-            🏠
-          </button>
-          <div className="md-logo" onClick={goHome}>
-            <span>Markdown</span>
+          {/* 返回首页按钮 - PC端放在最左侧 */}
+          <div className="pc-only">
+            <button className="md-home-btn" onClick={goHome} title="返回首页">
+              🏠
+            </button>
           </div>
           
-          <button className="md-btn" onClick={() => document.getElementById('md-upload-input').click()}>
-            📂 导入
-          </button>
-          <input
-            type="file"
-            id="md-upload-input"
-            accept=".md,.markdown,.txt"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-          />
+          <div className="md-logo">
+            <span>Markdown编辑器</span>
+          </div>
+          
+          {/* PC端原始布局 */}
+          <div className="pc-only">
+            {/* 导入按钮 */}
+            <button className="md-btn" onClick={() => document.getElementById('md-upload-input').click()}>
+              📂 导入
+            </button>
+            <input
+              type="file"
+              id="md-upload-input"
+              accept=".md,.markdown,.txt"
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+            />
 
-          <div className="md-toolbar-top">
-            <select className="md-select" value={theme} onChange={handleThemeChange} title="预览主题">
-              <option value="default">默认样式</option>
-              <option value="clean">简洁模式</option>
-              <option value="modern">现代模式</option>
-              <option value="book">书籍模式</option>
-              <option value="docs">文档模式</option>
-              <option value="tech_blue">科技蓝</option>
-              <option value="dark_mode">暗黑模式</option>
-              <option value="wechat">微信公众号</option>
-              <option value="github">GitHub 风格</option>
-              <option value="neurapress">NeuraPress</option>
-            </select>
+            {/* 主题选择器 */}
+            <div className="md-toolbar-top">
+              <select className="md-select" value={theme} onChange={handleThemeChange} title="预览主题">
+                <option value="default">默认样式</option>
+                <option value="clean">简洁模式</option>
+                <option value="modern">现代模式</option>
+                <option value="book">书籍模式</option>
+                <option value="docs">文档模式</option>
+                <option value="tech_blue">科技蓝</option>
+                <option value="dark_mode">暗黑模式</option>
+                <option value="wechat">微信公众号</option>
+                <option value="github">GitHub 风格</option>
+                <option value="neurapress">NeuraPress</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* 移动端二级菜单按钮 - 只在移动端显示 */}
+          <div className="mobile-only md-menu-container" ref={menuRef}>
+            <button 
+              className="md-btn menu-btn" 
+              onClick={() => setShowMenu(!showMenu)}
+              title="更多功能"
+            >
+              ⚙️ 菜单
+            </button>
+            
+            {/* 下拉菜单 */}
+            {showMenu && (
+              <div className="md-dropdown-menu">
+                {/* 导入功能 */}
+                <div className="dropdown-item" onClick={() => document.getElementById('md-upload-input').click()}>
+                  <span className="dropdown-icon">📂</span>
+                  <span className="dropdown-text">导入文件</span>
+                </div>
+                
+                {/* 主题选择器 */}
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-section-title">预览主题</div>
+                <select className="md-select dropdown-select" value={theme} onChange={handleThemeChange} title="预览主题">
+                  <option value="default">默认样式</option>
+                  <option value="clean">简洁模式</option>
+                  <option value="modern">现代模式</option>
+                  <option value="book">书籍模式</option>
+                  <option value="docs">文档模式</option>
+                  <option value="tech_blue">科技蓝</option>
+                  <option value="dark_mode">暗黑模式</option>
+                  <option value="wechat">微信公众号</option>
+                  <option value="github">GitHub 风格</option>
+                  <option value="neurapress">NeuraPress</option>
+                </select>
+                
+                {/* 导出功能 */}
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-section-title">导出功能</div>
+                <div className="dropdown-item" onClick={handleSaveAsWord} disabled={isConverting}>
+                  <span className="dropdown-icon">{isConverting ? '⏳' : '📝'}</span>
+                  <span className="dropdown-text">{isConverting ? '转换中...' : '转 Word'}</span>
+                </div>
+                <div className="dropdown-item" onClick={handleExportHtml}>
+                  <span className="dropdown-icon">🌐</span>
+                  <span className="dropdown-text">导出 HTML</span>
+                </div>
+                <div className="dropdown-item primary" onClick={handleCopy}>
+                  <span className="dropdown-icon">❐</span>
+                  <span className="dropdown-text">复制内容</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="md-navbar-right">
-          <button className="md-btn" onClick={handleSaveAsWord} disabled={isConverting}>
-            {isConverting ? '⏳ 转换中...' : '📝 转 Word'}
-          </button>
-          <button className="md-btn" onClick={handleExportHtml}>
-            🌐 导出 HTML
-          </button>
-          <button className="md-btn primary" onClick={handleCopy}>
-            ❐ 复制
-          </button>
+          {/* 移动端返回首页按钮 */}
+          <div className="mobile-only">
+            <button className="md-home-btn" onClick={goHome} title="返回首页">
+              🏠
+            </button>
+          </div>
+          
+          {/* PC端右侧按钮 */}
+          <div className="pc-only">
+            <button className="md-btn" onClick={handleSaveAsWord} disabled={isConverting}>
+              {isConverting ? '⏳ 转换中...' : '📝 转 Word'}
+            </button>
+            <button className="md-btn" onClick={handleExportHtml}>
+              🌐 导出 HTML
+            </button>
+            <button className="md-btn primary" onClick={handleCopy}>
+              ❐ 复制
+            </button>
+          </div>
         </div>
       </nav>
 

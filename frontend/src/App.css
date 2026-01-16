@@ -964,10 +964,11 @@ body {
   }
   
   /* URL输入区域 */
-  .url-input-section input {
-    max-width: 100%;
-    padding: 0.8rem;
-    font-size: 0.95rem;
+  .conversion-card .url-input-section input {
+    max-width: 100% !important;
+    min-width: auto !important;
+    padding: 0.8rem 1rem !important;
+    font-size: 0.95rem !important;
   }
   
   /* Markdown编辑器 */

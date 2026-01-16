@@ -11,29 +11,136 @@
 
 /* 响应式设计 - 手机端优化 */
 @media (max-width: 768px) {
-  /* 顶部导航栏优化 */
-  .md-navbar {
-    height: auto;
-    flex-wrap: wrap;
-    padding: 6px;
-    gap: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  /* 设备特定显示 - 移动端 */
+  .mobile-only {
+    display: inline-block !important;
   }
   
+  .pc-only {
+    display: none !important;
+  }
+  
+  /* 顶部导航栏优化 - 强制覆盖PC端样式 */
+  .md-navbar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: auto !important;
+    padding: 6px !important;
+    gap: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* 导航栏左侧 - 菜单按钮 */
+  .md-navbar-left {
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    order: 1 !important;
+    flex: 1 !important;
+  }
+  
+  /* 导航栏右侧 - 返回按钮 */
+  .md-navbar-right {
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    order: 3 !important;
+  }
+  
+  /* 简化导航栏布局 - 确保标题居中 */
+  .md-navbar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 6px 10px !important;
+  }
+  
+  /* 导航栏左侧 - 只包含菜单按钮 */
+  .md-navbar-left {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 60px !important;
+  }
+  
+  /* 移除左侧的所有其他元素，只保留菜单按钮 */
+  .md-navbar-left > :not(.mobile-only) {
+    display: none !important;
+  }
+  
+  /* 标题居中 - 修复显示问题 */
+  .md-logo {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important; /* 提高z-index确保显示在最上层 */
+    pointer-events: none !important; /* 允许点击穿透 */
+    visibility: visible !important; /* 确保可见 */
+    opacity: 1 !important; /* 确保不透明 */
+  }
+  
+  /* 标题文字 - 确保可见 */
+  .md-logo span {
+    display: inline-block !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: #333 !important; /* 确保颜色与背景对比明显 */
+    text-align: center !important;
+    white-space: nowrap !important;
+    max-width: 200px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: transparent !important; /* 确保背景透明 */
+  }
+  
+  /* 确保标题不被其他元素遮挡 */
   .md-navbar-left,
   .md-navbar-right {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 4px;
+    z-index: 5 !important; /* 低于标题的z-index */
   }
   
+  /* 导航栏右侧 - 只包含返回按钮 */
+  .md-navbar-right {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 60px !important;
+  }
+  
+  /* 确保导航栏相对定位，以便标题绝对定位 */
+  .md-navbar {
+    position: relative !important;
+  }
+  
+  /* 菜单按钮样式 */
+  .menu-btn {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* 返回首页按钮样式 */
   .md-home-btn {
-    margin-right: auto;
-  }
-  
-  .md-logo {
-    display: none; /* 在手机端隐藏logo，节省空间 */
+    padding: 6px !important;
+    font-size: 1rem !important;
   }
   
   .md-btn {
@@ -217,18 +324,90 @@
     flex: 1;
   }
   
-  /* 简化工具栏显示，只保留最常用的功能 */
+  /* 移动端工具栏 - 显示所有控件，支持滑动 */
   .md-editor-toolbar {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    justify-items: center;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 8px 4px !important;
+    gap: 8px !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    height: auto !important;
+    min-height: 50px !important;
   }
   
-  /* 调整工具栏按钮大小 */
+  /* 工具栏滚动条样式 */
+  .md-editor-toolbar {
+    scrollbar-width: thin !important;
+    scrollbar-color: transparent transparent !important;
+  }
+  
+  .md-editor-toolbar::-webkit-scrollbar {
+    height: 2px !important;
+  }
+  
+  .md-editor-toolbar::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  
+  .md-editor-toolbar::-webkit-scrollbar-thumb {
+    background-color: transparent !important;
+  }
+  
+  /* 触摸滑动优化 */
+  .md-editor-toolbar {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+  
+  /* 工具栏按钮样式优化 */
+  .toolbar-btn {
+    min-width: 40px !important;
+    height: 40px !important;
+    padding: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+    background-color: white !important;
+    color: #333 !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* 工具栏按钮悬停效果 */
+  .toolbar-btn:hover {
+    background-color: #f8f9fa !important;
+    border-color: #d0d0d0 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* 工具栏图标大小 */
   .toolbar-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  /* 分隔线样式 */
+  .toolbar-divider {
+    min-width: 1px !important;
+    height: 24px !important;
+    background-color: #e0e0e0 !important;
+    margin: 0 4px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* 确保所有工具栏按钮都显示 */
+  .md-editor-toolbar > * {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -300,6 +479,212 @@
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   z-index: 10;
+}
+
+/* 设备特定显示类 */
+.pc-only {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* PC端隐藏标题 */
+@media (min-width: 769px) {
+  .md-logo {
+    display: none !important;
+  }
+}
+
+/* 移动端显示标题 */
+@media (max-width: 768px) {
+  .md-logo {
+    display: flex !important;
+  }
+}
+
+/* 二级菜单样式 - 美化版 */
+.md-menu-container {
+  position: relative;
+}
+
+/* 菜单按钮美化 */
+.menu-btn {
+  position: relative;
+  z-index: 20;
+  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.menu-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #d0d0d0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 下拉菜单美化 */
+.md-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  z-index: 100;
+  margin-top: 6px;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  animation: dropdownFadeIn 0.2s ease-out;
+  backdrop-filter: blur(10px); /* 添加毛玻璃效果 */
+  border: 1px solid rgba(224, 224, 224, 0.8);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* 下拉菜单动画 */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* 下拉项美化 */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  margin: 0 8px;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f4f8;
+  color: #2c3e50;
+  transform: translateX(4px);
+}
+
+.dropdown-item:active {
+  transform: translateX(2px);
+}
+
+/* 主要下拉项样式 */
+.dropdown-item.primary {
+  background-color: #333;
+  color: white;
+  font-weight: 600;
+}
+
+.dropdown-item.primary:hover {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+/* 禁用状态 */
+.dropdown-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 图标美化 */
+.dropdown-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.dropdown-item:hover .dropdown-icon {
+  opacity: 1;
+}
+
+/* 文本样式 */
+.dropdown-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 分割线美化 */
+.dropdown-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 8px 16px;
+  border-radius: 0.5px;
+}
+
+/* 区域标题美化 */
+.dropdown-section-title {
+  padding: 8px 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: #fafafa;
+  margin: 0 8px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+/* 下拉选择框美化 */
+.dropdown-select {
+  margin: 8px 16px;
+  width: calc(100% - 32px);
+  min-width: auto;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.dropdown-select:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-select:focus {
+  border-color: #333;
+  box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
 }
 
 .md-navbar-left {
@@ -394,7 +779,7 @@
   gap: 12px;
 }
 
-/* 编辑器工具栏 */
+/* 编辑器工具栏 - PC端原始布局 */
 .md-editor-toolbar {
   height: 44px;
   display: flex;

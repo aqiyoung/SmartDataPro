@@ -16,13 +16,13 @@ from src.converters import (
 app = FastAPI(
     title="统一文档转换工具API",
     description="提供文档格式转换服务，支持多种格式转换",
-    version="2.0.0"
+    version="2.1.0"
 )
 
 # 添加CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5180"],
+    allow_origins=["http://localhost:5173", "http://localhost:5180", "http://localhost:5181"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,7 +46,7 @@ def root():
 
 @app.get("/api/")
 def read_api_root():
-    return {"message": "统一文档转换工具API", "version": "2.0.0"}
+    return {"message": "统一文档转换工具API", "version": "2.1.0"}
 
 @app.post("/api/convert/docx-to-md")
 async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
