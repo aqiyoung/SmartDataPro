@@ -1119,9 +1119,135 @@ def generate_html_file(html_content, title="Markdown to HTML", style="default", 
     if style == "modern":
         html_content = f'<div class="content">{html_content}</div>'
     
-    # 如果需要内联样式（用于Word转换），则不使用style标签，而是尝试内联（这里简化处理，仍然保留style标签，因为WebToDocxConverter会处理）
-    # 但为了更好的Word兼容性，我们可以移除一些不必要的容器和复杂选择器
-    
+    # 如果需要内联样式（用于Word转换），则手动将关键样式注入到HTML元素中
+    if use_inline_styles:
+        try:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # 根据不同的主题应用不同的内联样式
+            # 这里主要针对 code, pre, blockquote, table 等 Word 转换需要保留样式的元素
+            
+            # 通用样式定义
+            inline_styles = {
+                "default": {
+                    "code": "background-color: #f1f1f1; padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63200;",
+                    "pre": "background-color: #f8f8f8; padding: 15px; border-radius: 8px; border: 1px solid #eee;",
+                    "blockquote": "border-left: 4px solid #3498db; background-color: #f8f9fa; padding: 10px 15px; color: #666;",
+                    "th": "border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2; font-weight: bold;",
+                    "td": "border: 1px solid #ddd; padding: 8px;",
+                    "a": "color: #3498db; text-decoration: none;"
+                },
+                "wechat": {
+                    "code": "background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: Consolas, monospace; color: #d63200;",
+                    "pre": "background-color: #f8f8f8; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);",
+                    "blockquote": "border-left: 4px solid #07c160; background-color: #f8f8f8; padding: 15px; color: #555;",
+                    "th": "border: 1px solid #ddd; padding: 10px; background-color: #f2f2f2; font-weight: bold; color: #333;",
+                    "td": "border: 1px solid #ddd; padding: 10px; color: #555;",
+                    "a": "color: #576b95; text-decoration: none; border-bottom: 1px dashed #576b95;"
+                },
+                "github": {
+                    "code": "background-color: #afb8c133; padding: 0.2em 0.4em; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;",
+                    "pre": "background-color: #f6f8fa; padding: 16px; border-radius: 6px; line-height: 1.45;",
+                    "blockquote": "border-left: 0.25em solid #d0d7de; padding: 0 1em; color: #57606a;",
+                    "th": "border: 1px solid #d0d7de; padding: 6px 13px; background-color: #ffffff; font-weight: 600;",
+                    "td": "border: 1px solid #d0d7de; padding: 6px 13px;",
+                    "a": "color: #0969da; text-decoration: none;"
+                },
+                "neurapress": {
+                    "code": "background-color: #fff5f5; color: #ff502c; padding: 2px 4px; border-radius: 3px; font-family: Consolas, monospace;",
+                    "pre": "background: #f8f8f8; padding: 15px; border-radius: 8px; border: 1px solid #eee;",
+                    "blockquote": "border-left: 4px solid #00b96b; background-color: #f6fbf9; padding: 12px 15px; color: #555; border-radius: 4px;",
+                    "th": "border: 1px solid #e0e0e0; padding: 10px; background-color: #f6fbf9; font-weight: bold; color: #00b96b;",
+                    "td": "border: 1px solid #e0e0e0; padding: 10px; color: #555;",
+                    "a": "color: #00b96b; text-decoration: none; border-bottom: 1px solid #00b96b;"
+                },
+                "clean": {
+                    "code": "background-color: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-family: 'Courier New', Courier, monospace;",
+                    "pre": "background-color: #f5f5f5; padding: 1em; border-radius: 4px;",
+                    "blockquote": "border-left: 3px solid #e5e5e5; padding-left: 1em; color: #666; font-style: italic;",
+                    "th": "border: 1px solid #e5e5e5; padding: 10px; background-color: #fafafa;",
+                    "td": "border: 1px solid #e5e5e5; padding: 10px;",
+                    "a": "color: #0066cc; text-decoration: none;"
+                },
+                "modern": {
+                    "code": "background-color: #edf2f7; padding: 0.2em 0.5em; border-radius: 6px; font-family: 'Fira Code', 'Courier New', Courier, monospace;",
+                    "pre": "background-color: #edf2f7; padding: 1.5em; border-radius: 8px;",
+                    "blockquote": "border-left: 4px solid #2b6cb0; padding: 1em 1.5em; color: #4a5568; background-color: #ebf8ff; border-radius: 0 6px 6px 0;",
+                    "th": "border: 1px solid #e2e8f0; padding: 12px 16px; background-color: #f7fafc; font-weight: 600;",
+                    "td": "border: 1px solid #e2e8f0; padding: 12px 16px;",
+                    "a": "color: #2b6cb0; text-decoration: none;"
+                },
+                "book": {
+                    "code": "background-color: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; font-family: 'Courier New', Courier, monospace;",
+                    "pre": "background-color: #f0f0f0; padding: 1.2em; border-radius: 5px;",
+                    "blockquote": "border-left: 3px solid #ccc; padding: 1em 1.5em; color: #555; font-style: italic;",
+                    "th": "border: 1px solid #ddd; padding: 10px; background-color: #f5f5f5; font-weight: 600;",
+                    "td": "border: 1px solid #ddd; padding: 10px;",
+                    "a": "color: #0066cc; text-decoration: none;"
+                },
+                "docs": {
+                    "code": "background-color: #afb8c133; padding: 0.2em 0.4em; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;",
+                    "pre": "background-color: #f6f8fa; padding: 16px; border-radius: 6px;",
+                    "blockquote": "border-left: 0.25em solid #d0d7de; padding: 0 1em; color: #57606a;",
+                    "th": "border: 1px solid #d0d7de; padding: 6px 13px; font-weight: 600;",
+                    "td": "border: 1px solid #d0d7de; padding: 6px 13px;",
+                    "a": "color: #0969da; text-decoration: none;"
+                },
+                "tech_blue": {
+                    "code": "background-color: #e3f2fd; color: #0d47a1; padding: 0.2em 0.4em; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace;",
+                    "pre": "background-color: #263238; color: #eceff1; padding: 1.2em; border-radius: 8px;",
+                    "blockquote": "border-left: 4px solid #1976d2; padding-left: 1em; background-color: #e3f2fd; color: #546e7a; border-radius: 0 4px 4px 0;",
+                    "th": "background-color: #1976d2; color: white; padding: 12px;",
+                    "td": "border-bottom: 1px solid #e0e0e0; padding: 12px;",
+                    "a": "color: #1976d2; text-decoration: none; font-weight: 500;"
+                },
+                "dark_mode": {
+                    "code": "background-color: #333; color: #ffcc80; padding: 0.2em 0.4em; border-radius: 4px; font-family: 'Fira Code', monospace;",
+                    "pre": "background-color: #121212; padding: 1.2em; border-radius: 8px; border: 1px solid #333;",
+                    "blockquote": "border-left: 4px solid #64b5f6; padding-left: 1em; color: #bdbdbd; background-color: #263238; border-radius: 4px;",
+                    "th": "border: 1px solid #424242; padding: 10px; background-color: #333;",
+                    "td": "border: 1px solid #424242; padding: 10px;",
+                    "a": "color: #64b5f6; text-decoration: none;"
+                }
+            }
+            
+            current_style = inline_styles.get(style, inline_styles["default"])
+            
+            # 应用 Code 样式
+            for code in soup.find_all('code'):
+                if code.parent.name != 'pre': # 仅处理行内代码
+                    # 如果已有 style，追加；否则设置
+                    existing = code.get('style', '')
+                    code['style'] = current_style['code'] + existing
+            
+            # 应用 Pre 样式
+            for pre in soup.find_all('pre'):
+                pre['style'] = current_style['pre']
+                
+            # 应用 Blockquote 样式
+            for quote in soup.find_all('blockquote'):
+                quote['style'] = current_style['blockquote']
+                
+            # 应用 Table 样式
+            for table in soup.find_all('table'):
+                table['style'] = "border-collapse: collapse; width: 100%;"
+            
+            for th in soup.find_all('th'):
+                th['style'] = current_style['th']
+                
+            for td in soup.find_all('td'):
+                td['style'] = current_style['td']
+                
+            # 应用 Link 样式
+            for a in soup.find_all('a'):
+                a['style'] = current_style['a']
+                
+            html_content = str(soup)
+        except Exception as e:
+            print(f"内联样式处理失败: {e}")
+            # 失败则保持原样
+
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1131,6 +1257,21 @@ def generate_html_file(html_content, title="Markdown to HTML", style="default", 
     <style>
         {css}
     </style>
+    <!-- MathJax Configuration -->
+    <script>
+      MathJax = {{
+        tex: {{
+          inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+          displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+          processEscapes: true
+        }},
+        options: {{
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        }}
+      }};
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     {html_content}
@@ -1177,12 +1318,16 @@ def markdown_content_to_html(markdown_content):
             "pymdownx.details",
             "pymdownx.tabbed",
             "pymdownx.mark",
+            "pymdownx.arithmatex",
         ]
         extension_configs = {
             "markdown.extensions.codehilite": {
                 "css_class": "highlight",
                 "linenums": False,
                 "use_pygments": True
+            },
+            "pymdownx.arithmatex": {
+                "generic": True
             }
         }
         return markdown.markdown(markdown_content, extensions=extensions, extension_configs=extension_configs)

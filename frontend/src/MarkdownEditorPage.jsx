@@ -2,6 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './MarkdownEditor.css';
 
+// SVG Icons
+const Icons = {
+  Bold: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>,
+  Italic: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>,
+  List: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>,
+  OrderedList: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>,
+  TaskList: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>,
+  Quote: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>,
+  Code: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>,
+  Link: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>,
+  Image: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
+  Table: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"></path></svg>,
+  Hr: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
+  CodeBlock: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>,
+  Sigma: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 4H6l8 8-8 8h12"></path></svg>,
+  Settings: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>,
+};
+
 const MarkdownEditorPage = () => {
   const [markdownText, setMarkdownText] = useState('');
   const [htmlPreview, setHtmlPreview] = useState('');
@@ -10,6 +28,14 @@ const MarkdownEditorPage = () => {
   const [isConverting, setIsConverting] = useState(false);
   const [previewScale, setPreviewScale] = useState(100);
   const [previewDevice, setPreviewDevice] = useState('full');
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [githubConfig, setGithubConfig] = useState({
+    token: localStorage.getItem('github_token') || '',
+    repo: localStorage.getItem('github_repo') || '',
+    branch: localStorage.getItem('github_branch') || 'main',
+    path: localStorage.getItem('github_path') || 'images'
+  });
+  const [uploading, setUploading] = useState(false);
   const textareaRef = useRef(null);
 
   // 默认示例文本
@@ -125,6 +151,116 @@ pnpm web dev
     setPreviewDevice(e.target.value);
   };
 
+  // GitHub图床配置处理
+  const handleGithubConfigChange = (e) => {
+    const { name, value } = e.target;
+    const newConfig = { ...githubConfig, [name]: value };
+    setGithubConfig(newConfig);
+    // 保存到本地存储
+    localStorage.setItem(`github_${name}`, value);
+  };
+
+  // 上传图片到GitHub
+  const uploadToGithub = async (file) => {
+    if (!githubConfig.token || !githubConfig.repo) {
+      alert('请先配置GitHub图床信息');
+      setShowImageModal(true);
+      return null;
+    }
+
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      return new Promise((resolve, reject) => {
+        reader.onload = async () => {
+          const base64Content = reader.result.split(',')[1];
+          // 生成唯一文件名
+          const ext = file.name.split('.').pop();
+          const filename = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`;
+          const path = githubConfig.path ? `${githubConfig.path}/${filename}` : filename;
+          
+          const url = `https://api.github.com/repos/${githubConfig.repo}/contents/${path}`;
+          
+          try {
+            await axios.put(url, {
+              message: `Upload image ${filename} via Markdown Editor`,
+              content: base64Content,
+              branch: githubConfig.branch
+            }, {
+              headers: {
+                'Authorization': `token ${githubConfig.token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            // 使用 jsDelivr CDN 加速
+            const cdnUrl = `https://cdn.jsdelivr.net/gh/${githubConfig.repo}@${githubConfig.branch}/${path}`;
+            resolve(cdnUrl);
+          } catch (err) {
+            console.error('GitHub API Error:', err);
+            reject(err);
+          }
+        };
+        reader.onerror = error => reject(error);
+      });
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('图片上传失败，请检查配置或网络');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // 处理图片上传
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    const url = await uploadToGithub(file);
+    if (url) {
+      insertSyntax(`![${file.name}](${url})`);
+    }
+    // 清空input
+    e.target.value = null;
+  };
+
+  // 监听粘贴事件
+  useEffect(() => {
+    const handlePaste = async (e) => {
+      const items = e.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          const url = await uploadToGithub(file);
+          if (url) {
+            insertSyntax(`![image](${url})`);
+          }
+          break;
+        }
+      }
+    };
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.addEventListener('paste', handlePaste);
+    }
+
+    return () => {
+      if (textarea) {
+        textarea.removeEventListener('paste', handlePaste);
+      }
+    };
+  }, [githubConfig]); // 依赖配置变化
+
   // 插入语法
   const insertSyntax = (prefix, suffix = '') => {
     const textarea = textareaRef.current;
@@ -224,8 +360,6 @@ pnpm web dev
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
-      alert('Word文档导出成功');
     } catch (err) {
       console.error('导出Word失败:', err);
       alert('导出Word失败，请重试');
@@ -252,7 +386,6 @@ pnpm web dev
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    alert('HTML文件已导出');
   };
 
   // 复制功能
@@ -300,14 +433,20 @@ pnpm web dev
           <div className="md-logo" onClick={goHome}>
             <span>Markdown</span>
           </div>
+          
+          <button className="md-btn" onClick={() => document.getElementById('md-upload-input').click()}>
+            📂 导入
+          </button>
+          <input
+            type="file"
+            id="md-upload-input"
+            accept=".md,.markdown,.txt"
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+          />
+
           <div className="md-toolbar-top">
-            <select className="md-select" value="default">
-              <option value="default">默认样式</option>
-            </select>
-            <select className="md-select" value="default">
-              <option value="default">代码主题</option>
-            </select>
-            <select className="md-select" value={theme} onChange={handleThemeChange}>
+            <select className="md-select" value={theme} onChange={handleThemeChange} title="预览主题">
               <option value="default">默认样式</option>
               <option value="clean">简洁模式</option>
               <option value="modern">现代模式</option>
@@ -322,16 +461,6 @@ pnpm web dev
           </div>
         </div>
         <div className="md-navbar-right">
-          <button className="md-btn" onClick={() => document.getElementById('md-upload-input').click()}>
-            📂 导入
-          </button>
-          <input
-            type="file"
-            id="md-upload-input"
-            accept=".md,.markdown,.txt"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-          />
           <button className="md-btn" onClick={handleSaveAsWord} disabled={isConverting}>
             {isConverting ? '⏳ 转换中...' : '📝 转 Word'}
           </button>
@@ -350,23 +479,37 @@ pnpm web dev
         <div className="md-pane editor">
           {/* 工具栏 */}
           <div className="md-editor-toolbar">
-            <button className="toolbar-btn" onClick={() => insertSyntax('# ')}>H1</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('## ')}>H2</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('### ')}>H3</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('# ')} title="一级标题">H1</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('## ')} title="二级标题">H2</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('### ')} title="三级标题">H3</button>
             <div className="toolbar-divider"></div>
-            <button className="toolbar-btn" onClick={() => insertSyntax('**', '**')}>B</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('*', '*')}>I</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('**', '**')} title="粗体"><Icons.Bold /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('*', '*')} title="斜体"><Icons.Italic /></button>
             <div className="toolbar-divider"></div>
-            <button className="toolbar-btn" onClick={() => insertSyntax('- ')}>≣</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('1. ')}>1.</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('- ')} title="无序列表"><Icons.List /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('1. ')} title="有序列表"><Icons.OrderedList /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('- [ ] ')} title="任务列表"><Icons.TaskList /></button>
             <div className="toolbar-divider"></div>
-            <button className="toolbar-btn" onClick={() => insertSyntax('> ')}>”</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('`', '`')}>&lt;&gt;</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('```\n', '\n```')}>Code</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('> ')} title="引用"><Icons.Quote /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('`', '`')} title="行内代码"><Icons.Code /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('```\n', '\n```')} title="代码块"><Icons.CodeBlock /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('$$ ', ' $$')} title="插入公式"><Icons.Sigma /></button>
             <div className="toolbar-divider"></div>
-            <button className="toolbar-btn" onClick={() => insertSyntax('[]()', '')}>🔗</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('![]()', '')}>🖼️</button>
-            <button className="toolbar-btn" onClick={() => insertSyntax('| | |\n|---|---|\n| | |', '')}>田</button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('[]()', '')} title="插入链接"><Icons.Link /></button>
+            <button className="toolbar-btn" onClick={() => document.getElementById('md-image-upload').click()} title="上传图片 (支持 Ctrl+V 粘贴)">
+              {uploading ? '⏳' : <Icons.Image />}
+            </button>
+            <input
+              type="file"
+              id="md-image-upload"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleImageUpload}
+            />
+            <button className="toolbar-btn" onClick={() => insertSyntax('| | |\n|---|---|\n| | |', '')} title="插入表格"><Icons.Table /></button>
+            <button className="toolbar-btn" onClick={() => insertSyntax('\n---\n')} title="分割线"><Icons.Hr /></button>
+            <div className="toolbar-divider"></div>
+            <button className="toolbar-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
           </div>
           <textarea
             ref={textareaRef}
@@ -418,6 +561,64 @@ pnpm web dev
       <footer className="md-footer">
         <p>统一文档转换工具 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
+
+      {/* 图床配置模态框 */}
+      {showImageModal && (
+        <div className="modal-overlay" onClick={(e) => e.target.className === 'modal-overlay' && setShowImageModal(false)}>
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>GitHub 图床配置</h3>
+              <button className="close-btn" onClick={() => setShowImageModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Token (必填)</label>
+                <input
+                  type="password"
+                  name="token"
+                  value={githubConfig.token}
+                  onChange={handleGithubConfigChange}
+                  placeholder="ghp_xxxxxxxxxxxx"
+                />
+                <small>请在 GitHub Settings {'>'} Developer settings 生成 Personal access token</small>
+              </div>
+              <div className="form-group">
+                <label>Repo (必填)</label>
+                <input
+                  type="text"
+                  name="repo"
+                  value={githubConfig.repo}
+                  onChange={handleGithubConfigChange}
+                  placeholder="username/repo"
+                />
+              </div>
+              <div className="form-group">
+                <label>Branch</label>
+                <input
+                  type="text"
+                  name="branch"
+                  value={githubConfig.branch}
+                  onChange={handleGithubConfigChange}
+                  placeholder="main"
+                />
+              </div>
+              <div className="form-group">
+                <label>Path</label>
+                <input
+                  type="text"
+                  name="path"
+                  value={githubConfig.path}
+                  onChange={handleGithubConfigChange}
+                  placeholder="images"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="md-btn primary" onClick={() => setShowImageModal(false)}>保存配置</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

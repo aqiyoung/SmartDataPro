@@ -30,6 +30,9 @@ Thumbs.db
 *.swo
 *~
 
+# Vite build cache
+.vite/
+
 # Temporary directories
 .versions/
 tmp/

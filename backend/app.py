@@ -30,7 +30,10 @@ app.add_middleware(
 
 # 配置静态文件服务
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-app.mount("/static", StaticFiles(directory=frontend_dir), name="frontend")
+# 检查生产构建目录是否存在，如果存在则使用，否则使用开发目录
+dist_dir = os.path.join(frontend_dir, "dist")
+static_dir = dist_dir if os.path.exists(dist_dir) else frontend_dir
+app.mount("/static", StaticFiles(directory=static_dir), name="frontend")
 
 # 配置临时文件目录
 TEMP_DIR = tempfile.gettempdir()
@@ -38,11 +41,12 @@ TEMP_DIR = tempfile.gettempdir()
 # 根路径重定向到静态文件服务的 index.html
 @app.get("/")
 def root():
-    return FileResponse(os.path.join(frontend_dir, "index.html"))
+    index_path = os.path.join(static_dir, "index.html")
+    return FileResponse(index_path)
 
 @app.get("/api/")
 def read_api_root():
-    return {"message": "统一文档转换工具API", "version": "1.0.0"}
+    return {"message": "统一文档转换工具API", "version": "2.0.0"}
 
 @app.post("/api/convert/docx-to-md")
 async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):

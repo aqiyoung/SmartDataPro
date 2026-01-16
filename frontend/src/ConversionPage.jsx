@@ -31,31 +31,45 @@ const ConversionPage = ({ conversionType }) => {
     handleLivePreview(text);
   };
 
-  // 实时预览处理
-  const handleLivePreview = async (text) => {
-    if (!text.trim()) {
-      setHtmlPreview('');
-      return;
-    }
-    
-    setIsPreviewLoading(true);
-    try {
-      // 使用临时文件创建一个Blob对象
-      const tempFile = new Blob([text], { type: 'text/markdown' });
-      const formData = new FormData();
-      formData.append('file', tempFile, 'temp.md');
-      formData.append('style', theme);
-      
-      // 调用后端API进行转换
-      const response = await axios.post('/api/convert/markdown-to-html', formData);
-      setHtmlPreview(response.data);
-    } catch (err) {
-      console.error('预览失败:', err);
-      // 实时预览失败时，不显示错误，保持现有预览
-    } finally {
-      setIsPreviewLoading(false);
-    }
-  };
+  // 实时预览处理 - 添加防抖，减少API调用次数
+  const handleLivePreview = React.useCallback(
+    React.useMemo(() => {
+      let timeoutId;
+      return async (text) => {
+        if (!text.trim()) {
+          setHtmlPreview('');
+          return;
+        }
+        
+        // 清除之前的定时器
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        
+        // 设置新的定时器，500ms后执行
+        timeoutId = setTimeout(async () => {
+          setIsPreviewLoading(true);
+          try {
+            // 使用临时文件创建一个Blob对象
+            const tempFile = new Blob([text], { type: 'text/markdown' });
+            const formData = new FormData();
+            formData.append('file', tempFile, 'temp.md');
+            formData.append('style', theme);
+            
+            // 调用后端API进行转换
+            const response = await axios.post('/api/convert/markdown-to-html', formData);
+            setHtmlPreview(response.data);
+          } catch (err) {
+            console.error('预览失败:', err);
+            // 实时预览失败时，不显示错误，保持现有预览
+          } finally {
+            setIsPreviewLoading(false);
+          }
+        }, 500);
+      };
+    }, [theme]),
+    [theme]
+  );
 
   // 处理主题选择变化
   const handleThemeChange = (e) => {
@@ -583,7 +597,7 @@ const ConversionPage = ({ conversionType }) => {
   
   const features = [
     {
-      icon: '�',
+      icon: '📄',
       title: '多格式支持',
       description: '支持DOCX、Markdown、HTML等多种文档格式转换'
     },

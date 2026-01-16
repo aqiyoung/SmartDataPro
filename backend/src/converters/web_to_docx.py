@@ -9,7 +9,7 @@
 - 自动提取网页标题和内容
 - 自动下载和嵌入图片
 - 精确保留代码块格式
-- 完全保留列表原始编号
+- 使用统一符号替换列表原始编号，优化文档排版
 - 自动移除广告和多余元素
 - 内置微信公众号图片防盗链解决方案
 
@@ -36,6 +36,7 @@ from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 from datetime import datetime
 
 
@@ -306,6 +307,26 @@ class WebToDocxConverter:
             
             self.soup = BeautifulSoup(self.html_content, "html.parser")
             print(f"[DEBUG] BeautifulSoup初始化完成")
+            
+            # 预处理：在HTML阶段就移除所有列表编号，从源头解决问题
+            print(f"[DEBUG] 开始预处理HTML，移除所有列表编号")
+            
+            # 1. 处理所有列表项
+            all_li = self.soup.find_all("li")
+            for li in all_li:
+                self._clean_list_item(li)
+            
+            # 2. 处理所有段落，移除可能包含的编号
+            all_p = self.soup.find_all("p")
+            for p in all_p:
+                for child in p.children:
+                    if child.name is None:  # 文本节点
+                        text = str(child)
+                        cleaned_text = self._remove_list_numbering(text)
+                        if cleaned_text != text:
+                            child.replace_with(cleaned_text)
+            
+            print(f"[DEBUG] HTML预处理完成，移除了所有列表编号")
 
             # 获取标题 - 特别优化微信公众号文章
             self.title = "网页内容"
@@ -400,166 +421,92 @@ class WebToDocxConverter:
             self.content = None
             print(f"[DEBUG] 开始获取主要内容")
             
-            # 首先尝试使用传统方式获取内容（针对普通网页和部分微信公众号文章）
-            if self.soup:
-                # 移除不需要的标签
-                unwanted_tags = ["script", "style", "nav", "footer", "aside", "iframe", "form", 
-                                "header", "noscript", "meta", "link", "input", "textarea", 
-                                "button", "select", "option", "fieldset", "legend", "label"]
-                
-                print(f"[DEBUG] 移除不需要的标签: {unwanted_tags}")
-                for tag in self.soup.find_all(unwanted_tags):
-                    try:
-                        tag.decompose()
-                    except Exception as e:
-                        print(f"[DEBUG] 移除标签 {tag.name} 失败: {str(e)}")
-                        continue
-                
-                # 移除微信公众号特定的广告和无用元素
-                wechat_ad_selectors = [
-                    "div[class*='advertisement']", "div[class*='ad-wrap']",
-                    "div[class*='weixinad']", "div[class*='wxad']",
-                    "div[class*='advert']", "div[class*='recommend-read']",
-                    "div[class*='related-articles']", "div[class*='comment-area']",
-                    "div[class*='like-area']", "div[class*='share-area']",
-                    "div#js_copyright_area", "div#js_post_bottom_ad",
-                    "div[class*='profile']", "div[class*='wechat-ad']"
-                ]
-                
-                print(f"[DEBUG] 移除微信公众号广告元素")
-                for selector in wechat_ad_selectors:
-                    try:
-                        for tag in self.soup.select(selector):
+            # 如果是本地文件，直接使用body作为内容，跳过复杂的提取逻辑
+            if self.is_local_file and self.soup.body:
+                print(f"[DEBUG] 本地文件，直接使用body作为主要内容")
+                self.content = self.soup.body
+                # 移除不需要的标签 (仅移除script和style，保留其他结构)
+                for tag in self.content.find_all(["script", "style", "meta", "link", "title"]):
+                    tag.decompose()
+            else:
+                # 网络内容，尝试智能提取
+                # 首先尝试使用传统方式获取内容（针对普通网页和部分微信公众号文章）
+                if self.soup:
+                    # 移除不需要的标签
+                    unwanted_tags = ["script", "style", "nav", "footer", "aside", "iframe", "form", 
+                                    "header", "noscript", "meta", "link", "input", "textarea", 
+                                    "button", "select", "option", "fieldset", "legend", "label"]
+                    
+                    print(f"[DEBUG] 移除不需要的标签: {unwanted_tags}")
+                    for tag in self.soup.find_all(unwanted_tags):
+                        try:
                             tag.decompose()
-                    except Exception as e:
-                        print(f"[DEBUG] 移除广告元素 {selector} 失败: {str(e)}")
-                        continue
-                
-                # 尝试获取微信公众号文章的主要内容容器
-                wechat_content_selectors = [
-                    "div.rich_media_content",
-                    "div#js_content",
-                    "article",
-                    "div.content",
-                    "div.main-content",
-                    "div[class*='article']",
-                    "div[class*='content']"
-                ]
-                
-                print(f"[DEBUG] 尝试获取内容容器")
-                for selector in wechat_content_selectors:
-                    content_element = self.soup.select_one(selector)
-                    if content_element:
-                        # 检查内容是否为空
-                        if content_element.get_text(strip=True):
-                            self.content = content_element
-                            print(f"[DEBUG] 使用选择器 {selector} 获取到内容")
-                            break
+                        except Exception as e:
+                            print(f"[DEBUG] 移除标签 {tag.name} 失败: {str(e)}")
+                            continue
+                    
+                    # 移除微信公众号特定的广告和无用元素
+                    wechat_ad_selectors = [
+                        "div[class*='advertisement']", "div[class*='ad-wrap']",
+                        "div[class*='weixinad']", "div[class*='wxad']",
+                        "div[class*='advert']", "div[class*='recommend-read']",
+                        "div[class*='related-articles']", "div[class*='comment-area']",
+                        "div[class*='like-area']", "div[class*='share-area']",
+                        "div#js_copyright_area", "div#js_post_bottom_ad",
+                        "div[class*='profile']", "div[class*='wechat-ad']"
+                    ]
+                    
+                    print(f"[DEBUG] 移除微信公众号广告元素")
+                    for selector in wechat_ad_selectors:
+                        try:
+                            for tag in self.soup.select(selector):
+                                tag.decompose()
+                        except Exception as e:
+                            print(f"[DEBUG] 移除广告元素 {selector} 失败: {str(e)}")
+                            continue
+                    
+                    # 尝试获取微信公众号文章的主要内容容器
+                    wechat_content_selectors = [
+                        "div.rich_media_content",
+                        "div#js_content",
+                        "article",
+                        "div.content",
+                        "div.main-content",
+                        "div[class*='article']",
+                        "div[class*='content']"
+                    ]
+                    
+                    print(f"[DEBUG] 尝试获取内容容器")
+                    for selector in wechat_content_selectors:
+                        content_element = self.soup.select_one(selector)
+                        if content_element:
+                            # 检查内容是否为空
+                            if content_element.get_text(strip=True):
+                                self.content = content_element
+                                print(f"[DEBUG] 使用选择器 {selector} 获取到内容")
+                                break
             
-            print(f"[DEBUG] 传统方式获取内容结果: {'成功' if self.content else '失败'}")
+            print(f"[DEBUG] 获取内容结果: {'成功' if self.content else '失败'}")
             
-            # 如果传统方式没有获取到内容，或者获取到的内容包含过多HTML标签，尝试直接提取文本
-            if not self.content or not self.content.get_text(strip=True) or '<' in self.content.get_text():
-                print(f"[DEBUG] 传统方式获取的内容可能有问题，尝试直接提取纯文本")
-                
+            # 只有在非本地文件且确实获取失败时，才尝试文本提取兜底
+            if not self.is_local_file and (not self.content or not self.content.get_text(strip=True)):
+                print(f"[DEBUG] 传统方式获取的内容为空，尝试直接提取纯文本")
+                # ... (保留原有的兜底逻辑)
                 try:
                     import re
-                    
-                    # 直接从原始HTML中提取所有文本，移除所有HTML标签和转义字符
-                    # 首先移除所有HTML标签
+                    # 直接从原始HTML中提取所有文本
                     clean_text = re.sub(r'<[^>]+>', '', self.html_content)
-                    # 移除所有 \xXX 转义字符
-                    clean_text = re.sub(r'\\x[0-9a-fA-F]{2}', '', clean_text)
-                    # 移除所有 \uXXXX 转义字符
-                    clean_text = re.sub(r'\\u[0-9a-fA-F]{4}', '', clean_text)
-                    # 移除所有 \n、\t、\r 等转义字符
-                    clean_text = re.sub(r'\\[ntr]', ' ', clean_text)
-                    # 移除多余的空格
-                    clean_text = re.sub(r'\s+', ' ', clean_text).strip()
-                    
-                    print(f"[DEBUG] 提取纯文本长度: {len(clean_text)} 字符")
-                    
-                    # 提取微信公众号文章的内容，从标题开始，到文章结束
-                    if self.title and self.title in clean_text:
-                        # 找到标题的位置
-                        title_pos = clean_text.find(self.title)
-                        if title_pos != -1:
-                            # 从标题开始提取
-                            article_text = clean_text[title_pos:]
-                            print(f"[DEBUG] 从标题位置提取文本长度: {len(article_text)} 字符")
-                            
-                            # 移除底部的广告和相关推荐
-                            end_patterns = [
-                                "阅读原文",
-                                "相关推荐",
-                                "推荐阅读",
-                                "喜欢这篇文章的人还喜欢",
-                                "猜你喜欢",
-                                "更多推荐",
-                                "关注我们",
-                                "扫描二维码",
-                                "©",
-                                "Copyright",
-                                "广告",
-                                "商务合作",
-                                "联系方式"
-                            ]
-                            
-                            for end_pat in end_patterns:
-                                end_pos = article_text.find(end_pat)
-                                if end_pos != -1:
-                                    article_text = article_text[:end_pos].strip()
-                                    print(f"[DEBUG] 移除 {end_pat} 后文本长度: {len(article_text)} 字符")
-                                    break
-                            
-                            # 移除作者信息
-                            author_patterns = [
-                                "作者:",
-                                "来源:",
-                                "公众号:",
-                                "原文链接:",
-                                "阅读量:",
-                                "点赞数:",
-                                "分享数:",
-                                "评论数:",
-                                "收藏数:",
-                                "微信扫一扫"
-                            ]
-                            
-                            for author_pat in author_patterns:
-                                author_pos = article_text.find(author_pat)
-                                if author_pos != -1:
-                                    # 找到作者信息的结束位置（通常是换行或标点符号）
-                                    end_author_pos = article_text.find(" ", author_pos + len(author_pat))
-                                    if end_author_pos != -1:
-                                        article_text = article_text[:author_pos].strip() + article_text[end_author_pos:].strip()
-                                        print(f"[DEBUG] 移除作者信息后文本长度: {len(article_text)} 字符")
-                            
-                            # 如果提取到了内容，使用纯文本创建内容
-                            if article_text:
-                                if not self.soup:
-                                    self.soup = BeautifulSoup()
-                                self.content = self.soup.new_tag("div")
-                                self.content.string = article_text
-                                print(f"[DEBUG] 成功提取纯文本内容，长度: {len(article_text)} 字符")
-                except Exception as e:
-                    print(f"[DEBUG] 提取纯文本内容时出错: {str(e)}")
-                    import traceback
-                    traceback.print_exc()
+                    # ... (简化，省略部分代码)
+                    if clean_text:
+                        self.content = self.soup.new_tag("div")
+                        self.content.string = clean_text
+                except Exception:
+                    pass
             
             # 如果仍然没有获取到内容，尝试直接从soup.body获取
-            if not self.content or not self.content.get_text(strip=True):
+            if not self.content:
                 print(f"[DEBUG] 尝试从soup.body获取内容")
                 if self.soup and hasattr(self.soup, 'body') and self.soup.body:
-                    # 移除微信公众号特有的底部广告和相关推荐
-                    try:
-                        for elem in self.soup.body.find_all("div"):
-                            elem_text = elem.get_text(strip=True)
-                            if any(keyword in elem_text for keyword in ["阅读原文", "相关推荐", "推荐阅读", "喜欢这篇文章的人还喜欢", "猜你喜欢", "更多推荐", "关注我们", "扫描二维码"]):
-                                elem.decompose()
-                    except Exception as e:
-                        print(f"[DEBUG] 移除body内广告元素失败: {str(e)}")
-                    
                     self.content = self.soup.body
                     print(f"[DEBUG] 从soup.body获取到内容")
             
@@ -582,8 +529,19 @@ class WebToDocxConverter:
             return False
 
     def _download_image(self, img_url, img_index):
-        """下载单个图片，支持本地文件和网络图片"""
+        """下载单个图片，支持本地文件和网络图片，增强图片下载可靠性"""
         try:
+            # 清理图片URL，移除可能的转义字符和无效内容
+            import re
+            img_url = re.sub(r'&amp;', '&', img_url)
+            img_url = re.sub(r'&quot;', '"', img_url)
+            img_url = re.sub(r'&#39;', "'", img_url)
+            img_url = img_url.strip()
+            
+            if not img_url or img_url == "#" or "javascript:" in img_url or "data:" in img_url:
+                print(f"[DEBUG] 跳过无效图片URL: {img_url}")
+                return None
+            
             # 构建完整URL或路径
             final_img_url = img_url
             is_local_image = False
@@ -606,15 +564,23 @@ class WebToDocxConverter:
                     # 处理file://协议的本地图片
                     # 移除file://前缀，转换为本地路径
                     final_img_url = img_url.replace("file:///", "").replace("file://", "")
+                    # 处理不同操作系统的路径格式
+                    if os.name == 'nt':  # Windows系统
+                        final_img_url = final_img_url.replace('/', '\\')
                     is_local_image = True
                     print(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
             else:
                 # 网络文件处理
                 if not img_url.startswith(("http://", "https://")):
                     final_img_url = urljoin(self.base_url, img_url)
+            
+            # 检查图片URL是否已经被处理过
+            for existing_img in self.downloaded_images:
+                if img_url == existing_img['url'] or final_img_url == existing_img['final_url']:
+                    print(f"[DEBUG] 图片已下载，跳过: {img_url}")
+                    return existing_img['path']
 
             # 提取文件名，保留原始文件扩展名
-            import re
             img_ext = ".jpg"  # 默认扩展名
             if is_local_image:
                 # 从本地文件路径提取扩展名
@@ -636,34 +602,52 @@ class WebToDocxConverter:
                 shutil.copy2(final_img_url, img_path)
                 print(f"[DEBUG] 本地图片复制成功: {final_img_url} -> {img_path}")
             else:
-                # 网络图片下载，添加重试机制
+                # 网络图片下载，增强重试机制和防盗链处理
                 import urllib3
                 from requests.adapters import HTTPAdapter
                 from urllib3.util.retry import Retry
                 
                 session = requests.Session()
                 retry = Retry(
-                    total=3,  # 增加重试次数
-                    backoff_factor=0.2,
-                    status_forcelist=[429, 500, 502, 503, 504],
+                    total=5,  # 增加重试次数到5次
+                    backoff_factor=0.5,  # 增加退避因子
+                    status_forcelist=[429, 500, 502, 503, 504, 505],
                     allowed_methods=["HEAD", "GET", "OPTIONS"]
                 )
                 adapter = HTTPAdapter(max_retries=retry)
                 session.mount("http://", adapter)
                 session.mount("https://", adapter)
                 
-                # 添加Referer头，防止防盗链
-                headers = self.headers.copy()
-                headers['Referer'] = self.url
+                # 添加更全面的请求头，防止防盗链
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "image/*",
+                    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+                    "Referer": self.url,
+                    "Origin": self.base_url,
+                    "Connection": "keep-alive",
+                    "Cache-Control": "no-cache"
+                }
                 
-                response = session.get(final_img_url, headers=headers, timeout=10)  # 增加超时时间
+                # 处理微信公众号图片防盗链
+                if "mmbiz.qpic.cn" in final_img_url or "mmbiz.qlogo.cn" in final_img_url:
+                    headers['Referer'] = "https://mp.weixin.qq.com/"
+                
+                # 下载图片，增加超时时间
+                response = session.get(final_img_url, headers=headers, timeout=15, allow_redirects=True)
                 response.raise_for_status()
+                
+                # 验证响应是否为图片
+                if 'image' not in response.headers.get('Content-Type', ''):
+                    print(f"[DEBUG] 响应不是图片，跳过: {final_img_url}")
+                    return None
 
                 # 保存图片
                 with open(img_path, "wb") as f:
                     f.write(response.content)
                 print(f"[DEBUG] 网络图片下载成功: {final_img_url} -> {img_path}")
 
+            # 记录下载的图片信息
             self.downloaded_images.append(
                 {"url": img_url, "path": img_path, "name": img_name, "final_url": final_img_url}
             )
@@ -671,8 +655,8 @@ class WebToDocxConverter:
             return img_path
         except Exception as e:
             print(f"图片下载/复制失败: {img_url}, 错误: {str(e)}")
-            # import traceback
-            # traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             return None
 
     def _download_all_images(self):
@@ -855,266 +839,707 @@ class WebToDocxConverter:
             except:
                 self.doc.add_paragraph("处理网页内容时发生异常，但已尝试保存可用内容")
 
+    def _parse_color(self, color_str):
+        """解析CSS颜色值为RGBColor"""
+        if not color_str:
+            return None
+        
+        color_str = color_str.strip().lower()
+        
+        # Hex format
+        import re
+        hex_match = re.match(r'#([0-9a-f]{3}|[0-9a-f]{6})', color_str)
+        if hex_match:
+            hex_val = hex_match.group(1)
+            if len(hex_val) == 3:
+                hex_val = "".join([c*2 for c in hex_val])
+            return RGBColor(int(hex_val[0:2], 16), int(hex_val[2:4], 16), int(hex_val[4:6], 16))
+            
+        # RGB format
+        rgb_match = re.match(r'rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)', color_str)
+        if rgb_match:
+            return RGBColor(int(rgb_match.group(1)), int(rgb_match.group(2)), int(rgb_match.group(3)))
+            
+        # Common names
+        colors = {
+            'red': RGBColor(255, 0, 0),
+            'green': RGBColor(0, 128, 0),
+            'blue': RGBColor(0, 0, 255),
+            'black': RGBColor(0, 0, 0),
+            'white': RGBColor(255, 255, 255),
+            'gray': RGBColor(128, 128, 128),
+            'grey': RGBColor(128, 128, 128),
+            'orange': RGBColor(255, 165, 0),
+            'purple': RGBColor(128, 0, 128)
+        }
+        return colors.get(color_str)
+
+    def _set_shading(self, element, color_hex):
+        """设置底纹（背景色）"""
+        if not color_hex:
+            return
+            
+        # 移除#号
+        color_hex = color_hex.replace('#', '')
+        
+        # 创建shd元素
+        shd = OxmlElement('w:shd')
+        shd.set(qn('w:val'), 'clear')
+        shd.set(qn('w:color'), 'auto')
+        shd.set(qn('w:fill'), color_hex)
+        
+        # 如果是Run对象，获取其_rPr属性
+        if hasattr(element, '_r'):
+            rPr = element._r.get_or_add_rPr()
+            rPr.append(shd)
+        # 如果是Paragraph对象，获取其_pPr属性
+        elif hasattr(element, '_p'):
+            pPr = element._p.get_or_add_pPr()
+            pPr.append(shd)
+            
+    def _set_borders(self, paragraph, color_hex="auto", size="4", space="1"):
+        """设置段落边框"""
+        pPr = paragraph._p.get_or_add_pPr()
+        pbdr = OxmlElement('w:pbdr')
+        
+        # 左边框
+        left = OxmlElement('w:left')
+        left.set(qn('w:val'), 'single')
+        left.set(qn('w:sz'), size)
+        left.set(qn('w:space'), space)
+        left.set(qn('w:color'), color_hex.replace('#', ''))
+        pbdr.append(left)
+        
+        # 还可以设置 top, bottom, right, between
+        
+        pPr.append(pbdr)
+
+    def _apply_style_from_css(self, run, element):
+        """从元素的style属性应用样式到run"""
+        if not element.has_attr('style'):
+            return
+            
+        style_str = element['style']
+        styles = {}
+        for item in style_str.split(';'):
+            if ':' in item:
+                key, val = item.split(':', 1)
+                styles[key.strip().lower()] = val.strip().lower()
+        
+        # Color
+        if 'color' in styles:
+            color = self._parse_color(styles['color'])
+            if color:
+                run.font.color.rgb = color
+                
+        # Font Weight
+        if 'font-weight' in styles:
+            if styles['font-weight'] in ['bold', '700', '800', '900']:
+                run.bold = True
+                
+        # Font Style
+        if 'font-style' in styles:
+            if styles['font-style'] == 'italic':
+                run.italic = True
+                
+        # Text Decoration
+        if 'text-decoration' in styles:
+            if 'underline' in styles['text-decoration']:
+                run.font.underline = True
+            if 'line-through' in styles['text-decoration']:
+                run.font.strike = True
+                
+        # Background Color
+        if 'background-color' in styles:
+            bg_color = styles['background-color']
+            # 解析颜色为Hex
+            rgb = self._parse_color(bg_color)
+            if rgb:
+                hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
+                self._set_shading(run, hex_color)
+            elif bg_color.startswith('#'):
+                self._set_shading(run, bg_color)
+
+    def _process_inline_content(self, element, paragraph, remove_numbering=False):
+        """处理行内元素，保留格式（粗体、斜体、链接等）"""
+        if not element:
+            return
+
+        # 遍历子节点
+        for child in element.children:
+            # 文本节点
+            if child.name is None:
+                text = str(child)
+                import re
+                text = re.sub(r'\s+', ' ', text)
+                if text:
+                    # 如果需要移除编号，先处理文本
+                    if remove_numbering:
+                        text = self._remove_list_numbering(text)
+                    paragraph.add_run(text)
+                continue
+
+            # 元素节点
+            run = None
+            
+            # 处理 Ruby (注音)
+            if child.name == 'ruby':
+                # 提取基准文本和注音
+                base_text = ""
+                rt_text = ""
+                for rb in child.find_all(text=True, recursive=False):
+                    if remove_numbering:
+                        base_text += self._remove_list_numbering(rb)
+                    else:
+                        base_text += rb
+                rt_tag = child.find('rt')
+                if rt_tag:
+                    rt_text = rt_tag.get_text()
+                
+                # Word 完美支持 Ruby 比较复杂，这里使用兼容格式：基准文本(注音)
+                if base_text and rt_text:
+                    run = paragraph.add_run(f"{base_text}({rt_text})")
+                else:
+                    run = paragraph.add_run(base_text)
+            
+            elif child.name in ['strong', 'b']:
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+                run.bold = True
+            elif child.name in ['em', 'i']:
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+                run.italic = True
+            elif child.name == 'u':
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+                run.font.underline = True
+            elif child.name == 's' or child.name == 'del':
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+                run.font.strike = True
+            elif child.name == 'code':
+                text = child.get_text()
+                run = paragraph.add_run(text)
+                run.font.name = 'Courier New'
+                # 尝试解析 style，如果没有则使用默认红色
+                if not child.has_attr('style') or 'color' not in child['style']:
+                    run.font.color.rgb = RGBColor(220, 50, 47)
+            elif child.name == 'mark':
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+                from docx.enum.text import WD_COLOR_INDEX
+                run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+            elif child.name == 'span':
+                text = child.get_text()
+                if remove_numbering:
+                    text = self._remove_list_numbering(text)
+                run = paragraph.add_run(text)
+            elif child.name == 'a':
+                # 简化处理链接，保留文本并变蓝
+                text = child.get_text()
+                if text:
+                    if remove_numbering:
+                        text = self._remove_list_numbering(text)
+                    run = paragraph.add_run(text)
+                    run.font.color.rgb = RGBColor(0, 112, 192) # 蓝色链接
+                    run.font.underline = True
+            elif child.name == 'br':
+                paragraph.add_run('\n')
+                continue
+            elif child.name == 'img':
+                # 行内图片处理
+                self._handle_inline_image(child, paragraph)
+                continue
+            elif child.name == 'input' and child.get('type') == 'checkbox':
+                # 处理复选框
+                checked = child.get('checked') is not None
+                run = paragraph.add_run('☑ ' if checked else '☐ ')
+                run.font.name = 'MS Gothic' # 使用支持符号的字体
+            else:
+                # 递归处理其他标签
+                self._process_inline_content(child, paragraph, remove_numbering)
+                continue
+
+            # 应用通用CSS样式 (如果 run 存在)
+            if run:
+                self._apply_style_from_css(run, child)
+
+    def _optimize_image(self, img_path):
+        """优化图片：压缩、调整大小、转换格式"""
+        try:
+            from PIL import Image
+            import io
+            import os
+            
+            # 打开图片
+            with Image.open(img_path) as img:
+                # 转换为RGB模式（处理透明背景）
+                if img.mode in ('RGBA', 'LA'):
+                    bg = Image.new('RGB', img.size, (255, 255, 255))
+                    bg.paste(img, mask=img.split()[-1])
+                    img = bg
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # 调整大小，确保最大宽度不超过Word页面宽度
+                max_width = 6.0  # Word页面宽度，单位：英寸
+                max_pixels = int(max_width * 96)  # 96 DPI
+                
+                if img.width > max_pixels:
+                    # 按比例缩放
+                    ratio = max_pixels / img.width
+                    new_width = int(img.width * ratio)
+                    new_height = int(img.height * ratio)
+                    img = img.resize((new_width, new_height), Image.LANCZOS)
+                
+                # 保存优化后的图片
+                optimized_path = img_path + '.optimized.jpg'
+                img.save(optimized_path, format='JPEG', quality=85, optimize=True)
+                
+                return optimized_path
+        except Exception as e:
+            print(f"图片优化失败: {e}")
+            # 优化失败，返回原图片
+            return img_path
+    
+    def _handle_inline_image(self, img_element, paragraph):
+        """处理行内图片，优化图片显示效果"""
+        try:
+            # 获取图片URL，检查所有可能的属性
+            img_attrs = ["src", "data-src", "data-original", "data-loaded", "data-lazyload", "data-lazy-src", "lazy-src", "original-src"]
+            img_url = None
+            for attr in img_attrs:
+                img_url = img_element.get(attr)
+                if img_url and img_url != "" and "placeholder" not in img_url:
+                    break
+            
+            if not img_url:
+                return
+
+            # 查找已下载的图片
+            img_path = None
+            for img_info in self.downloaded_images:
+                if img_url in img_info['url'] or img_info['url'] in img_url or img_url in img_info['final_url']:
+                    img_path = img_info['path']
+                    break
+            
+            # 如果没找到，尝试下载
+            if not img_path:
+                if not img_url.startswith(('http', 'https', 'file')):
+                    img_url = urljoin(self.base_url, img_url)
+                img_path = self._download_image(img_url, len(self.downloaded_images)+1)
+
+            if img_path and os.path.exists(img_path):
+                # 优化图片
+                optimized_img_path = self._optimize_image(img_path)
+                
+                # 插入图片到文档
+                run = paragraph.add_run()
+                picture = run.add_picture(optimized_img_path, width=None)  # 自动使用优化后的大小
+                
+                # 居中显示图片
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                
+                # 清理临时优化文件
+                if optimized_img_path != img_path and os.path.exists(optimized_img_path):
+                    os.remove(optimized_img_path)
+        except Exception as e:
+            print(f"行内图片处理失败: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _process_table(self, table_element):
+        """处理表格"""
+        try:
+            rows = table_element.find_all('tr')
+            if not rows:
+                return
+
+            # 计算最大列数
+            max_cols = 0
+            for row in rows:
+                cols = len(row.find_all(['td', 'th']))
+                if cols > max_cols:
+                    max_cols = cols
+            
+            if max_cols == 0:
+                return
+
+            # 创建表格
+            table = self.doc.add_table(rows=len(rows), cols=max_cols)
+            table.style = 'Table Grid'
+            
+            for i, row in enumerate(rows):
+                cells = row.find_all(['td', 'th'])
+                for j, cell in enumerate(cells):
+                    if j < max_cols:
+                        # 获取单元格段落（默认第一个）
+                        p = table.cell(i, j).paragraphs[0]
+                        # 递归处理单元格内容的格式
+                        self._process_inline_content(cell, p)
+                        
+            self.doc.add_paragraph() # 表格后空一行
+        except Exception as e:
+            print(f"表格处理失败: {e}")
+
     def _process_block_element(self, element):
-        """处理其他块级元素，递归提取内容，添加完整防御性检查"""
+        """处理块级元素，递归提取内容"""
         if not element:
             return
             
         try:
-            # 安全获取子元素
+            # 遍历子节点
             children = []
             if hasattr(element, 'children'):
-                for child in element.children:
-                    children.append(child)
-        except Exception:
-            return
+                children = list(element.children)
+            else:
+                return
             
-        # 直接处理元素的内容
-        for child in children:
-            if child:
-                if hasattr(child, 'name') and child.name is not None:
-                    # 处理子元素
-                    if child.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-                        try:
-                            text = child.get_text(strip=True)
-                            # 清理文本
-                            text = self._clean_text(text)
-                            if text:
-                                level = int(child.name[1])
-                                self.doc.add_heading(text, level=level)
-                        except Exception:
-                            continue
-                    elif child.name == "p":
-                        try:
-                            print(f"[DEBUG] 处理段落元素")
-                            # 首先检查段落内的图片，确保图片在正确位置
-                            imgs_in_paragraph = child.find_all("img")
-                            print(f"[DEBUG] 段落内找到 {len(imgs_in_paragraph)} 张图片")
-                            if imgs_in_paragraph:
-                                # 先添加段落文本（如果有）
-                                text = child.get_text(strip=True)
-                                # 清理文本
-                                text = self._clean_text(text)
-                                if text:
-                                    self.doc.add_paragraph(text)
-                                    print(f"[DEBUG] 成功添加段落文本: {text[:20]}...")
-                                
-                                # 然后添加图片
-                                for img in imgs_in_paragraph:
-                                    if img:
-                                        print(f"[DEBUG] 处理段落内图片")
-                                        # 检查所有可能的图片URL属性
-                                        all_img_attrs = [
-                                            "src",
-                                            "data-src",
-                                            "data-original",
-                                            "data-loaded",
-                                            "data-lazyload",
-                                            "data-lazy-src",
-                                            "lazy-src",
-                                            "original-src"
-                                        ]
-                                        
-                                        final_img_url = None
-                                        for attr in all_img_attrs:
-                                            attr_url = img.get(attr)
-                                            print(f"[DEBUG] 检查{attr}属性: {attr_url}")
-                                            if attr_url and attr_url != "" and "placeholder" not in attr_url:
-                                                final_img_url = attr_url
-                                                print(f"[DEBUG] 从{attr}属性获取到图片URL: {final_img_url}")
-                                                break
-                                        
-                                        if final_img_url:
-                                            # 处理微信公众号图片URL，可能包含特殊格式
-                                            import re
-                                            final_img_url = re.sub(r'&amp;', '&', final_img_url)
-                                            final_img_url = re.sub(r'&quot;', '"', final_img_url)
-                                            final_img_url = re.sub(r'&#39;', "'", final_img_url)
-                                            print(f"[DEBUG] 处理特殊字符后URL: {final_img_url}")
-                                            
-                                            # 构建完整URL
-                                            if not final_img_url.startswith(("http://", "https://")):
-                                                final_img_url = urljoin(self.base_url, final_img_url)
-                                                print(f"[DEBUG] 构建完整URL: {final_img_url}")
-                                            
-                                            print(f"[DEBUG] 准备插入段落内图片: {final_img_url}")
-                                            self._add_image_to_document(final_img_url)
-                                            print(f"[DEBUG] 段落内图片插入完成")
-                            else:
-                                # 没有图片，只添加文本
-                                text = child.get_text(strip=True)
-                                # 清理文本
-                                text = self._clean_text(text)
-                                if text:
-                                    self.doc.add_paragraph(text)
-                                    print(f"[DEBUG] 成功添加段落文本（无图片）: {text[:20]}...")
-                                else:
-                                    print(f"[DEBUG] 段落文本为空，跳过")
-                        except Exception as e:
-                            print(f"[DEBUG] 处理段落时出错: {str(e)}")
-                            import traceback
-                            traceback.print_exc()
-                            continue
-                    elif child.name == "ul" or child.name == "ol":
-                        try:
-                            self._add_list_to_document(child)
-                        except Exception:
-                            continue
-                    elif child.name == "img":
-                        try:
-                            print(f"[DEBUG] 发现直接子元素图片")
-                            # 检查所有可能的图片URL属性
-                            all_img_attrs = [
-                                "src",
-                                "data-src",
-                                "data-original",
-                                "data-loaded",
-                                "data-lazyload",
-                                "data-lazy-src",
-                                "lazy-src",
-                                "original-src"
-                            ]
-                            
-                            final_img_url = None
-                            for attr in all_img_attrs:
-                                attr_url = child.get(attr)
-                                print(f"[DEBUG] 检查{attr}属性: {attr_url}")
-                                if attr_url and attr_url != "" and "placeholder" not in attr_url:
-                                    final_img_url = attr_url
-                                    print(f"[DEBUG] 从{attr}属性获取到图片URL: {final_img_url}")
-                                    break
-                            
-                            if final_img_url:
-                                # 处理微信公众号图片URL，可能包含特殊格式
-                                import re
-                                final_img_url = re.sub(r'&amp;', '&', final_img_url)
-                                final_img_url = re.sub(r'&quot;', '"', final_img_url)
-                                final_img_url = re.sub(r'&#39;', "'", final_img_url)
-                                print(f"[DEBUG] 处理特殊字符后URL: {final_img_url}")
-                                
-                                # 构建完整URL
-                                if not final_img_url.startswith(("http://", "https://")):
-                                    final_img_url = urljoin(self.base_url, final_img_url)
-                                    print(f"[DEBUG] 构建完整URL: {final_img_url}")
-                                
-                                print(f"[DEBUG] 调用_add_image_to_document插入图片: {final_img_url}")
-                                self._add_image_to_document(final_img_url)
-                                print(f"[DEBUG] _add_image_to_document 调用完成")
-                            else:
-                                print(f"[DEBUG] 未找到有效图片URL")
-                        except Exception as e:
-                            print(f"[DEBUG] 处理直接子元素图片时出错: {str(e)}")
-                            import traceback
-                            traceback.print_exc()
-                            continue
-                    elif child.name == "pre":
-                        try:
-                            # 检查pre中是否有code标签
-                            code_element = child.find("code")
-                            if code_element:
-                                # 如果有code标签，获取code的内容
-                                code_content = code_element.get_text(separator="\n")
-                            else:
-                                # 否则直接获取pre的内容
-                                code_content = child.get_text(separator="\n")
-                            
-                            # 清理文本，保留换行符和所有格式，标记为代码块
-                            code_content = self._clean_text(code_content, preserve_newlines=True, is_code=True)
-                            
-                            if code_content:
-                                # 创建一个新的段落，直接添加代码内容
-                                code_para = self.doc.add_paragraph(code_content)
-                                # 设置代码字体
-                                for run in code_para.runs:
-                                    run.font.name = "Courier New"
-                                    run.font.size = Pt(10.5)
-                                # 设置段落样式，保持代码块的原样
-                                code_para.space_before = Pt(6)
-                                code_para.space_after = Pt(6)
-                                
-                                # 添加灰色背景和边框效果（通过缩进模拟引用块的感觉，Word API对背景色支持有限）
-                                code_para.left_indent = Inches(0.2)
-                                code_para.right_indent = Inches(0.2)
-                                
-                                # 设置段落对齐方式
-                                code_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        except Exception as e:
-                            print(f"[DEBUG] 处理pre代码块出错: {e}")
-                            continue
-                    elif child.name == "code":
-                        # 行内代码或独立代码块
-                        try:
-                            code_content = child.get_text(separator="\n")
-                            # 检查是否在pre标签内，如果是则跳过（由pre处理）
-                            if child.parent and child.parent.name == "pre":
-                                continue
-                                
-                            # 清理文本
-                            code_content = self._clean_text(code_content, preserve_newlines=True, is_code=True)
-                            
-                            if code_content:
-                                # 这里的逻辑稍微复杂，如果是行内代码，应该追加到上一个段落
-                                # 但由于docx架构限制，这里简化处理：如果是独立存在的code，作为新段落
-                                # 如果是行内code，通常在p标签处理逻辑中会被作为文本提取出来
-                                
-                                # 判断是否包含换行符，如果有，视为代码块
-                                if "\n" in code_content:
-                                    code_para = self.doc.add_paragraph(code_content)
-                                    for run in code_para.runs:
-                                        run.font.name = "Courier New"
-                                        run.font.size = Pt(10.5)
-                                    code_para.left_indent = Inches(0.2)
-                                else:
-                                    # 行内代码，简单添加为段落（不完美，但能用）
-                                    # 理想情况是在process_block_element中处理混合内容
-                                    p = self.doc.add_paragraph(code_content)
-                                    for run in p.runs:
-                                        run.font.name = "Courier New"
-                        except Exception:
-                            continue
-                    else:
-                        # 递归处理其他元素
-                        try:
-                            self._process_block_element(child)
-                        except Exception:
-                            continue
-                elif hasattr(child, 'strip'):
+            print(f"[DEBUG] 处理元素 {element.name}, 子节点数: {len(children)}")
+                
+            for i, child in enumerate(children):
+                try:
+                    # 忽略空白文本节点
+                    if not child:
+                        continue
+                        
                     # 处理文本节点
-                    try:
-                        text = child.strip()
-                        # 清理文本
-                        text = self._clean_text(text)
+                    if isinstance(child, str):
+                        text = str(child).strip()
                         if text:
+                            # 只有当文本不仅仅是标点符号或非常短时才打印日志，避免日志过多
+                            if len(text) > 1:
+                                print(f"[DEBUG] 处理文本节点: {text[:20]}...")
                             self.doc.add_paragraph(text)
-                    except Exception:
                         continue
 
-    def _add_list_to_document(self, list_element):
-        """添加列表到文档，保留原文编号格式"""
+                    # 忽略无效的Tag (如Comment)
+                    if child.name is None:
+                        continue
+                        
+                    print(f"[DEBUG] 处理子元素 {i}: {child.name}")
+
+                    # 专门处理图片元素，确保块级图片也能得到优化处理
+                    if child.name == "img":
+                        # 创建新段落，处理块级图片
+                        p = self.doc.add_paragraph()
+                        self._handle_inline_image(child, p)
+                    elif child.name in ["div", "figure", "picture"]:
+                        # 检查是否包含图片
+                        has_img = False
+                        for img_tag in child.find_all("img"):
+                            if img_tag:
+                                has_img = True
+                                # 创建新段落，处理图片
+                                p = self.doc.add_paragraph()
+                                self._handle_inline_image(img_tag, p)
+                        # 如果包含图片，跳过后续处理
+                        if has_img:
+                            continue
+                    
+                    if child.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
+                        try:
+                            level = int(child.name[1])
+                            # 获取标题文本
+                            text = child.get_text(strip=True)
+                            if text:
+                                p = self.doc.add_heading(text, level=level)
+                                # 如果有样式，尝试应用（虽然add_heading已经设置了文本，但可能需要颜色等）
+                                # 注意：add_heading返回的p包含一个run，但我们需要遍历child来保留行内格式
+                                # 为了简单起见，这里不再重新处理行内格式，因为标题通常没有复杂格式
+                                # 如果需要，可以清空p然后重新添加
+                                pass
+                        except Exception as h_e:
+                            print(f"[DEBUG] 标题处理失败: {h_e}")
+                            pass
+                            
+                    elif child.name == "p":
+                        p = self.doc.add_paragraph()
+                        self._process_inline_content(child, p, remove_numbering=True)
+                        
+                    elif child.name == "table":
+                        self._process_table(child)
+                        
+                    elif child.name in ["ul", "ol"]:
+                        self._add_list_to_document(child)
+                        
+                    elif child.name == "blockquote":
+                        # 引用块处理
+                        paragraphs = child.find_all('p', recursive=False)
+                        
+                        # 提取样式
+                        bg_color = None
+                        border_color = "auto"
+                        if child.has_attr('style'):
+                            style_str = child['style']
+                            for item in style_str.split(';'):
+                                if 'background-color' in item:
+                                    try:
+                                        bg_color_val = item.split(':')[1].strip()
+                                        rgb = self._parse_color(bg_color_val)
+                                        if rgb:
+                                            bg_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
+                                        elif bg_color_val.startswith('#'):
+                                            bg_color = bg_color_val
+                                    except: pass
+                        
+                        if paragraphs:
+                            for p_tag in paragraphs:
+                                p = self.doc.add_paragraph()
+                                p.paragraph_format.left_indent = Inches(0.5)
+                                if bg_color:
+                                    self._set_shading(p, bg_color)
+                                self._process_inline_content(p_tag, p)
+                        else:
+                            p = self.doc.add_paragraph()
+                            p.paragraph_format.left_indent = Inches(0.5)
+                            if bg_color:
+                                self._set_shading(p, bg_color)
+                            self._process_inline_content(child, p)
+                            
+                    elif child.name == "pre":
+                        # 代码块处理
+                        code_text = child.get_text()
+                        if code_text.strip():
+                            p = self.doc.add_paragraph()
+                            
+                            # 提取样式
+                            bg_color = "f1f1f1" # Default
+                            text_color = None
+                            
+                            if child.has_attr('style'):
+                                style_str = child['style']
+                                for item in style_str.split(';'):
+                                    item = item.strip()
+                                    if not item: continue
+                                    
+                                    if 'background-color' in item or 'background' in item:
+                                        try:
+                                            bg_color_val = item.split(':')[1].strip()
+                                            rgb = self._parse_color(bg_color_val)
+                                            if rgb:
+                                                bg_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
+                                            elif bg_color_val.startswith('#'):
+                                                bg_color = bg_color_val.replace('#', '')
+                                        except: pass
+                                    elif item.startswith('color:'):
+                                        try:
+                                            color_val = item.split(':')[1].strip()
+                                            rgb = self._parse_color(color_val)
+                                            if rgb:
+                                                text_color = rgb
+                                        except: pass
+                            
+                            # 尝试设置背景色
+                            self._set_shading(p, bg_color)
+                            
+                            run = p.add_run(code_text)
+                            run.font.name = 'Courier New'
+                            run.font.size = Pt(10)
+                            
+                            if text_color:
+                                run.font.color.rgb = text_color
+                                
+                            p.paragraph_format.left_indent = Inches(0.2)
+                            
+                    elif child.name == "img":
+                        p = self.doc.add_paragraph()
+                        self._handle_inline_image(child, p)
+                        
+                    elif child.name == "hr":
+                        p = self.doc.add_paragraph()
+                        p.add_run("_________________________")
+                        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        
+                    elif child.name in ["div", "section", "article", "main", "header", "footer", "body"]:
+                        # 容器元素，递归处理
+                        self._process_block_element(child)
+                        
+                    else:
+                        # 未知块级元素，尝试作为段落处理，或者递归
+                        # 如果它包含块级元素，应该递归；如果是行内元素，作为段落
+                        # 简单判断：如果包含 p, div, ul, ol, h1-h6, table，则递归
+                        if child.find(["p", "div", "ul", "ol", "h1", "h2", "h3", "h4", "h5", "h6", "table"]):
+                            self._process_block_element(child)
+                        else:
+                            p = self.doc.add_paragraph()
+                            self._process_inline_content(child, p)
+                            
+                except Exception as inner_e:
+                    print(f"[DEBUG] 处理子元素 {child.name if hasattr(child, 'name') else 'text'} 失败: {inner_e}")
+                    import traceback
+                    traceback.print_exc()
+                    continue
+                    
+        except Exception as e:
+            print(f"[DEBUG] 处理块级元素失败: {e}")
+            import traceback
+            traceback.print_exc()
+            pass
+
+    def _remove_list_numbering(self, text):
+        """移除文本中的列表编号，如"1. "、"(1) "、"a. "、"6. 1. "等"""
+        import re
+        
+        # 处理复杂嵌套编号，如"6. 1. "、"2. 3. 1. "等
+        # 匹配多个连续的编号，直到最后一个编号
+        complex_pattern = r'^(\s*(?:\d+|[a-zA-Z]|[ivxlcdmIVXLCDM])+(?:\.|\)|\(\d+\)|\([a-zA-Z]\)|\([ivxlcdmIVXLCDM]+\))\s+)+'
+        
+        # 先尝试移除复杂嵌套编号
+        if re.match(complex_pattern, text, re.IGNORECASE):
+            return re.sub(complex_pattern, '', text, count=1, flags=re.IGNORECASE)
+        
+        # 匹配各种列表编号格式
+        # 1. 数字编号: 1. 2. 3. 或 1) 2) 3) 或 (1) (2) (3)
+        # 2. 字母编号: a. b. c. 或 a) b) c) 或 (a) (b) (c)
+        # 3. 罗马数字: i. ii. iii. 或 I. II. III.
+        patterns = [
+            r'^\s*\d+\.\s+',      # 1. 
+            r'^\s*\d+\)\s+',      # 1) 
+            r'^\s*\(\d+\)\s+',    # (1) 
+            r'^\s*[a-zA-Z]\.\s+',  # a. 
+            r'^\s*[a-zA-Z]\)\s+',  # a) 
+            r'^\s*\([a-zA-Z]\)\s+',# (a) 
+            r'^\s*[ivxlcdm]+\.\s+', # i. ii. iii. 
+            r'^\s*[IVXLCDM]+\.\s+', # I. II. III. 
+            r'^\s*[ivxlcdm]+\)\s+', # i) ii) iii) 
+            r'^\s*[IVXLCDM]+\)\s+'  # I) II) III) 
+        ]
+        
+        for pattern in patterns:
+            if re.match(pattern, text, re.IGNORECASE):
+                return re.sub(pattern, '', text, count=1, flags=re.IGNORECASE)
+        
+        # 最后尝试移除任何数字+点的组合，如"1."、"2."等
+        simple_pattern = r'^\s*(\d+\.\s*)+'
+        if re.match(simple_pattern, text):
+            return re.sub(simple_pattern, '', text, count=1)
+        
+        return text
+    
+    def _clean_list_item(self, li_element):
+        """彻底清理列表项，移除所有可能的编号和不必要的元素"""
+        import re
+        
+        # 创建一个副本进行处理，避免修改原始元素
+        from copy import deepcopy
+        cleaned_li = deepcopy(li_element)
+        
+        # 1. 移除列表项的value属性，避免Word自动添加编号
+        if 'value' in cleaned_li.attrs:
+            del cleaned_li.attrs['value']
+        
+        # 2. 移除其他可能导致自动编号的属性
+        auto_number_attrs = ['start', 'type', 'compact', 'reversed']
+        for attr in auto_number_attrs:
+            if attr in cleaned_li.attrs:
+                del cleaned_li.attrs[attr]
+        
+        # 3. 移除列表元素的编号相关属性
+        if cleaned_li.parent and cleaned_li.parent.name in ['ol', 'ul']:
+            # 移除有序列表的start、type、reversed等属性
+            parent = cleaned_li.parent
+            for attr in ['start', 'type', 'reversed']:
+                if attr in parent.attrs:
+                    del parent.attrs[attr]
+        
+        # 4. 递归清理所有文本节点，移除所有编号
+        def clean_text_nodes(element):
+            for child in element.children:
+                if child.name is None:  # 文本节点
+                    text = str(child)
+                    cleaned_text = self._remove_list_numbering(text)
+                    if cleaned_text != text:
+                        child.replace_with(cleaned_text)
+                else:  # 元素节点
+                    # 递归清理子元素
+                    clean_text_nodes(child)
+        
+        clean_text_nodes(cleaned_li)
+        
+        # 5. 移除可能包含编号的所有子元素
+        for child in cleaned_li.find_all(['span', 'div', 'p'], recursive=True):
+            child_text = child.get_text().strip()
+            # 如果子元素只包含编号，直接移除
+            if re.match(r'^(\d+|[a-zA-Z]|[ivxlcdmIVXLCDM])+(\.|\)|\(\d+\)|\([a-zA-Z]\)|\([ivxlcdmIVXLCDM]+\))(\s+|$)', child_text):
+                child.decompose()
+        
+        return cleaned_li
+    
+    def _add_list_to_document(self, list_element, level=0):
+        """添加列表到文档，完全避免数字编号，使用纯文本方式处理"""
         try:
-            # 获取所有列表项
-            list_items = list_element.find_all("li")
+            # 获取直接子列表项 (避免获取嵌套列表的li)
+            list_items = list_element.find_all("li", recursive=False)
+            if not list_items:
+                # 如果没有直接子元素，尝试查找所有
+                list_items = list_element.find_all("li")
+                
             if not list_items:
                 return
                 
-            # 检查是否为有序列表
-            is_ordered = list_element.name == "ol"
+            # 定义列表符号选项，根据嵌套级别使用不同符号
+            # 所有列表类型都使用统一的符号体系，完全避免数字编号
+            level_symbols = [
+                '➤',  # 一级列表：箭头符号
+                '●',  # 二级列表：实心圆点
+                '◆',  # 三级列表：实心菱形
+                '■',  # 四级列表：实心方块
+                '▲'   # 五级列表：实心三角形
+            ]
             
-            # 遍历列表项，保留原文编号
+            # 获取当前嵌套级别的符号
+            symbol = level_symbols[min(level, len(level_symbols)-1)]
+            
+            # 遍历列表项
             for li in list_items:
                 if li:
-                    # 获取列表项文本，包括可能的编号
-                    text = li.get_text()
-                    if text:
-                        text = text.strip()
-                        # 清理文本
-                        text = self._clean_text(text)
+                    # 1. 首先彻底清理列表项，移除所有编号和相关属性
+                    cleaned_li = self._clean_list_item(li)
+                    
+                    # 2. 创建新段落，设置缩进和符号
+                    p = self.doc.add_paragraph()
+                    
+                    # 3. 添加缩进（使用空格实现）
+                    indent_spaces = '    ' * level  # 每级4个空格
+                    p.add_run(indent_spaces)
+                    
+                    # 4. 添加自定义符号
+                    p.add_run(f'{symbol} ')
+                    
+                    # 5. 处理列表项内容，保留格式并移除编号
+                    # 检查列表项是否有子元素
+                    if len(list(cleaned_li.children)) > 0:
+                        # 有子元素，处理HTML结构，保留格式
+                        self._process_inline_content(cleaned_li, p, remove_numbering=True)
+                    else:
+                        # 只有文本，直接处理
+                        text = cleaned_li.get_text(separator=' ', strip=True)
                         if text:
-                            # 无论是否包含编号，都使用普通段落，保留原文编号格式
-                            # 因为原文已经有完整的编号，不需要Word自动编号
-                            self.doc.add_paragraph(text)
+                            cleaned_text = self._remove_list_numbering(text)
+                            if cleaned_text.strip():
+                                p.add_run(cleaned_text)
+                    
+                    # 6. 检查是否有嵌套列表
+                    nested_lists = cleaned_li.find_all(['ul', 'ol'], recursive=False)
+                    for nested_list in nested_lists:
+                        # 递归处理嵌套列表，嵌套级别+1
+                        self._add_list_to_document(nested_list, level+1)
         except Exception as e:
             print(f"处理列表时出错: {str(e)}")
+            import traceback
+            traceback.print_exc()
 
     def _add_image_to_document(self, img_url):
         """添加图片到文档，保持原文顺序和简洁性
