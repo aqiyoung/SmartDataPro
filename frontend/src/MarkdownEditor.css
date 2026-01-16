@@ -9,6 +9,187 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* 响应式设计 - 手机端优化 */
+@media (max-width: 768px) {
+  /* 顶部导航栏优化 */
+  .md-navbar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .md-navbar-left,
+  .md-navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .md-btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  
+  /* 主内容区域改为上下布局 */
+  .md-main {
+    flex-direction: column;
+  }
+  
+  .md-pane {
+    width: 100%;
+    height: 50%;
+  }
+  
+  .md-pane.editor {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  /* 工具栏优化 */
+  .md-editor-toolbar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+  
+  .toolbar-btn {
+    min-width: 32px;
+    height: 32px;
+  }
+  
+  /* 文本区域优化 */
+  .md-textarea {
+    font-size: 14px;
+    padding: 10px;
+    line-height: 1.5;
+  }
+  
+  /* 预览区域优化 */
+  .preview-header {
+    padding: 0 8px;
+    font-size: 0.8rem;
+  }
+  
+  .preview-controls-left span {
+    display: none;
+  }
+  
+  /* 模态框优化 */
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  /* 按钮文本优化 */
+  .md-btn span {
+    display: none;
+  }
+  
+  /* 设备选择优化 */
+  .device-select {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+/* 针对小屏手机的额外优化 */
+@media (max-width: 480px) {
+  .md-pane {
+    height: 50vh;
+  }
+  
+  .md-navbar-left,
+  .md-navbar-right {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .md-btn {
+    padding: 3px 8px;
+    min-width: 40px;
+    justify-content: center;
+  }
+  
+  .md-select {
+    padding: 3px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .md-textarea {
+    font-size: 13px;
+    padding: 8px;
+  }
+  
+  .toolbar-btn {
+    min-width: 28px;
+    height: 28px;
+  }
+  
+  .toolbar-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* 触摸友好设计 */
+.md-btn,
+.toolbar-btn,
+.icon-btn {
+  touch-action: manipulation;
+}
+
+/* 防止文本选择影响按钮点击 */
+.md-editor-toolbar,
+.preview-header {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 优化滚动体验 */
+.md-textarea {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.preview-content-wrapper {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 优化键盘弹出体验 */
+.md-textarea {
+  resize: none;
+}
+
+/* 预览设备容器优化 */
+.preview-device-container.mobile-s,
+.preview-device-container.mobile-m,
+.preview-device-container.tablet {
+  margin-top: 10px;
+}
+
+/* 工具栏滚动优化 */
+.md-editor-toolbar {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.md-editor-toolbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.md-editor-toolbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.md-editor-toolbar::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 2px;
+}
+
 /* 顶部导航栏 */
 .md-navbar {
   height: 60px;
