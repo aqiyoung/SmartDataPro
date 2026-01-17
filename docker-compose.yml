@@ -1,37 +1,78 @@
 version: '3.8'
 
 services:
+  # 后端服务 - FastAPI应用
   backend:
-    image: python:3.11-slim
-    container_name: document-converter-backend
+    # 使用GitHub Container Registry上的镜像
+    image: ghcr.io/aqiyoung/unified-tools-web-backend:latest
+    
+    # 容器名称
+    container_name: unified-tools-web-backend
+    
+    # 端口映射：主机端口:容器端口
     ports:
       - "8006:8006"
+    
+    # 环境变量配置
     environment:
-      - PYTHONUNBUFFERED=1
-      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
+      - PYTHONUNBUFFERED=1  # 禁用Python缓冲输出，便于查看日志
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/  # Tesseract OCR数据目录
+      - DEBUG=0  # 生产环境关闭调试模式
+    
+    # 卷挂载：将主机目录挂载到容器
     volumes:
-      - /tmp:/tmp
-      - ./backend:/app
-    working_dir: /app
-    command: /bin/bash -c "echo '=== 后端服务部署开始 ==='; apt-get update; apt-get install -y tesseract-ocr tesseract-ocr-chi-sim gcc python3-dev; pip3 install -r requirements.txt; echo '=== 依赖安装完成，启动应用 ==='; python3 main.py"
+      - /tmp:/tmp  # 临时文件目录
+    
+    # 健康检查配置
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/api/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # 网络配置
     networks:
-      - converter-network
+      - unified-tools-network
+    
+    # 重启策略：除非手动停止，否则自动重启
     restart: unless-stopped
 
+  # 前端服务 - Nginx应用
   frontend:
-    image: nginx:alpine
-    container_name: document-converter-frontend
+    # 使用GitHub Container Registry上的镜像
+    image: ghcr.io/aqiyoung/unified-tools-web-frontend:latest
+    
+    # 容器名称
+    container_name: unified-tools-web-frontend
+    
+    # 端口映射：主机端口:容器端口
     ports:
       - "5180:80"
+    
+    # 依赖关系：确保backend服务先启动
     depends_on:
       - backend
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html
+    
+    # 健康检查配置
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # 网络配置
     networks:
-      - converter-network
+      - unified-tools-network
+    
+    # 重启策略：除非手动停止，否则自动重启
     restart: unless-stopped
 
+# 网络配置
 networks:
-  converter-network:
+  unified-tools-network:
     driver: bridge
-    name: document-converter-network
+    name: unified-tools-network
+    # 启用IPv6支持（可选）
+    enable_ipv6: false
