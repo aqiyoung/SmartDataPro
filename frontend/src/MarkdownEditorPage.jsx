@@ -40,107 +40,136 @@ const MarkdownEditorPage = () => {
   const textareaRef = useRef(null);
   const menuRef = useRef(null);
 
-  // 默认示例文本
-  useEffect(() => {
-    const defaultText = `# 微信 Markdown 编辑器
+  // 使用useRef保存定时器ID，避免闭包问题
+  const timeoutRef = useRef(null);
 
-## 📝 项目介绍
-
-Markdown 文档自动即时渲染为微信图文，让你不再为微信内容排版而发愁！只要你会基本的 Markdown 语法（现在有了 AI，你甚至不需要会 Markdown），就能做出一篇样式简洁而又美观大方的微信图文。
-
-## 🤔 为何开发这款编辑器
-
-现有的开源微信 Markdown 编辑器样式繁杂，排版过程中往往需要额外调整，影响使用效率。为了解决这一问题，我们打造了一款更加简洁、优雅的编辑器，提供更流畅的排版体验。
-
-## ✨ 功能特性
-
-### 🎨 核心功能
-
-- ✅ **完整 Markdown 支持** - 支持所有基础语法、数学公式
-- ✅ **图表渲染** - 支持 Mermaid 图表和 GFM 警告块
-- ✅ **PlantUML 支持** - 强大的 UML 图表渲染
-- ✅ **Ruby 注音扩展** - 支持 [文字]{注音}、[文字]^(注音) 格式，支持多种分隔符
-
-### 🎯 编辑体验
-
-- ✅ **代码高亮** - 丰富的代码块高亮主题，提升代码可读性
-- ✅ **自定义样式** - 允许自定义主题色和 CSS 样式，灵活定制展示效果
-- ✅ **草稿保存** - 内置本地内容管理功能，支持草稿自动保存
-
-### 🚀 高级功能
-
-- ✅ **多图床支持** - 提供多种图床选择，便捷的图片上传功能
-- ✅ **文件管理** - 便捷的文件导入、导出功能，提升工作效率
-- ✅ **AI 集成** - 集成主流 AI 模型，智能辅助内容创作
-
-## 🖼️ 支持的图床服务
-
-| # | 图床 | 使用时是否需要配置 | 备注 |
-|---|---|---|---|
-| 1 | 默认 | 否 | - |
-| 2 | GitHub | 配置 Repo、Token 参数 | 如何获取 GitHub token？ |
-| 3 | 阿里云 | 配置 AccessKey ID、AccessKey Secret、Bucket、Region 参数 | 如何使用阿里云 OSS？ |
-| 4 | 腾讯云 | 配置 SecretId、SecretKey、Bucket、Region 参数 | 如何使用腾讯云 COS？ |
-| 5 | 七牛云 | 配置 AccessKey、SecretKey、Bucket、Domain、Region 参数 | 如何使用七牛云 Kodo？ |
-| 6 | MinIO | 配置 Endpoint、Port、UseSSL、Bucket、AccessKey、SecretKey 参数 | 如何使用 MinIO？ |
-| 7 | 公众号 | 配置 appID、appsecret、代理域名 参数 | 如何使用公众号图床？ |
-| 8 | Cloudflare R2 | 配置 AccountId、AccessKey、SecretKey、Bucket、Domain 参数 | 如何使用 S3 API 操作 R2？ |
-| 9 | 又拍云 | 配置 Bucket、Operator、Password、Domain 参数 | 如何使用 又拍云？ |
-| 10 | Telegram | 配置 Bot Token、Chat ID 参数 | 如何使用 Telegram 图床？ |
-| 11 | Cloudinary | 配置 Cloud Name、API Key、API Secret 参数 | 如何使用 Cloudinary？ |
-| 12 | 自定义上传 | 是 | 如何自定义上传？ |
-
-## 🛠️ 开发与部署
-
-\`\`\`bash
-# 安装 node 版本
-nvm i && nvm use
-
-# 安装依赖
-pnpm i
-
-# 启动开发模式
-pnpm web dev
-# 访问 http://localhost:5173/md/
-\`\`\`
-
-`;
-    setMarkdownText(defaultText);
-    handleLivePreview(defaultText, 'default');
-  }, []);
-
-  // 防抖函数 - 优化实时预览，减少API请求频率
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
-    };
-  };
-
-  // 使用100ms防抖延迟，平衡实时性和性能
-  // 实时预览（带防抖）
-  const handleLivePreview = debounce(async (text, currentTheme) => {
-    if (!text && !text.trim()) {
+  // 实时预览函数
+  const handleLivePreview = async (text, currentTheme) => {
+    if (!text || !text.trim()) {
       setHtmlPreview('');
       return;
     }
     
-    // setIsLoading(true); // 实时预览不显示全屏加载，体验更好
-    try {
-      const tempFile = new Blob([text], { type: 'text/markdown' });
-      const formData = new FormData();
-      formData.append('file', tempFile, 'temp.md');
-      formData.append('style', currentTheme || theme);
-      
-      const response = await axios.post('/api/convert/markdown-to-html', formData);
-      setHtmlPreview(response.data);
-    } catch (err) {
-      console.error('预览失败:', err);
-    } finally {
-      // setIsLoading(false);
+    // 取消之前的请求
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
+    
+    // 使用setTimeout模拟防抖，避免复杂的防抖函数问题
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        console.log('开始转换Markdown到HTML，文本长度:', text.length);
+        
+        // 限制转换的文本长度，防止过大的内容导致问题
+        const textToConvert = text.length > 50000 ? text.substring(0, 50000) + '\n\n<!-- 内容过长，已截断 -->' : text;
+        
+        const tempFile = new Blob([textToConvert], { type: 'text/markdown' });
+        const formData = new FormData();
+        formData.append('file', tempFile, 'temp.md');
+        formData.append('style', currentTheme || theme);
+        
+        const response = await axios.post('/api/convert/markdown-to-html', formData, {
+          timeout: 12000, // 设置12秒超时
+        });
+        
+        // 检查响应数据
+        if (response.data && typeof response.data === 'string') {
+          console.log('HTML转换成功，HTML长度:', response.data.length);
+          setHtmlPreview(response.data);
+        } else {
+          console.error('预览失败: 无效的HTML响应', response.data);
+          setHtmlPreview(`<div style="color: red; padding: 20px;">预览失败: 无效的HTML响应</div>`);
+        }
+      } catch (err) {
+        console.error('预览失败:', err);
+        // 显示详细错误信息，方便调试
+        let errorMessage = err.message;
+        if (err.code === 'ECONNABORTED') {
+          errorMessage = '转换超时，请检查内容复杂度';
+        } else if (err.response) {
+          errorMessage = `服务器错误: ${err.response.status} ${err.response.statusText}`;
+        }
+        setHtmlPreview(`<div style="color: red; padding: 20px;">预览失败: ${errorMessage}</div>`);
+      }
+    }, 200); // 200ms延迟，平衡实时性和性能
   };
+  
+  // 组件卸载时清理定时器
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  // 默认示例文本
+  useEffect(() => {
+    // 构建默认文本，使用数组join方法避免转义问题
+    const defaultText = [
+      '# Markdown 编辑器',
+      '',
+      '## 📝 项目介绍',
+      '',
+      'Markdown 文档自动即时渲染，让你不再为内容排版而发愁！只要你会基本的 Markdown 语法，就能做出一篇样式简洁而又美观大方的文档。',
+      '',
+      '## 🤔 为何开发这款编辑器',
+      '',
+      '现有的开源 Markdown 编辑器样式繁杂，排版过程中往往需要额外调整，影响使用效率。为了解决这一问题，我们打造了一款更加简洁、优雅的编辑器，提供更流畅的排版体验。',
+      '',
+      '## ✨ 功能特性',
+      '',
+      '### 🎨 核心功能',
+      '',
+      '- ✅ **完整 Markdown 支持** - 支持所有基础语法、数学公式',
+      '- ✅ **图表渲染** - 支持 Mermaid 图表和 GFM 警告块',
+      '- ✅ **PlantUML 支持** - 强大的 UML 图表渲染',
+      '- ✅ **Ruby 注音扩展** - 支持 [文字]{注音}、[文字]^(注音) 格式，支持多种分隔符',
+      '',
+      '### 🎯 编辑体验',
+      '',
+      '- ✅ **代码高亮** - 丰富的代码块高亮主题，提升代码可读性',
+      '- ✅ **自定义样式** - 允许自定义主题色和 CSS 样式，灵活定制展示效果',
+      '- ✅ **草稿保存** - 内置本地内容管理功能，支持草稿自动保存',
+      '',
+      '### 🚀 高级功能',
+      '',
+      '- ✅ **多图床支持** - 提供多种图床选择，便捷的图片上传功能',
+      '- ✅ **文件管理** - 便捷的文件导入、导出功能，提升工作效率',
+      '',
+      '## 🖼️ 支持的图床服务',
+      '',
+      '| # | 图床 | 使用时是否需要配置 | 备注 |',
+      '|---|---|---|---|',
+      '| 1 | 默认 | 否 | - |',
+      '| 2 | GitHub | 配置 Repo、Token 参数 | 如何获取 GitHub token？ |',
+      '| 3 | 阿里云 | 配置 AccessKey ID、AccessKey Secret、Bucket、Region 参数 | 如何使用阿里云 OSS？ |',
+      '| 4 | 腾讯云 | 配置 SecretId、SecretKey、Bucket、Region 参数 | 如何使用腾讯云 COS？ |',
+      '| 5 | 七牛云 | 配置 AccessKey、SecretKey、Bucket、Domain、Region 参数 | 如何使用七牛云 Kodo？ |',
+      '| 6 | MinIO | 配置 Endpoint、Port、UseSSL、Bucket、AccessKey、SecretKey 参数 | 如何使用 MinIO？ |',
+      '| 7 | 公众号 | 配置 appID、appsecret、代理域名 参数 | 如何使用公众号图床？ |',
+      '| 8 | Cloudflare R2 | 配置 AccountId、AccessKey、SecretKey、Bucket、Domain 参数 | 如何使用 S3 API 操作 R2？ |',
+      '| 9 | 又拍云 | 配置 Bucket、Operator、Password、Domain 参数 | 如何使用 又拍云？ |',
+      '| 10 | Telegram | 配置 Bot Token、Chat ID 参数 | 如何使用 Telegram 图床？ |',
+      '| 11 | Cloudinary | 配置 Cloud Name、API Key、API Secret 参数 | 如何使用 Cloudinary？ |',
+      '| 12 | 自定义上传 | 是 | 如何自定义上传？ |',
+      ''
+    ].join('\n');
+    
+    setMarkdownText(defaultText);
+    handleLivePreview(defaultText, 'default');
+  }, []);
+
+  // 当markdownText变化时，自动更新预览（包括AI生成的内容）
+  useEffect(() => {
+    if (markdownText) {
+      handleLivePreview(markdownText, theme);
+    } else {
+      setHtmlPreview('');
+    }
+  }, [markdownText, theme]);
 
   const handleTextChange = (e) => {
     const text = e.target.value;
@@ -175,7 +204,8 @@ pnpm web dev
   // 上传图片到GitHub
   const uploadToGithub = async (file) => {
     if (!githubConfig.token || !githubConfig.repo) {
-      alert('请先配置GitHub图床信息');
+      // 替换alert为更友好的提示方式（后续可以添加toast组件）
+      console.warn('请先配置GitHub图床信息');
       setShowImageModal(true);
       return null;
     }
@@ -190,7 +220,7 @@ pnpm web dev
           const base64Content = reader.result.split(',')[1];
           // 生成唯一文件名
           const ext = file.name.split('.').pop();
-          const filename = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`;
+          const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 11)}.${ext}`; // 使用substring替代substr，更安全
           const path = githubConfig.path ? `${githubConfig.path}/${filename}` : filename;
           
           const url = `https://api.github.com/repos/${githubConfig.repo}/contents/${path}`;
@@ -203,8 +233,10 @@ pnpm web dev
             }, {
               headers: {
                 'Authorization': `token ${githubConfig.token}`,
-                'Content-Type': 'application/json'
-              }
+                'Content-Type': 'application/json',
+                'User-Agent': 'Markdown-Editor' // 添加User-Agent头，符合GitHub API要求
+              },
+              timeout: 10000 // 添加超时设置
             });
             
             // 使用 jsDelivr CDN 加速
@@ -219,7 +251,8 @@ pnpm web dev
       });
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('图片上传失败，请检查配置或网络');
+      // 替换alert为更友好的提示方式
+      console.warn('图片上传失败，请检查配置或网络');
       return null;
     } finally {
       setUploading(false);
@@ -231,17 +264,32 @@ pnpm web dev
     const file = e.target.files[0];
     if (!file) return;
     
+    // 检查文件类型
     if (!file.type.startsWith('image/')) {
-      alert('请选择图片文件');
+      // 替换alert为更友好的提示方式
+      console.warn('请选择图片文件');
       return;
     }
 
-    const url = await uploadToGithub(file);
-    if (url) {
-      insertSyntax(`![${file.name}](${url})`);
+    // 检查文件大小（限制为10MB）
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      console.warn('图片大小不能超过10MB');
+      return;
     }
-    // 清空input
-    e.target.value = null;
+
+    try {
+      const url = await uploadToGithub(file);
+      if (url) {
+        insertSyntax(`![${file.name}](${url})`);
+      }
+    } catch (err) {
+      console.error('图片上传失败:', err);
+      console.warn('图片上传失败，请检查网络或GitHub配置');
+    } finally {
+      // 清空input，允许重复上传同一文件
+      e.target.value = null;
+    }
   };
 
   // 监听粘贴事件
@@ -252,9 +300,22 @@ pnpm web dev
         if (items[i].type.indexOf('image') !== -1) {
           e.preventDefault();
           const file = items[i].getAsFile();
-          const url = await uploadToGithub(file);
-          if (url) {
-            insertSyntax(`![image](${url})`);
+          
+          try {
+            // 检查文件大小
+            const MAX_SIZE = 10 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+              console.warn('图片大小不能超过10MB');
+              return;
+            }
+            
+            const url = await uploadToGithub(file);
+            if (url) {
+              insertSyntax(`![image](${url})`);
+            }
+          } catch (err) {
+            console.error('粘贴图片失败:', err);
+            console.warn('粘贴图片失败，请检查网络或GitHub配置');
           }
           break;
         }
@@ -327,7 +388,8 @@ pnpm web dev
   // 保存为Word
   const handleSaveAsWord = async () => {
     if (!markdownText.trim()) {
-      alert('请输入Markdown内容');
+      // 替换alert为更友好的提示方式
+      console.warn('请输入Markdown内容');
       return;
     }
     
@@ -349,7 +411,8 @@ pnpm web dev
       formData.append('style', theme);
       
       const response = await axios.post('/api/convert/markdown-to-docx', formData, {
-        responseType: 'blob'
+        responseType: 'blob',
+        timeout: 30000 // 添加30秒超时
       });
       
       // 下载文件
@@ -357,8 +420,7 @@ pnpm web dev
       const link = document.createElement('a');
       link.href = url;
       
-      // 优先使用提取的标题作为文件名，如果后端有返回更准确的则使用后端的（通常后端会返回 based on input filename）
-      // 这里为了确保标题生效，如果提取到了标题，就优先使用
+      // 优先使用提取的标题作为文件名，如果后端有返回更准确的则使用后端的
       if (titleMatch && titleMatch[1]) {
          // 已经设置了 outputFilename
       } else {
@@ -388,7 +450,8 @@ pnpm web dev
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('导出Word失败:', err);
-      alert('导出Word失败，请重试');
+      // 替换alert为更友好的提示方式
+      console.warn('导出Word失败，请重试');
     } finally {
       setIsConverting(false);
     }
@@ -415,7 +478,7 @@ pnpm web dev
   };
 
   // 复制功能
-  const handleCopy = () => {
+  const handleCopy = async () => {
     const iframe = document.querySelector('.preview-iframe');
     if (iframe && iframe.contentDocument) {
       try {
@@ -426,19 +489,22 @@ pnpm web dev
         selection.removeAllRanges();
         selection.addRange(range);
         
-        const successful = doc.execCommand('copy');
+        // 使用现代的Clipboard API
+        await iframe.contentWindow.navigator.clipboard.writeText(range.toString());
         selection.removeAllRanges();
         
-        if (successful) {
-          alert('已复制渲染后的内容到剪贴板，可直接到公众号后台粘贴');
-        } else {
-          throw new Error('复制命令执行失败');
-        }
+        // 替换alert为更友好的提示方式
+        console.log('已复制渲染后的内容到剪贴板');
       } catch (err) {
         console.error('复制失败:', err);
-        navigator.clipboard.writeText(htmlPreview)
-          .then(() => alert('已复制HTML源代码（渲染复制失败）'))
-          .catch(() => alert('复制失败，请手动复制'));
+        try {
+          // 回退方案：复制HTML源代码
+          await navigator.clipboard.writeText(htmlPreview);
+          console.log('已复制HTML源代码（渲染复制失败）');
+        } catch (fallbackErr) {
+          console.error('回退复制方案也失败了:', fallbackErr);
+          console.warn('复制失败，请手动复制');
+        }
       }
     }
   };
@@ -490,7 +556,6 @@ pnpm web dev
                 <option value="dark_mode">暗黑模式</option>
                 <option value="wechat">微信公众号</option>
                 <option value="github">GitHub 风格</option>
-                <option value="neurapress">NeuraPress</option>
               </select>
             </div>
           </div>
@@ -610,6 +675,7 @@ pnpm web dev
             <div className="toolbar-divider"></div>
             <button className="toolbar-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
           </div>
+          
           <textarea
             ref={textareaRef}
             className="md-textarea"
@@ -649,6 +715,12 @@ pnpm web dev
                   srcDoc={htmlPreview}
                   className="preview-iframe"
                   sandbox="allow-scripts allow-same-origin"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    backgroundColor: 'white',
+                  }}
                 />
               </div>
             ) : (

@@ -1,9 +1,10 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Body
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import tempfile
+import requests
 from src.converters import (
     convert_docx_to_md, 
     convert_markdown_to_html, 
@@ -12,6 +13,8 @@ from src.converters import (
     convert_pdf_to_word,
     convert_markdown_to_docx
 )
+
+
 
 app = FastAPI(
     title="统一文档转换工具API",
@@ -22,10 +25,12 @@ app = FastAPI(
 # 添加CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 允许所有域名访问，解决跨域问题
+    # 在生产环境中应该限制为特定域名，这里为了开发方便暂时允许所有域名
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],  # 只允许必要的HTTP方法
     allow_headers=["*"],
+    expose_headers=["Content-Disposition", "Content-Length"]  # 暴露必要的响应头
 )
 
 # 配置静态文件服务
@@ -38,11 +43,30 @@ app.mount("/static", StaticFiles(directory=static_dir), name="frontend")
 # 配置临时文件目录
 TEMP_DIR = tempfile.gettempdir()
 
+# 生成唯一的临时文件名
+import uuid
+def generate_unique_filename(original_filename, suffix):
+    """生成唯一的临时文件名"""
+    unique_id = uuid.uuid4().hex
+    if original_filename:
+        name_part = os.path.splitext(original_filename)[0]
+        # 清理文件名中的特殊字符
+        name_part = re.sub(r'[^a-zA-Z0-9_-]', '', name_part)
+        return f"{name_part}_{unique_id}.{suffix}"
+    return f"temp_{unique_id}.{suffix}"
+
 # 根路径重定向到静态文件服务的 index.html
 @app.get("/")
 def root():
     index_path = os.path.join(static_dir, "index.html")
-    return FileResponse(index_path)
+    return FileResponse(
+        index_path,
+        headers={
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block"
+        }
+    )
 
 @app.get("/api/")
 def read_api_root():
@@ -90,6 +114,9 @@ async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
 @app.post("/api/convert/markdown-to-html")
 async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style: str = Form("default")):
     """将Markdown文件转换为HTML"""
+    temp_file_path = None
+    output_file = None
+    
     try:
         # 保存上传的文件到临时目录
         # 注意：对于前端发送的Blob对象，file.filename可能是空字符串或临时文件名
@@ -102,48 +129,100 @@ async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style:
             file_extension = '.md'
         
         temp_file_path = os.path.join(TEMP_DIR, file_name)
+        
+        # 读取文件内容，限制大小
+        content = await file.read()
+        content_size = len(content)
+        print(f"接收到文件，大小: {content_size}字节")
+        
+        # 限制文件大小，防止过大的文件导致服务器崩溃
+        if content_size > 10 * 1024 * 1024:  # 10MB
+            raise HTTPException(status_code=400, detail="文件过大，最大支持10MB")
+        
+        # 确保内容是文本格式
+        try:
+            # 尝试解码为UTF-8，确保是文本
+            text_content = content.decode('utf-8')
+        except UnicodeDecodeError:
+            raise HTTPException(status_code=400, detail="文件不是有效的文本格式")
+        
         with open(temp_file_path, "wb") as f:
-            content = await file.read()
-            print(f"文件大小: {len(content)}字节")
             f.write(content)
         
         # 直接调用转换器，不指定output_file，让它自动生成文件名
-        result = convert_markdown_to_html(temp_file_path, options={"style": style})
+        import time
+        start_time = time.time()
+        
+        # 设置超时控制
+        import threading
+        result = None
+        exception = None
+        
+        def convert_thread():
+            nonlocal result, exception
+            try:
+                result = convert_markdown_to_html(temp_file_path, options={"style": style})
+            except Exception as e:
+                exception = e
+        
+        # 启动转换线程
+        thread = threading.Thread(target=convert_thread)
+        thread.daemon = True
+        thread.start()
+        
+        # 等待转换完成，最多等待10秒
+        thread.join(10)
+        
+        if thread.is_alive():
+            raise TimeoutError("转换超时，内容可能过于复杂")
+        
+        if exception:
+            raise exception
+        
+        if not result:
+            raise Exception("转换失败，没有返回结果")
+        
         output_file = result["output_file"]
         
         # 检查文件是否存在
         if not os.path.exists(output_file):
             raise HTTPException(status_code=500, detail="转换失败: 生成的文件不存在")
         
-        # 读取转换后的文件内容
+        # 读取转换后的HTML文件内容
         with open(output_file, "r", encoding="utf-8") as f:
             full_html_content = f.read()
         
-        print(f"转换成功，完整HTML文件长度: {len(full_html_content)}字节")
+        print(f"转换成功，耗时: {time.time() - start_time:.2f}秒，HTML长度: {len(full_html_content)}字节")
         
         # 对于实时预览，直接返回完整的HTML文件，以便前端使用iframe渲染，保证样式一致
         html_content = full_html_content
-        print(f"返回完整HTML内容长度: {len(html_content)}字节")
         
-        # 转换成功，清理所有临时文件
-        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
-        if 'output_file' in locals() and os.path.exists(output_file):
-            os.remove(output_file)
-        
-        # 返回转换后的HTML内容，使用HTMLResponse确保正确的Content-Type
         return HTMLResponse(content=html_content, media_type="text/html")
+    except TimeoutError as e:
+        # 转换超时
+        print(f"转换超时: {e}")
+        raise HTTPException(status_code=504, detail=f"转换超时: {str(e)}")
+    except HTTPException:
+        # 重新抛出已经处理过的HTTP异常
+        raise
     except Exception as e:
-        # 如果发生错误，清理所有文件
-        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
-        if 'output_file' in locals() and os.path.exists(output_file):
-            os.remove(output_file)
-        # 打印错误信息，方便调试
+        # 打印详细错误信息，方便调试
         print(f"转换失败详细错误: {e}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+    finally:
+        # 清理所有临时文件，无论成功失败
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except:
+                pass
+        if output_file and os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+            except:
+                pass
 
 @app.post("/api/convert/markdown-to-docx")
 async def convert_markdown_to_docx_endpoint(file: UploadFile = File(...), style: str = Form("default")):
@@ -204,6 +283,12 @@ async def convert_web_to_docx_endpoint(url: str = Form(...)):
     output_file = None
     
     try:
+        # 验证URL格式
+        import re
+        url_pattern = re.compile(r'^https?://')
+        if not url_pattern.match(url):
+            raise HTTPException(status_code=400, detail="URL格式不正确，请输入以http://或https://开头的URL")
+        
         # 执行转换，添加超时控制
         import threading
         import time
@@ -549,3 +634,9 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bo
         if 'output_file' in locals() and os.path.exists(output_file):
             os.remove(output_file)
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+
+
+
+
+
+
