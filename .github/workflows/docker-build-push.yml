@@ -1,0 +1,43 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ master ]  # 当推送到master分支时触发
+  pull_request:
+    branches: [ master ]  # 当PR合并到master分支时触发
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write  # 允许写入GitHub Packages
+      contents: read   # 允许读取仓库内容
+    
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # 2. 登录到GitHub Container Registry
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}  # 自动获取当前GitHub用户名
+          password: ${{ secrets.GITHUB_TOKEN }}  # 自动使用GitHub提供的临时token
+      
+      # 3. 构建并推送后端镜像
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend  # 后端Dockerfile所在目录
+          push: true  # 推送到registry
+          tags: ghcr.io/aqiyoung/unified-tools-web-backend:latest
+      
+      # 4. 构建并推送前端镜像
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend  # 前端Dockerfile所在目录
+          push: true  # 推送到registry
+          tags: ghcr.io/aqiyoung/unified-tools-web-frontend:latest
