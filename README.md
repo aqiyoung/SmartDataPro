@@ -13,7 +13,6 @@
 ## 支持的转换类型
 
 - 📄 Word 转 Markdown
-- 📝 Markdown 转 HTML
 - 🌐 网页转 Word
 - 📄 PDF 转 Word
 - 📄 Word 转 PDF
