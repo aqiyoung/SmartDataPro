@@ -109,8 +109,18 @@ pnpm web dev
     handleLivePreview(defaultText, 'default');
   }, []);
 
-  // 实时预览
-  const handleLivePreview = async (text, currentTheme) => {
+  // 防抖函数 - 优化实时预览，减少API请求频率
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+  };
+
+  // 使用100ms防抖延迟，平衡实时性和性能
+  // 实时预览（带防抖）
+  const handleLivePreview = debounce(async (text, currentTheme) => {
     if (!text && !text.trim()) {
       setHtmlPreview('');
       return;

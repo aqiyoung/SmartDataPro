@@ -22,7 +22,7 @@ app = FastAPI(
 # 添加CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5180", "http://localhost:5181"],
+    allow_origins=["*"],  # 允许所有域名访问，解决跨域问题
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

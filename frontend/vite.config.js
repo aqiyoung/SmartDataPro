@@ -8,6 +8,7 @@ export default defineConfig({
     port: 5180, // 修改为新的端口号
     strictPort: false, // 允许自动分配端口
     host: '0.0.0.0', // 监听所有地址，允许局域网访问
+    allowedHosts: true, // 允许所有域名访问，解决自定义域名被阻止问题
     proxy: {
       '/api': {
         target: 'http://localhost:8006',
