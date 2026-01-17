@@ -77,9 +77,55 @@
    npm run dev
    ```
 
+#### 方式三：Docker 部署
+
+1. **环境要求**
+   - Docker 20.10+
+   - Docker Compose 1.29+
+
+2. **部署步骤**
+   ```bash
+   # 克隆仓库
+   git clone https://github.com/aqiyoung/unified-tools-web.git
+   cd unified-tools-web
+   
+   # 启动服务
+   docker-compose up -d
+   ```
+
+3. **停止服务**
+   ```bash
+   docker-compose down
+   ```
+
+4. **查看日志**
+   ```bash
+   docker-compose logs -f
+   ```
+
+5. **Docker 配置说明**
+   - 前端镜像：`ghcr.io/aqiyoung/unified-tools-web-frontend:latest`
+   - 后端镜像：`ghcr.io/aqiyoung/unified-tools-web-backend:latest`
+   - 前端端口：`80`
+   - 后端端口：`8006`
+   - 健康检查：自动检查服务状态，确保服务正常运行
+   - 网络配置：使用自定义网络，确保容器间通信安全
+
+6. **环境变量配置**
+   可以通过环境变量调整服务配置，例如：
+   ```bash
+   # 修改前端端口
+   FRONTEND_PORT=8080 docker-compose up -d
+   ```
+
 ### 访问地址
 
+#### 本地部署
 - 前端页面：http://localhost:5180/
+- 后端 API：http://localhost:8006/
+
+#### Docker 部署
+- 前端页面：http://localhost/
 - 后端 API：http://localhost:8006/
 
 ### Debian/Ubuntu 启动脚本功能说明
