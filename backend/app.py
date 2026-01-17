@@ -1,7 +1,8 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Body
+git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519"from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Body
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 import os
 import tempfile
 import requests
@@ -13,13 +14,26 @@ from src.converters import (
     convert_pdf_to_word,
     convert_markdown_to_docx
 )
+import time
+import re
 
 
 
 app = FastAPI(
     title="统一文档转换工具API",
     description="提供文档格式转换服务，支持多种格式转换",
-    version="2.1.0"
+    version="2.1.0",
+    # 优化FastAPI配置
+    docs_url=None,  # 生产环境关闭自动生成的文档
+    redoc_url=None,  # 生产环境关闭Redoc文档
+    openapi_url=None  # 生产环境关闭OpenAPI规范
+)
+
+# 添加GZip压缩中间件，减少响应大小
+app.add_middleware(
+    GZipMiddleware,
+    minimum_size=1000,  # 只压缩大于1KB的响应
+    compresslevel=5  # 设置压缩级别，5是平衡压缩率和性能的选择
 )
 
 # 添加CORS中间件
@@ -32,6 +46,17 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Content-Disposition", "Content-Length"]  # 暴露必要的响应头
 )
+
+# 添加自定义中间件，用于响应时间跟踪和缓存控制
+@app.middleware("http")
+async def add_process_time_header(request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    # 添加缓存控制头
+    response.headers["Cache-Control"] = "public, max-age=3600"  # 缓存1小时
+    return response
 
 # 配置静态文件服务
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")

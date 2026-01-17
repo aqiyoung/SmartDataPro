@@ -11,7 +11,7 @@ services:
     
     # 端口映射：主机端口:容器端口
     ports:
-      - "8006:8006"
+      - "8016:8016"
     
     # 环境变量配置
     environment:
@@ -21,7 +21,9 @@ services:
     
     # 卷挂载：将主机目录挂载到容器
     volumes:
-      - /tmp:/tmp  # 临时文件目录
+      - ./tmp:/tmp  # 临时文件目录，使用当前目录下的tmp文件夹
+      - ./backend/logs:/app/logs  # 日志文件目录
+      - ./backend/data:/app/data  # 数据文件目录
     
     # 健康检查配置
     healthcheck:
@@ -53,6 +55,11 @@ services:
     # 依赖关系：确保backend服务先启动
     depends_on:
       - backend
+    
+    # 卷挂载：将主机目录挂载到容器
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html  # 前端静态文件目录
+      - ./frontend/logs:/var/log/nginx  # Nginx日志目录
     
     # 健康检查配置
     healthcheck:
