@@ -107,7 +107,7 @@
    - 前端镜像：`ghcr.io/aqiyoung/unified-tools-web-frontend:latest`
    - 后端镜像：`ghcr.io/aqiyoung/unified-tools-web-backend:latest`
    - 前端端口：`80`
-   - 后端端口：`8006`
+   - 后端端口：`8016`
    - 健康检查：自动检查服务状态，确保服务正常运行
    - 网络配置：使用自定义网络，确保容器间通信安全
 
@@ -122,11 +122,11 @@
 
 #### 本地部署
 - 前端页面：http://localhost:5180/
-- 后端 API：http://localhost:8006/
+- 后端 API：http://localhost:8016/
 
 #### Docker 部署
 - 前端页面：http://localhost/
-- 后端 API：http://localhost:8006/
+- 后端 API：http://localhost:8016/
 
 ### Debian/Ubuntu 启动脚本功能说明
 
@@ -242,6 +242,13 @@ python main.py  # 启动开发服务器
 - 邮箱：aqiyoung@163.com
 
 ## 更新日志
+
+### v2.2.0 (2026-01-18)
+- **性能优化**：
+  - 前端构建优化：启用代码分割、CSS分割和资源预构建，减少加载时间
+  - Nginx配置优化：启用gzip压缩、配置静态资源缓存和API缓存，提高响应速度
+  - 后端性能优化：更新Uvicorn配置，增加工作进程，优化日志级别，添加GZip压缩
+  - 端口变更：后端端口从8006变更为8016
 
 ### v2.1.0 (2026-01-17)
 - **UI/UX优化**：
