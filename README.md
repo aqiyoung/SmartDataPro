@@ -17,6 +17,7 @@
 - 🌐 网页转 Word
 - 📄 PDF 转 Word
 - 📄 Word 转 PDF
+- ✏️ **Markdown 编辑器**：支持多端模拟预览、一键导出 HTML/Word、实时渲染
 
 ## 技术栈
 
