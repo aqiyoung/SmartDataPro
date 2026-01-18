@@ -60,6 +60,7 @@ const MarkdownEditorPage = () => {
     timeoutRef.current = setTimeout(async () => {
       try {
         console.log('开始转换Markdown到HTML，文本长度:', text.length);
+        console.log('当前主题:', currentTheme || theme);
         
         // 限制转换的文本长度，防止过大的内容导致问题
         const textToConvert = text.length > 50000 ? text.substring(0, 50000) + '\n\n<!-- 内容过长，已截断 -->' : text;
@@ -69,9 +70,16 @@ const MarkdownEditorPage = () => {
         formData.append('file', tempFile, 'temp.md');
         formData.append('style', currentTheme || theme);
         
+        console.log('准备发送请求，formData内容:', {
+          file: tempFile,
+          style: currentTheme || theme
+        });
+        
         const response = await axios.post('/api/convert/markdown-to-html', formData, {
           timeout: 12000, // 设置12秒超时
         });
+        
+        console.log('请求成功，响应状态:', response.status);
         
         // 检查响应数据
         if (response.data && typeof response.data === 'string') {
@@ -83,12 +91,32 @@ const MarkdownEditorPage = () => {
         }
       } catch (err) {
         console.error('预览失败:', err);
+        console.error('错误详情:', {
+          name: err.name,
+          message: err.message,
+          code: err.code,
+          response: err.response ? {
+            status: err.response.status,
+            statusText: err.response.statusText,
+            data: err.response.data
+          } : null
+        });
         // 显示详细错误信息，方便调试
         let errorMessage = err.message;
         if (err.code === 'ECONNABORTED') {
           errorMessage = '转换超时，请检查内容复杂度';
+        } else if (err.code === 'ECONNREFUSED') {
+          errorMessage = '无法连接到服务器，请检查后端服务是否正常运行';
         } else if (err.response) {
           errorMessage = `服务器错误: ${err.response.status} ${err.response.statusText}`;
+          // 显示详细的错误响应内容
+          if (err.response.data) {
+            if (typeof err.response.data === 'object') {
+              errorMessage += ` - ${JSON.stringify(err.response.data)}`;
+            } else {
+              errorMessage += ` - ${err.response.data}`;
+            }
+          }
         }
         setHtmlPreview(`<div style="color: red; padding: 20px;">预览失败: ${errorMessage}</div>`);
       }
@@ -730,7 +758,7 @@ const MarkdownEditorPage = () => {
         </div>
       </div>
       <footer className="md-footer">
-        <p>统一文档转换工具 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>智能文档处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
 
       {/* 图床配置模态框 */}

@@ -592,37 +592,6 @@ const ConversionPage = ({ conversionType }) => {
     }
   };
 
-  // 功能特性数据
-  const [activeFeature, setActiveFeature] = useState(1); // 默认高亮第二个卡片
-  
-  const features = [
-    {
-      icon: '📄',
-      title: '多格式支持',
-      description: '支持DOCX、Markdown、HTML等多种文档格式转换'
-    },
-    {
-      icon: '⚡',
-      title: '快速转换',
-      description: '高效的转换算法，快速完成文档格式转换'
-    },
-    {
-      icon: '🎨',
-      title: '样式定制',
-      description: '多种HTML样式主题，满足不同需求'
-    },
-    {
-      icon: '🔒',
-      title: '安全可靠',
-      description: '本地转换，保护您的文档隐私安全'
-    },
-    {
-      icon: '👁️',
-      title: '实时预览',
-      description: '支持Markdown和HTML文件在线预览，方便查看转换结果'
-    }
-  ];
-
   // 返回首页功能
   const goToHomePage = () => {
     // 直接返回根路径
@@ -634,28 +603,10 @@ const ConversionPage = ({ conversionType }) => {
       <main className="app-main">
         {/* 转换功能区域 - 主要内容 */}
         {renderConversionInterface()}
-        
-        {/* 功能特性部分 - 辅助内容 */}
-        <section className="features-section">
-          <h2 className="features-title">功能特性</h2>
-          <div className="features-grid">
-            {features.map((feature, index) => (
-              <div 
-                key={index} 
-                className={`feature-card ${index === activeFeature ? 'active' : ''}`}
-                onClick={() => setActiveFeature(index)}
-              >
-                <div className="feature-icon">{feature.icon}</div>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-description">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
       
       <footer className="app-footer">
-        <p>统一文档转换工具 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>智能文档处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
   );

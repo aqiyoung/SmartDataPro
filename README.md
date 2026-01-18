@@ -1,183 +1,361 @@
-# DocMagic
+# 智能文档处理平台
 
-一个基于 FastAPI 和 React 构建的现代化文档处理平台，支持多种格式之间的转换与处理。
+一个基于 FastAPI 和 React 构建的文档格式转换工具，支持多种格式之间的转换。
 
 ## 功能特性
 
-- **文档格式转换**
-  - 支持多种文档格式之间的转换
-  - 支持网页转Word
-  - 支持Word转PDF
-  - 支持PDF转Word
-  - 支持Markdown转HTML
-  - 支持Markdown转Word
+- ⚡ **快速转换**：高效的转换算法，快速完成文档格式转换
+- 🎨 **样式定制**：多种HTML样式主题，满足不同需求
+- 🔒 **安全可靠**：本地转换，保护您的文档隐私安全
+- 👁️ **实时预览**：支持Markdown和HTML文件在线预览，方便查看转换结果
+- 📱 **响应式设计**：适配各种设备，随时随地进行文档转换
 
-- **用户友好的界面**
-  - 基于React的现代化前端界面
-  - 简洁易用的操作流程
-  - 实时转换状态显示
+## 支持的转换类型
 
-- **高性能后端**
-  - 基于FastAPI的高性能后端
-  - 支持异步处理
-  - 支持多种转换引擎
+- 📄 Word 转 Markdown
+- 🌐 网页转 Word
+- 📄 PDF 转 Word
+- 📄 Word 转 PDF
+- ✏️ **Markdown 编辑器**：支持多端模拟预览、一键导出 HTML/Word、实时渲染
 
 ## 技术栈
 
-- **前端**：React, Vite, Axios
-- **后端**：FastAPI, Python
-- **部署**：Docker, Docker Compose
+### 前端
+- React 18
+- Vite
+- Axios
 
-## 版本更新
-
-### 版本 2.0.1 (2026-01-16)
-
-#### 修复内容
-
-##### 后端修复
-1. **API版本不一致**
-   - 修复了app.title中版本为2.0.0，但/api/端点返回版本为1.0.0的问题
-   - 文件：`backend/app.py`
-
-2. **静态文件配置错误**
-   - 修复了静态文件服务配置，现在支持开发和生产环境
-   - 添加了对dist目录的检查，如果存在则使用，否则使用开发目录
-   - 文件：`backend/app.py`
-
-3. **列表编号处理**
-   - 修复了网页转Word时数字序号仍然出现的问题
-   - 实现了多层次的编号移除机制：HTML预处理、块级元素处理、列表处理
-   - 文件：`backend/src/converters/web_to_docx.py`
-
-##### 前端修复
-1. **功能特性图标显示问题**
-   - 修复了功能特性卡片中第一个图标的显示错误
-   - 将无效图标替换为正确的📄图标
-   - 文件：`frontend/src/ConversionPage.jsx`
-
-#### 优化内容
-
-##### 后端优化
-1. **统一错误处理**
-   - 优化了错误处理逻辑，减少了重复代码
-   - 文件：`backend/app.py`
-
-2. **静态文件服务优化**
-   - 改进了静态文件服务配置，提高了可靠性
-   - 文件：`backend/app.py`
-
-##### 前端优化
-1. **组件化重构**
-   - 创建了`ConversionCard`组件，减少了重复代码
-   - 提高了代码的可维护性和可读性
-   - 文件：`frontend/src/components/ConversionCard.jsx`
-
-2. **实时预览性能优化**
-   - 为实时预览功能添加了防抖机制（500ms）
-   - 减少了API调用次数，提高了性能
-   - 文件：`frontend/src/ConversionPage.jsx`
-
-3. **代码质量提升**
-   - 优化了组件结构，提高了代码的可维护性
-   - 改进了状态管理，减少了不必要的渲染
-   - 文件：`frontend/src/ConversionPage.jsx`
-
-#### 新功能
-
-1. **组件化架构**
-   - 引入了组件化设计，提高了代码的复用性和可维护性
-   - 为后续功能扩展奠定了基础
-
-2. **性能优化**
-   - 通过防抖机制减少了API调用次数
-   - 提高了应用的响应速度和用户体验
-
-### 版本 2.0.0 (2026-01-15)
-
-#### 主要功能
-
-1. **多格式转换支持**
-   - Word 转 Markdown
-   - Markdown 转 HTML
-   - 网页转 Word
-   - PDF 转 Word
-   - Word 转 PDF
-
-2. **实时预览功能**
-   - 支持 Markdown 实时预览
-   - 多种 HTML 样式主题
-
-3. **现代化架构**
-   - 基于 FastAPI 和 React 构建
-   - 支持 Docker 部署
-
-#### 技术栈
-
-- **后端**：FastAPI, Python
-- **前端**：React, Vite
-- **文档转换**：python-docx, markdown, BeautifulSoup
-- **容器化**：Docker, Docker Compose
+### 后端
+- FastAPI
+- Python 3.11+
+- OCR: pytesseract, OpenCV, PIL
+- PDF Processing: pdfplumber
+- Word Processing: python-docx
 
 ## 快速开始
 
-### 本地开发
+### 环境要求
 
-1. **克隆仓库**
+- Python 3.11+
+- Node.js 16+
+- npm 8+
+
+### 启动方式
+
+#### 方式一：使用启动脚本（推荐）
+
+1. **Debian/Ubuntu 脚本**
    ```bash
-   git clone git@github.com:aqiyoung/DocMagic.git
-   cd DocMagic
+   # 赋予脚本执行权限
+   chmod +x start-all.sh
+   
+   # 执行启动脚本
+   ./start-all.sh
    ```
 
-2. **启动后端服务**
+2. **Windows 批处理脚本**
+   ```bash
+   start-all.cmd
+   ```
+
+3. **PowerShell 脚本**
+   ```bash
+   .\start-all.ps1
+   ```
+
+#### 方式二：手动启动
+
+1. **启动后端服务**
    ```bash
    cd backend
-   python -m uvicorn app:app --host 0.0.0.0 --port 8006 --reload
+   python main.py
    ```
 
-3. **启动前端服务**
+2. **启动前端服务**
    ```bash
    cd frontend
-   npm install
    npm run dev
    ```
 
-4. **访问应用**
-   - 前端：http://localhost:5180
-   - 后端API文档：http://localhost:8006/docs
+#### 方式三：Docker 部署
 
-### Docker部署
+1. **环境要求**
+   - Docker 20.10+
+   - Docker Compose 1.29+
 
-1. **构建镜像**
+2. **部署步骤**
    ```bash
+   # 克隆仓库
+   git clone git@github.com:aqiyoung/DocMagic.git
+   cd DocMagic
+   
+   # 构建镜像
    docker-compose build
-   ```
-
-2. **启动服务**
-   ```bash
+   
+   # 启动服务
    docker-compose up -d
    ```
 
-3. **访问应用**
-   - 前端：http://localhost:5180
-   - 后端API文档：http://localhost:8006/docs
+3. **停止服务**
+   ```bash
+   docker-compose down
+   ```
+
+4. **查看日志**
+   ```bash
+   docker-compose logs -f
+   ```
+
+5. **Docker 配置说明**
+   - 前端镜像：`ghcr.io/aqiyoung/docmagic-frontend:latest`
+   - 后端镜像：`ghcr.io/aqiyoung/docmagic-backend:latest`
+   - 前端端口：`5180`
+   - 后端端口：`8016`
+   - 健康检查：自动检查服务状态，确保服务正常运行
+   - 网络配置：使用自定义网络，确保容器间通信安全
+
+6. **环境变量配置**
+   可以通过环境变量调整服务配置，例如：
+   ```bash
+   # 修改前端端口
+   FRONTEND_PORT=8080 docker-compose up -d
+   ```
+
+### 访问地址
+
+#### 本地部署
+- 前端页面：http://localhost:5180/
+- 后端 API：http://localhost:8016/
+
+#### Docker 部署
+- 前端页面：http://localhost:5180/
+- 后端 API：http://localhost:8016/
+
+### Debian/Ubuntu 启动脚本功能说明
+
+**start-all.sh** 脚本提供了以下功能：
+
+1. **自动依赖检查与安装**
+   - 检查并安装系统依赖（Python 3.11、Node.js、tesseract-ocr等）
+   - 自动创建Python虚拟环境
+   - 安装后端Python依赖
+   - 安装前端npm依赖
+
+2. **后台服务启动**
+   - 后端服务：使用uvicorn在8016端口启动
+   - 前端服务：使用npm run dev在5180端口启动
+   - 所有服务后台运行，不阻塞终端
+
+3. **日志管理**
+   - 后端日志：`backend.log`（项目根目录）
+   - 前端日志：`frontend.log`（项目根目录）
+   - 每次启动自动清理旧日志
+
+4. **服务管理**
+   - 查看日志：`tail -f backend.log` 或 `tail -f frontend.log`
+   - 查找进程：`ps aux | grep -E '(uvicorn|npm)'`
+   - 终止服务：`kill <进程ID>`
+
+### 脚本执行过程
+
+执行脚本后，脚本将：
+1. 显示启动欢迎信息
+2. 清理旧日志文件
+3. 检查并安装系统依赖
+4. 创建并激活Python虚拟环境
+5. 安装后端依赖
+6. 安装前端依赖
+7. 后台启动后端服务
+8. 后台启动前端服务
+9. 显示服务启动信息和访问地址
+
+### 注意事项
+
+- 脚本需要使用sudo权限安装系统依赖
+- 首次运行会安装所有依赖，可能需要较长时间
+- 确保端口5180和8016未被占用
+- 服务启动后，可通过日志文件查看运行状态
+
+## 项目构建
+
+### GitHub Actions工作流
+
+项目使用GitHub Actions实现自动构建和推送Docker镜像到GitHub Container Registry。
+
+#### 工作流配置
+
+**文件名**: `.github/workflows/docker-build-push.yml`
+
+**触发条件**:
+- 代码推送到`main`分支
+- 创建Pull Request到`main`分支
+- 手动触发
+
+**工作流作业**:
+
+1. **build-backend**
+   - 构建后端Docker镜像
+   - 推送镜像到GitHub Container Registry
+   - 标签: `ghcr.io/{owner}/docmagic-backend:latest`, `ghcr.io/{owner}/docmagic-backend:{branch}`, `ghcr.io/{owner}/docmagic-backend:{sha}`
+   
+2. **build-frontend**
+   - 构建前端Docker镜像
+   - 推送镜像到GitHub Container Registry
+   - 标签: `ghcr.io/{owner}/docmagic-frontend:latest`, `ghcr.io/{owner}/docmagic-frontend:{branch}`, `ghcr.io/{owner}/docmagic-frontend:{sha}`
+
+#### 构建流程
+
+1. 检出代码
+2. 设置Docker Buildx
+3. 登录到GitHub Container Registry
+4. 提取Docker元数据
+5. 构建并推送Docker镜像
+
+#### 缓存策略
+
+使用GitHub Actions缓存来加速构建过程，缓存类型为`gha`，缓存模式为`max`。
 
 ## 项目结构
 
 ```
 DocMagic/
-├── backend/          # 后端代码
-│   ├── src/          # 源代码
-│   ├── app.py        # FastAPI应用入口
-│   ├── main.py       # 主程序入口
+├── backend/            # 后端代码
+│   ├── src/            # 后端源代码
+│   │   ├── converters/ # 转换逻辑
+│   │   │   ├── markdown_to_docx.py # Markdown 转 Word
+│   │   │   ├── markdown_to_html.py # Markdown 转 HTML
+│   │   │   ├── web_to_docx.py      # 网页转 Word
+│   │   │   ├── word_to_pdf.py      # Word 转 PDF
+│   │   │   ├── pdf_to_word.py      # PDF 转 Word
+│   │   │   └── docx2md.py          # Word 转 Markdown
+│   │   └── utils/      # 工具函数
+│   ├── app.py          # FastAPI 应用
+│   ├── main.py         # 启动文件
 │   └── requirements.txt # 依赖列表
-├── frontend/         # 前端代码
-│   ├── src/          # 源代码
-│   ├── package.json  # 项目配置
-│   └── vite.config.js # Vite配置
-├── docker-compose.yml # Docker Compose配置
-├── README.md         # 项目说明
-└── start-all.cmd     # 启动脚本
+├── frontend/           # 前端代码
+│   ├── src/            # 前端源代码
+│   │   ├── components/ # 组件
+│   │   ├── pages/      # 页面
+│   │   ├── MarkdownEditor.css # Markdown 编辑器样式
+│   │   ├── MarkdownEditorPage.jsx # Markdown 编辑器页面
+│   │   ├── ConversionPage.jsx # 通用转换页面
+│   │   └── HomePage.jsx # 首页
+│   ├── App.jsx         # 主应用
+│   ├── main.jsx        # 入口文件
+│   ├── package.json    # 项目配置
+│   └── vite.config.js  # Vite配置
+├── .github/workflows/  # GitHub Actions工作流
+│   └── docker-build-push.yml # Docker构建推送工作流
+├── docker-compose.yml   # Docker Compose配置
+├── README.md           # 项目说明
+├── start-all.cmd       # Windows 启动脚本
+├── start-all.sh        # Linux/macOS 启动脚本
+└── start-all.ps1       # PowerShell 脚本
 ```
+
+## 使用说明
+
+1. 在浏览器中访问前端页面：http://localhost:5180/
+2. 选择您需要的转换类型
+3. 上传文件或输入URL
+4. 点击转换按钮
+5. 下载或预览转换结果
+
+## 开发说明
+
+### 前端开发
+
+```bash
+cd frontend
+npm install  # 安装依赖
+npm run dev  # 启动开发服务器
+npm run build  # 构建生产版本
+```
+
+### 后端开发
+
+```bash
+cd backend
+pip install -r requirements.txt  # 安装依赖
+python main.py  # 启动开发服务器
+```
+
+## 更新日志
+
+### v2.2.0 (2026-01-18)
+- **性能优化**：
+  - 前端构建优化：启用代码分割、CSS分割和资源预构建，减少加载时间
+  - Nginx配置优化：启用gzip压缩、配置静态资源缓存和API缓存，提高响应速度
+  - 后端性能优化：更新Uvicorn配置，增加工作进程，优化日志级别，添加GZip压缩
+  - 端口变更：后端端口从8006变更为8016
+
+### v2.1.0 (2026-01-17)
+- **UI/UX优化**：
+  - 修复网页转Word手机端URL输入框超出屏幕问题，优化移动端输入体验
+  - Markdown编辑器移动端优化：解决控件遮挡问题，实现二级菜单布局
+  - 调整导航元素布局，确保在不同设备上显示正常
+  - 优化移动端工具栏，支持滑动选择
+- **功能优化**：
+  - 增强网页转Word的图片处理能力
+  - 优化生成Word文档的排版，用自定义符号替代数字编号
+  - 移除文档内的数字序号，提高文档可读性
+
+### v2.0.1 (2026-01-16)
+- **修复内容**：
+  - 修复了app.title中版本为2.0.0，但/api/端点返回版本为1.0.0的问题
+  - 修复了静态文件服务配置，现在支持开发和生产环境
+  - 修复了网页转Word时数字序号仍然出现的问题
+  - 修复了功能特性卡片中第一个图标的显示错误
+- **优化内容**：
+  - 优化了错误处理逻辑，减少了重复代码
+  - 改进了静态文件服务配置，提高了可靠性
+  - 创建了`ConversionCard`组件，减少了重复代码
+  - 为实时预览功能添加了防抖机制（500ms）
+
+### v2.0.0 (2026-01-15)
+- **重大更新**：
+  - 新增独立的 Markdown 编辑器，支持多端模拟预览、一键导出 HTML/Word、实时渲染
+  - 首页界面重构，采用现代化卡片式布局，优化用户体验
+  - 增强 Word 转 PDF 功能：支持图片精准定位、VML 图形兼容、乱码修复
+  - 新增“网页转 Word”功能，支持智能提取正文、自动处理样式
+  - 优化移动端适配，所有功能完美支持手机/平板访问
+- **功能优化**：
+  - 统一全站页脚和导航栏样式
+  - 优化文件命名逻辑，自动提取标题作为文件名
+  - 增强错误处理，提供更友好的用户提示
+  - 修复 CSS 样式残留问题，提升 Word 文档导出质量
+
+### v1.3.1 (2026-01-15)
+- 优化 OCR 引擎：增加图像预处理（增强、去噪），提升识别准确率
+- 兼容性修复：支持无 OpenCV 环境运行，自动降级
+- 修复 Word 转 PDF 转换器缩进错误
+- 修复后端 OCR 依赖问题
+
+### v1.3.0 (2026-01-14)
+- 修复转换无反应问题
+- 解决端口冲突问题，配置代理
+- 实现Markdown转HTML实时预览
+- 统一UI样式，修复布局和对齐问题
+- 优化移动端适配
+- 添加上传、复制、下载控件
+- 修复转换后文件名错误问题
+- 修复文件类型识别问题
+
+### v1.2.0 (2026-01-13)
+- 修复网页转Word功能的500错误
+- 优化中文文件名处理
+- 完善错误处理机制
+
+### v1.1.0 (2026-01-10)
+- 新增PDF转Word功能
+- 新增Word转PDF功能
+- 优化Markdown转HTML样式
+
+### v1.0.0 (2026-01-05)
+- 初始版本
+- 支持Word转Markdown
+- 支持Markdown转HTML
+- 支持网页转Word
 
 ## 贡献指南
 
@@ -189,10 +367,11 @@ DocMagic/
 
 ## 许可证
 
-MIT License
+本项目采用 MIT 许可证 - 查看 LICENSE 文件了解详情
 
 ## 联系方式
 
 如有问题或建议，请通过以下方式联系：
 - GitHub Issues: https://github.com/aqiyoung/DocMagic/issues
+- 邮箱：aqiyoung@163.com
 

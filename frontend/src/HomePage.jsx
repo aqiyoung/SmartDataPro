@@ -33,8 +33,8 @@ const HomePage = () => {
   return (
     <div className="home-container">
       <header className="app-header">
-        <h1>统一文档转换工具</h1>
-        <p className="app-subtitle">高效、便捷的文档格式转换解决方案</p>
+        <h1>智能文档处理平台</h1>
+        <p className="app-subtitle">高效、精准、智能的文档格式转换解决方案</p>
       </header>
       
       <main className="home-main">
@@ -68,7 +68,7 @@ const HomePage = () => {
       </main>
       
       <footer className="app-footer">
-        <p>统一文档转换工具 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>智能文档处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
   );

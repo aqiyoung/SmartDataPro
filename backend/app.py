@@ -93,6 +93,23 @@ def root():
         }
     )
 
+# 添加通配符路由，将所有非API请求重定向到index.html
+@app.get("/{rest_of_path:path}")
+def catch_all(rest_of_path: str):
+    # 排除API路径和静态文件路径
+    if rest_of_path.startswith("api/") or rest_of_path.startswith("static/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    
+    index_path = os.path.join(static_dir, "index.html")
+    return FileResponse(
+        index_path,
+        headers={
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block"
+        }
+    )
+
 @app.get("/api/")
 def read_api_root():
     return {"message": "统一文档转换工具API", "version": "2.1.0"}
