@@ -23,10 +23,10 @@ export default defineConfig({
       output: {
         // 代码分割策略
         manualChunks: {
-          // 将第三方库打包到独立的chunk
-          'vendor': ['react', 'react-dom', 'axios'],
           // 将React相关库打包到独立的chunk
-          'react-vendor': ['react', 'react-dom']
+          'react-vendor': ['react', 'react-dom'],
+          // 将其他第三方库打包到独立的chunk
+          'vendor': ['axios']
         }
       }
     },
