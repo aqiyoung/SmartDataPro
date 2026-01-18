@@ -4,10 +4,10 @@ services:
   # 后端服务 - FastAPI应用
   backend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/unified-tools-web-backend:latest
+    image: ghcr.io/aqiyoung/docmagic-backend:latest
     
     # 容器名称
-    container_name: unified-tools-web-backend
+    container_name: docmagic-backend
     
     # 端口映射：主机端口:容器端口
     ports:
@@ -27,7 +27,7 @@ services:
     
     # 健康检查配置
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8006/api/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8016/api/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,7 +35,7 @@ services:
     
     # 网络配置
     networks:
-      - unified-tools-network
+      - docmagic-network
     
     # 重启策略：除非手动停止，否则自动重启
     restart: unless-stopped
@@ -43,10 +43,10 @@ services:
   # 前端服务 - Nginx应用
   frontend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/unified-tools-web-frontend:latest
+    image: ghcr.io/aqiyoung/docmagic-frontend:latest
     
     # 容器名称
-    container_name: unified-tools-web-frontend
+    container_name: docmagic-frontend
     
     # 端口映射：主机端口:容器端口
     ports:
@@ -71,15 +71,15 @@ services:
     
     # 网络配置
     networks:
-      - unified-tools-network
+      - docmagic-network
     
     # 重启策略：除非手动停止，否则自动重启
     restart: unless-stopped
 
 # 网络配置
 networks:
-  unified-tools-network:
+  docmagic-network:
     driver: bridge
-    name: unified-tools-network
+    name: docmagic-network
     # 启用IPv6支持（可选）
     enable_ipv6: false

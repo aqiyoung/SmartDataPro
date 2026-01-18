@@ -1,6 +1,6 @@
 # Docker 部署指南
 
-本指南将帮助您使用 Docker 部署统一文档转换工具。
+本指南将帮助您使用 Docker 部署 DocMagic 文档转换工具。
 
 ## 目录结构
 
@@ -26,7 +26,7 @@
 
 ```bash
 git clone <repository-url>
-cd unified-tools-web
+cd docmagic
 ```
 
 ### 2. 构建和启动服务
