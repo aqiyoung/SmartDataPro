@@ -14,7 +14,7 @@ RUN npm install --registry=https://registry.npmmirror.com
 COPY . .
 
 # 构建生产版本，开启调试日志便于排查
-RUN npm run build -- --debug
+RUN npm run build
 
 # 第二阶段：生成 Nginx 镜像
 FROM nginx:alpine
