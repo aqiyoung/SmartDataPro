@@ -4,10 +4,10 @@ services:
   # 后端服务 - FastAPI应用
   backend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/docmagic-backend:latest
+    image: ghcr.io/aqiyoung/docmaster-backend:latest
     
     # 容器名称
-    container_name: docmagic-backend
+    container_name: docmaster-backend
     
     # 端口映射：主机端口:容器端口
     ports:
@@ -43,10 +43,10 @@ services:
   # 前端服务 - Nginx应用
   frontend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/docmagic-frontend:latest
+    image: ghcr.io/aqiyoung/docmaster-frontend:latest
     
     # 容器名称
-    container_name: docmagic-frontend
+    container_name: docmaster-frontend
     
     # 端口映射：主机端口:容器端口
     ports:
