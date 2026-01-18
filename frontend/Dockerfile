@@ -7,13 +7,13 @@ WORKDIR /app
 # 复制依赖清单，利用 Docker 缓存
 COPY package*.json ./
 
-# 使用国内 npm 源加速安装
-RUN npm install --registry=https://registry.npmmirror.com
+# 使用国内 npm 源加速安装，并强制安装 terser
+RUN npm install --registry=https://registry.npmmirror.com && npm install terser --save-dev
 
 # 复制项目代码
 COPY . .
 
-# 构建生产版本，开启调试日志便于排查
+# 构建生产版本
 RUN npm run build
 
 # 第二阶段：生成 Nginx 镜像
@@ -22,7 +22,7 @@ FROM nginx:alpine
 # 复制构建好的前端文件到 Nginx 静态目录
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# 内置基础 Nginx 配置（避免依赖外部文件）
+# 内置基础 Nginx 配置
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
     listen 80;
