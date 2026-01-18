@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 暴露端口
-EXPOSE 8006
+EXPOSE 8016
 
 # 启动应用
 CMD ["python", "main.py"]

@@ -16,5 +16,5 @@ Pillow
 pymdown-extensions
 Pygments
 transformers
- sentencepiece
- torch
+sentencepiece
+torch
