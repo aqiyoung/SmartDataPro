@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
-const ConversionPage = ({ conversionType }) => {
+const ConversionPage = () => {
+  // 从路由参数中获取转换类型
+  const { conversionType } = useParams();
   const [selectedFile, setSelectedFile] = useState(null);
   const [url, setUrl] = useState('');
   const [markdownText, setMarkdownText] = useState('');
@@ -12,6 +15,14 @@ const ConversionPage = ({ conversionType }) => {
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // 使用useRef保存timeoutId，避免闭包问题
+  const timeoutRef = React.useRef(null);
+  
+  // 返回首页的函数
+  const goToHomePage = () => {
+    window.location.pathname = '/';
+  };
 
   // 处理文件选择
   const handleFileChange = (e) => {
@@ -32,44 +43,38 @@ const ConversionPage = ({ conversionType }) => {
   };
 
   // 实时预览处理 - 添加防抖，减少API调用次数
-  const handleLivePreview = React.useCallback(
-    React.useMemo(() => {
-      let timeoutId;
-      return async (text) => {
-        if (!text.trim()) {
-          setHtmlPreview('');
-          return;
-        }
+  const handleLivePreview = React.useCallback(async (text) => {
+    if (!text.trim()) {
+      setHtmlPreview('');
+      return;
+    }
+    
+    // 清除之前的定时器
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // 设置新的定时器，500ms后执行
+    timeoutRef.current = setTimeout(async () => {
+      setIsPreviewLoading(true);
+      try {
+        // 使用临时文件创建一个Blob对象
+        const tempFile = new Blob([text], { type: 'text/markdown' });
+        const formData = new FormData();
+        formData.append('file', tempFile, 'temp.md');
+        formData.append('style', theme);
         
-        // 清除之前的定时器
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        
-        // 设置新的定时器，500ms后执行
-        timeoutId = setTimeout(async () => {
-          setIsPreviewLoading(true);
-          try {
-            // 使用临时文件创建一个Blob对象
-            const tempFile = new Blob([text], { type: 'text/markdown' });
-            const formData = new FormData();
-            formData.append('file', tempFile, 'temp.md');
-            formData.append('style', theme);
-            
-            // 调用后端API进行转换
-            const response = await axios.post('/api/convert/markdown-to-html', formData);
-            setHtmlPreview(response.data);
-          } catch (err) {
-            console.error('预览失败:', err);
-            // 实时预览失败时，不显示错误，保持现有预览
-          } finally {
-            setIsPreviewLoading(false);
-          }
-        }, 500);
-      };
-    }, [theme]),
-    [theme]
-  );
+        // 调用后端API进行转换
+        const response = await axios.post('/api/convert/markdown-to-html', formData);
+        setHtmlPreview(response.data);
+      } catch (err) {
+        console.error('预览失败:', err);
+        // 实时预览失败时，不显示错误，保持现有预览
+      } finally {
+        setIsPreviewLoading(false);
+      }
+    }, 500);
+  }, [theme]);
 
   // 处理主题选择变化
   const handleThemeChange = (e) => {
@@ -243,12 +248,21 @@ const ConversionPage = ({ conversionType }) => {
   };
 
   // 渲染转换界面
+  // 功能特性数据，与首页保持一致
+  const features = [
+    { icon: '⚡', title: '快速转换', description: '高效的转换算法，快速完成文档格式转换' },
+    { icon: '🎨', title: '样式定制', description: '多种HTML样式主题，满足不同需求' },
+    { icon: '🔒', title: '安全可靠', description: '本地转换，保护您的文档隐私安全' },
+    { icon: '👁️', title: '实时预览', description: '支持Markdown和HTML文件在线预览，方便查看转换结果' },
+    { icon: '📱', title: '响应式设计', description: '适配各种设备，随时随地进行文档转换' },
+  ];
+
   const renderConversionInterface = () => {
     switch (conversionType) {
       case 'word-to-md':
         return (
           <div className="conversion-card" style={{ position: 'relative' }}>
-            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+            <button className="back-home-btn" onClick={() => window.location.pathname = '/'} style={{ top: '2rem', left: '2rem' }}>
               🏠 返回首页
             </button>
             <h3>Word 转 Markdown</h3>
@@ -469,7 +483,7 @@ const ConversionPage = ({ conversionType }) => {
       case 'web-to-docx':
         return (
           <div className="conversion-card" style={{ position: 'relative' }}>
-            <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+            <button className="back-home-btn" onClick={() => window.location.pathname = '/'} style={{ top: '2rem', left: '2rem' }}>
               🏠 返回首页
             </button>
             <h3>网页转 Word</h3>
@@ -592,17 +606,27 @@ const ConversionPage = ({ conversionType }) => {
     }
   };
 
-  // 返回首页功能
-  const goToHomePage = () => {
-    // 直接返回根路径
-    window.location.pathname = '/';
-  };
+  
 
   return (
     <div className="app-container">
       <main className="app-main">
         {/* 转换功能区域 - 主要内容 */}
         {renderConversionInterface()}
+
+        {/* 功能特性部分，与首页保持一致 */}
+        <section className="features-section">
+          <h2 className="features-title">功能特性</h2>
+          <div className="features-grid">
+            {features.map((feature, index) => (
+              <div key={index} className="feature-card">
+                <div className="feature-icon">{feature.icon}</div>
+                <h3 className="feature-title">{feature.title}</h3>
+                <p className="feature-description">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
       
       <footer className="app-footer">

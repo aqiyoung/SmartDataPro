@@ -1,3 +1,11 @@
+// ===========================================================================
+// ========================= 独立功能模块：Markdown编辑器 =========================
+// ===========================================================================
+// 说明：此模块为独立功能，与其他转换页面分离，修改时请勿同步到其他页面
+// 版本：v2.1.0
+// 更新日期：2026-01-18
+// ===========================================================================
+
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './MarkdownEditor.css';
@@ -202,7 +210,7 @@ const MarkdownEditorPage = () => {
   const handleTextChange = (e) => {
     const text = e.target.value;
     setMarkdownText(text);
-    handleLivePreview(text, theme);
+    // 不再直接调用handleLivePreview，而是依赖useEffect监听markdownText变化
   };
 
   const handleThemeChange = (e) => {

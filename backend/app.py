@@ -20,7 +20,7 @@ import re
 
 
 app = FastAPI(
-    title="统一文档转换工具API",
+    title="智能文档处理平台",
     description="提供文档格式转换服务，支持多种格式转换",
     version="2.1.0",
     # 优化FastAPI配置
@@ -58,13 +58,6 @@ async def add_process_time_header(request, call_next):
     response.headers["Cache-Control"] = "public, max-age=3600"  # 缓存1小时
     return response
 
-# 配置静态文件服务
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-# 检查生产构建目录是否存在，如果存在则使用，否则使用开发目录
-dist_dir = os.path.join(frontend_dir, "dist")
-static_dir = dist_dir if os.path.exists(dist_dir) else frontend_dir
-app.mount("/static", StaticFiles(directory=static_dir), name="frontend")
-
 # 配置临时文件目录
 TEMP_DIR = tempfile.gettempdir()
 
@@ -80,29 +73,20 @@ def generate_unique_filename(original_filename, suffix):
         return f"{name_part}_{unique_id}.{suffix}"
     return f"temp_{unique_id}.{suffix}"
 
-# 根路径重定向到静态文件服务的 index.html
+# 配置静态文件服务
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+# 检查生产构建目录是否存在，如果存在则使用，否则使用开发目录
+dist_dir = os.path.join(frontend_dir, "dist")
+static_dir = dist_dir if os.path.exists(dist_dir) else frontend_dir
+
+# 无论生产环境还是开发环境，都将静态文件挂载到/static路径
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_dir, "dist" if os.path.exists(dist_dir) else "public")), name="frontend")
+
+# 根路径重定向到前端
 @app.get("/")
 def root():
-    index_path = os.path.join(static_dir, "index.html")
     return FileResponse(
-        index_path,
-        headers={
-            "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY",
-            "X-XSS-Protection": "1; mode=block"
-        }
-    )
-
-# 添加通配符路由，将所有非API请求重定向到index.html
-@app.get("/{rest_of_path:path}")
-def catch_all(rest_of_path: str):
-    # 排除API路径和静态文件路径
-    if rest_of_path.startswith("api/") or rest_of_path.startswith("static/"):
-        raise HTTPException(status_code=404, detail="Not Found")
-    
-    index_path = os.path.join(static_dir, "index.html")
-    return FileResponse(
-        index_path,
+        os.path.join(frontend_dir, "dist/index.html" if os.path.exists(dist_dir) else "index.html"),
         headers={
             "X-Content-Type-Options": "nosniff",
             "X-Frame-Options": "DENY",
@@ -112,7 +96,7 @@ def catch_all(rest_of_path: str):
 
 @app.get("/api/")
 def read_api_root():
-    return {"message": "统一文档转换工具API", "version": "2.1.0"}
+    return {"message": "智能文档处理平台", "version": "2.1.0"}
 
 @app.post("/api/convert/docx-to-md")
 async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
@@ -152,6 +136,7 @@ async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
         if 'output_file' in locals() and os.path.exists(output_file):
             os.remove(output_file)
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+
 
 @app.post("/api/convert/markdown-to-html")
 async def convert_markdown_to_html_endpoint(file: UploadFile = File(...), style: str = Form("default")):
@@ -677,8 +662,16 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bo
             os.remove(output_file)
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
 
-
-
-
-
-
+# 添加通配符路由，将所有非API请求重定向到index.html
+# 注意：这个路由必须放在所有API路由的最后，否则会拦截API请求
+@app.get("/{rest_of_path:path}")
+def catch_all(rest_of_path: str):
+    # 其他请求返回index.html，由React Router处理
+    return FileResponse(
+        os.path.join(frontend_dir, "dist/index.html" if os.path.exists(dist_dir) else "index.html"),
+        headers={
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block"
+        }
+    )
