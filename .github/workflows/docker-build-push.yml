@@ -42,7 +42,7 @@ jobs:
         id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/docmaster-backend
+          images: ghcr.io/${{ github.repository_owner }}/docmagic-backend
           tags: |
             type=ref,event=branch
             type=sha
@@ -90,7 +90,7 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/docmaster-frontend
+          images: ghcr.io/${{ github.repository_owner }}/docmagic-frontend
           tags: |
             type=ref,event=branch
             type=sha

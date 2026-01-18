@@ -1,4 +1,4 @@
-# DocMaster
+# DocMagic
 
 一个基于 FastAPI 和 React 构建的现代化文档处理平台，支持多种格式之间的转换与处理。
 
