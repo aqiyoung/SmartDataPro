@@ -870,13 +870,13 @@
 
 /* 主要下拉项样式 */
 .dropdown-item.primary {
-  background-color: #333;
+  background-color: #409eff;
   color: white;
   font-weight: 600;
 }
 
 .dropdown-item.primary:hover {
-  background-color: #1a1a1a;
+  background-color: #66b1ff;
   color: white;
 }
 
@@ -950,8 +950,8 @@
 }
 
 .dropdown-select:focus {
-  border-color: #333;
-  box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
 }
 
 .md-navbar-left {
@@ -1031,13 +1031,13 @@
 }
 
 .md-btn.primary {
-  background-color: #333;
+  background-color: #409eff;
   color: white;
-  border-color: #333;
+  border-color: #409eff;
 }
 
 .md-btn.primary:hover {
-  background-color: #000;
+  background-color: #66b1ff;
 }
 
 .md-navbar-right {

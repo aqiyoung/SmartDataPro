@@ -515,31 +515,78 @@ const MarkdownEditorPage = () => {
 
   // 复制功能
   const handleCopy = async () => {
+    // 创建提示元素
+    const createToast = (message, type = 'success') => {
+      const toast = document.createElement('div');
+      toast.className = `md-toast md-toast-${type}`;
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(-20px);
+      `;
+      
+      // 根据类型设置不同背景色
+      if (type === 'success') {
+        toast.style.backgroundColor = '#52c41a';
+      } else if (type === 'error') {
+        toast.style.backgroundColor = '#ff4d4f';
+      } else if (type === 'warning') {
+        toast.style.backgroundColor = '#faad14';
+      }
+      
+      document.body.appendChild(toast);
+      
+      // 显示动画
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+      }, 100);
+      
+      // 3秒后自动移除
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+      
+      return toast;
+    };
+    
     const iframe = document.querySelector('.preview-iframe');
     if (iframe && iframe.contentDocument) {
       try {
         const doc = iframe.contentDocument;
-        const selection = iframe.contentWindow.getSelection();
-        const range = doc.createRange();
-        range.selectNodeContents(doc.body);
-        selection.removeAllRanges();
-        selection.addRange(range);
         
-        // 使用现代的Clipboard API
-        await iframe.contentWindow.navigator.clipboard.writeText(range.toString());
-        selection.removeAllRanges();
+        // 直接获取渲染后的纯文本内容
+        const plainText = doc.body.textContent || doc.body.innerText;
         
-        // 替换alert为更友好的提示方式
-        console.log('已复制渲染后的内容到剪贴板');
+        // 使用现代的Clipboard API复制纯文本
+        await navigator.clipboard.writeText(plainText);
+        
+        // 显示成功提示
+        createToast('已复制渲染后的纯文本内容到剪贴板');
       } catch (err) {
         console.error('复制失败:', err);
         try {
-          // 回退方案：复制HTML源代码
-          await navigator.clipboard.writeText(htmlPreview);
-          console.log('已复制HTML源代码（渲染复制失败）');
+          // 简化回退方案：只复制编辑器中的Markdown原始文本
+          await navigator.clipboard.writeText(markdownText);
+          createToast('已复制Markdown原始文本', 'warning');
         } catch (fallbackErr) {
           console.error('回退复制方案也失败了:', fallbackErr);
-          console.warn('复制失败，请手动复制');
+          createToast('复制失败，请手动复制', 'error');
         }
       }
     }
