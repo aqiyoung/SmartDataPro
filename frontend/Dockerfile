@@ -1,14 +1,14 @@
-# 使用官方Node.js镜像作为基础镜像，直接从Docker Hub拉取
-FROM docker.io/library/node:18-alpine as build
+# 第一阶段：构建前端代码
+FROM node:18-alpine AS build
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制package.json和package-lock.json
+# 复制依赖清单，利用 Docker 缓存
 COPY package*.json ./
 
-# 安装依赖
-RUN npm install
+# 使用国内 npm 源加速安装，并强制安装 terser
+RUN npm install --registry=https://registry.npmmirror.com && npm install terser --save-dev
 
 # 复制项目代码
 COPY . .
@@ -16,17 +16,33 @@ COPY . .
 # 构建生产版本
 RUN npm run build
 
-# 使用Nginx作为生产服务器，直接从Docker Hub拉取
-FROM docker.io/library/nginx:alpine
+# 第二阶段：生成 Nginx 镜像
+FROM nginx:alpine
 
-# 复制构建好的前端文件到Nginx的静态文件目录
+# 复制构建好的前端文件到 Nginx 静态目录
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# 复制自定义Nginx配置文件
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 内置基础 Nginx 配置
+COPY <<EOF /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # 解决 Vue/React 路由刷新 404 问题
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # 开启 gzip 压缩
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
+EOF
 
 # 暴露端口
 EXPOSE 80
 
-# 启动Nginx
+# 启动 Nginx
 CMD ["nginx", "-g", "daemon off;"]
