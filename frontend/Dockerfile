@@ -30,6 +30,15 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # API 代理配置，指向后端服务
+    location /api {
+        proxy_pass http://backend:8016;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
     # 解决 Vue/React 路由刷新 404 问题
     location / {
         try_files \$uri \$uri/ /index.html;
