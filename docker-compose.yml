@@ -17,7 +17,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1  # 禁用Python缓冲输出，便于查看日志
       - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/  # Tesseract OCR数据目录
-      - DEBUG=0  # 生产环境关闭调试模式
+      - DEBUG=1  # 开启调试模式，便于排查问题
     
     # 卷挂载：将主机目录挂载到容器
     volumes:
@@ -25,13 +25,13 @@ services:
       - ./backend/logs:/app/logs  # 日志文件目录
       - ./backend/data:/app/data  # 数据文件目录
     
-    # 健康检查配置
+    # 健康检查配置 - 更严格的检查，确保后端完全可用
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8016/api/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      interval: 10s  # 更频繁的检查
+      timeout: 5s    # 更短的超时
+      retries: 5     # 更多重试次数
+      start_period: 120s  # 更长的启动等待时间，确保依赖服务完全启动
     
     # 网络配置
     networks:
@@ -52,9 +52,10 @@ services:
     ports:
       - "5180:80"
     
-    # 依赖关系：确保backend服务先启动
+    # 依赖关系：确保backend服务完全健康后再启动
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy  # 只有当backend健康检查通过后才启动
     
     # 卷挂载：将主机目录挂载到容器
     volumes:
@@ -64,10 +65,10 @@ services:
     # 健康检查配置
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s  # 更长的启动等待时间
     
     # 网络配置
     networks:
