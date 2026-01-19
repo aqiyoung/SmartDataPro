@@ -4,7 +4,7 @@
 # 同时启动前端和后端服务
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "统一文档转换工具 启动脚本" -ForegroundColor Cyan
+Write-Host "DocMagic 智能文档处理平台 启动脚本" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 # 定义颜色常量
@@ -27,7 +27,7 @@ if (Test-Path -Path $backendPath) {
     $backendJob = Start-Job -ScriptBlock {
         python main.py
     }
-    Write-Host "后端服务已启动，运行在 http://localhost:8006/" -ForegroundColor $GREEN
+    Write-Host "后端服务已启动，运行在 http://localhost:8016/" -ForegroundColor $GREEN
     
     # 等待后端服务初始化
     Start-Sleep -Seconds 2

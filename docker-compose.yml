@@ -58,7 +58,7 @@ services:
     
     # 卷挂载：将主机目录挂载到容器
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html  # 前端静态文件目录
+      # - ./frontend/dist:/usr/share/nginx/html  # 已移除：使用镜像内置的静态文件，避免本地空目录覆盖
       - ./frontend/logs:/var/log/nginx  # Nginx日志目录
     
     # 健康检查配置

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 统一文档转换工具启动脚本（无 sudo 版本）
+# DocMagic 智能文档处理平台启动脚本（无 sudo 版本）
 # 仅启动服务，不安装系统依赖
 
 # 颜色定义
@@ -33,7 +33,7 @@ function start_backend() {
     
     # 激活虚拟环境并启动后端服务
     source venv/bin/activate
-    nohup uvicorn app:app --reload --port 8006 > "$BACKEND_LOG" 2>&1 &
+    nohup uvicorn app:app --reload --port 8016 > "$BACKEND_LOG" 2>&1 &
     BACKEND_PID=$!
     
     # 退出虚拟环境
@@ -67,11 +67,11 @@ function start_frontend() {
 # 显示启动信息
 function show_start_info() {
     echo -e "\n${GREEN}========================================${NC}"
-    echo -e "${GREEN}      统一文档转换工具已启动      ${NC}"
+    echo -e "${GREEN}      DocMagic 智能文档处理平台已启动      ${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo -e "${YELLOW}访问地址：${NC}"
     echo -e "  前端页面: http://localhost:5180"
-    echo -e "  后端 API: http://localhost:8006"
+    echo -e "  后端 API: http://localhost:8016"
     echo -e "\n${YELLOW}启动日志：${NC}"
     echo -e "  后端日志: tail -f $BACKEND_LOG"
     echo -e "  前端日志: tail -f $FRONTEND_LOG"
@@ -84,7 +84,7 @@ function show_start_info() {
 # 主函数
 function main() {
     echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}  统一文档转换工具 - 无 sudo 启动脚本  ${NC}"
+    echo -e "${GREEN}  DocMagic 智能文档处理平台 - 无 sudo 启动脚本  ${NC}"
     echo -e "${GREEN}========================================${NC}\n"
     
     # 清理旧日志
