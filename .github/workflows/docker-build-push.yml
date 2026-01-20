@@ -45,8 +45,6 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/smartdatapro-backend
           tags: |
-            type=ref,event=branch
-            type=sha
             latest
         
       # 构建并推送后端镜像
@@ -93,8 +91,6 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/smartdatapro-frontend
           tags: |
-            type=ref,event=branch
-            type=sha
             latest
         
       # 构建并推送前端镜像
