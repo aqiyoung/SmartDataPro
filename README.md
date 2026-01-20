@@ -1,4 +1,4 @@
-# 智能数据处理平台
+# SmartDataPro - 智能数据处理平台
 
 一个基于 FastAPI 和 React 构建的数据处理平台，支持文档、网页、视频等多种格式之间的转换与处理。
 
@@ -94,8 +94,8 @@
 2. **部署步骤**
    ```bash
    # 克隆仓库
-   git clone git@github.com:aqiyoung/DocMagic.git
-   cd DocMagic
+   git clone git@github.com:aqiyoung/SmartDataPro.git
+   cd SmartDataPro
    
    # 构建镜像
    docker-compose build
@@ -115,8 +115,8 @@
    ```
 
 5. **Docker 配置说明**
-   - 前端镜像：`ghcr.io/aqiyoung/docmagic-frontend:latest`
-   - 后端镜像：`ghcr.io/aqiyoung/docmagic-backend:latest`
+   - 前端镜像：`ghcr.io/aqiyoung/smartdatapro-frontend:latest`
+   - 后端镜像：`ghcr.io/aqiyoung/smartdatapro-backend:latest`
    - 前端端口：`5180`
    - 后端端口：`8016`
    - 健康检查：自动检查服务状态，确保服务正常运行
@@ -204,12 +204,12 @@
 1. **build-backend**
    - 构建后端Docker镜像
    - 推送镜像到GitHub Container Registry
-   - 标签: `ghcr.io/{owner}/docmagic-backend:latest`, `ghcr.io/{owner}/docmagic-backend:{branch}`, `ghcr.io/{owner}/docmagic-backend:{sha}`
+   - 标签: `ghcr.io/{owner}/smartdatapro-backend:latest`, `ghcr.io/{owner}/smartdatapro-backend:{branch}`, `ghcr.io/{owner}/smartdatapro-backend:{sha}`
    
 2. **build-frontend**
    - 构建前端Docker镜像
    - 推送镜像到GitHub Container Registry
-   - 标签: `ghcr.io/{owner}/docmagic-frontend:latest`, `ghcr.io/{owner}/docmagic-frontend:{branch}`, `ghcr.io/{owner}/docmagic-frontend:{sha}`
+   - 标签: `ghcr.io/{owner}/smartdatapro-frontend:latest`, `ghcr.io/{owner}/smartdatapro-frontend:{branch}`, `ghcr.io/{owner}/smartdatapro-frontend:{sha}`
 
 #### 构建流程
 
@@ -226,7 +226,7 @@
 ## 项目结构
 
 ```
-DocMagic/
+SmartDataPro/
 ├── backend/            # 后端代码
 │   ├── src/            # 后端源代码
 │   │   ├── converters/ # 转换逻辑
@@ -386,6 +386,5 @@ python main.py  # 启动开发服务器
 ## 联系方式
 
 如有问题或建议，请通过以下方式联系：
-- GitHub Issues: https://github.com/aqiyoung/DocMagic/issues
+- GitHub Issues: https://github.com/aqiyoung/SmartDataPro/issues
 - 邮箱：aqiyoung@163.com
-
