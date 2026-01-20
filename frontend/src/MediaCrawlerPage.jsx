@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './MarkdownEditor.css';
+import './App.css';
 
 const MediaCrawlerPage = () => {
   // 状态管理
@@ -11,6 +11,12 @@ const MediaCrawlerPage = () => {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // 返回首页的函数
+  const goToHomePage = () => {
+    window.location.pathname = '/';
+  };
 
   // 支持的平台列表
   const platforms = [
@@ -23,18 +29,19 @@ const MediaCrawlerPage = () => {
     { name: 'zhihu', displayName: '知乎' }
   ];
 
-  // 爬取类型
+  // 采集类型
   const crawlTypes = [
-    { value: 'url', label: '通过URL爬取' },
-    { value: 'keyword', label: '通过关键词爬取' },
-    { value: 'post_id', label: '通过帖子ID爬取' }
+    { value: 'url', label: '通过URL采集' },
+    { value: 'keyword', label: '通过关键词采集' },
+    { value: 'post_id', label: '通过帖子ID采集' }
   ];
 
-  // 处理爬取请求
+  // 处理采集请求
   const handleCrawl = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccess('');
     setResult(null);
 
     try {
@@ -48,7 +55,7 @@ const MediaCrawlerPage = () => {
       } else if (crawlType === 'post_id' && postId) {
         formData.append('post_id', postId);
       } else {
-        throw new Error('请填写必要的爬取参数');
+        throw new Error('请填写必要的采集参数');
       }
 
       const response = await fetch('/api/crawl/media', {
@@ -57,16 +64,29 @@ const MediaCrawlerPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`爬取失败: ${response.statusText}`);
+        throw new Error(`采集失败: ${response.statusText}`);
       }
 
       const data = await response.json();
       setResult(data);
+      setSuccess('采集成功！');
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 重置表单
+  const resetForm = () => {
+    setPlatform('xiaohongshu');
+    setCrawlType('url');
+    setUrl('');
+    setKeyword('');
+    setPostId('');
+    setResult(null);
+    setError('');
+    setSuccess('');
   };
 
   // 渲染结果
@@ -77,7 +97,7 @@ const MediaCrawlerPage = () => {
     
     return (
       <div className="result-section">
-        <h3>爬取结果</h3>
+        <h3>采集结果</h3>
         <div className="result-content">
           <p><strong>平台:</strong> {data.platform}</p>
           <p><strong>类型:</strong> {data.type}</p>
@@ -142,62 +162,65 @@ const MediaCrawlerPage = () => {
   };
 
   return (
-    <div className="markdown-editor-page">
-      <div className="container">
-        <h2>媒体爬虫</h2>
-        <p>支持小红书、抖音、快手、B站、微博、贴吧、知乎等平台的内容抓取</p>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form className="crawl-form" onSubmit={handleCrawl}>
-          <div className="form-section">
-            <h3>爬取配置</h3>
-            
-            <div className="form-group">
-              <label htmlFor="platform">选择平台:</label>
-              <select 
-                id="platform" 
-                value={platform} 
-                onChange={(e) => setPlatform(e.target.value)}
-                required
-              >
-                {platforms.map(p => (
-                  <option key={p.name} value={p.name}>{p.displayName}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="crawlType">爬取方式:</label>
-              <select 
-                id="crawlType" 
-                value={crawlType} 
-                onChange={(e) => setCrawlType(e.target.value)}
-                required
-              >
-                {crawlTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
+    <div className="app-container">
+      <main className="app-main">
+        {/* 转换功能区域 - 主要内容 */}
+        <div className="conversion-card" style={{ position: 'relative' }}>
+          <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+            🏠 返回首页
+          </button>
+          <h3>媒体内容采集</h3>
+          <p>支持小红书、抖音、快手、B站、微博、贴吧、知乎等平台的内容抓取</p>
+          
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
+          
+          <form className="crawl-form" onSubmit={handleCrawl}>
+            <div className="theme-selector">
+              <div className="form-group">
+                <label htmlFor="platform">选择平台:</label>
+                <select 
+                  id="platform" 
+                  value={platform} 
+                  onChange={(e) => setPlatform(e.target.value)}
+                  required
+                >
+                  {platforms.map(p => (
+                    <option key={p.name} value={p.name}>{p.displayName}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="crawlType">采集方式:</label>
+                <select 
+                  id="crawlType" 
+                  value={crawlType} 
+                  onChange={(e) => setCrawlType(e.target.value)}
+                  required
+                >
+                  {crawlTypes.map(type => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             
             {crawlType === 'url' && (
-              <div className="form-group">
-                <label htmlFor="url">URL地址:</label>
+              <div className="url-input-section">
                 <input 
-                  type="text" 
+                  type="url" 
                   id="url" 
                   value={url} 
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="请输入要爬取的URL"
+                  placeholder="请输入要采集的URL"
                   required
                 />
               </div>
             )}
             
             {crawlType === 'keyword' && (
-              <div className="form-group">
-                <label htmlFor="keyword">关键词:</label>
+              <div className="file-upload-section">
                 <input 
                   type="text" 
                   id="keyword" 
@@ -205,13 +228,24 @@ const MediaCrawlerPage = () => {
                   onChange={(e) => setKeyword(e.target.value)}
                   placeholder="请输入搜索关键词"
                   required
+                  style={{ 
+                    padding: '0.9rem 1.5rem', 
+                    fontSize: '1rem', 
+                    border: '2px solid #e0e0e0', 
+                    borderRadius: '16px', 
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    margin: '0 auto',
+                    display: 'block',
+                    width: '80%',
+                    maxWidth: '600px'
+                  }}
                 />
               </div>
             )}
             
             {crawlType === 'post_id' && (
-              <div className="form-group">
-                <label htmlFor="postId">帖子ID:</label>
+              <div className="file-upload-section">
                 <input 
                   type="text" 
                   id="postId" 
@@ -219,22 +253,47 @@ const MediaCrawlerPage = () => {
                   onChange={(e) => setPostId(e.target.value)}
                   placeholder="请输入帖子ID"
                   required
+                  style={{ 
+                    padding: '0.9rem 1.5rem', 
+                    fontSize: '1rem', 
+                    border: '2px solid #e0e0e0', 
+                    borderRadius: '16px', 
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    margin: '0 auto',
+                    display: 'block',
+                    width: '80%',
+                    maxWidth: '600px'
+                  }}
                 />
               </div>
             )}
             
-            <button 
-              type="submit" 
-              className="md-btn primary"
-              disabled={isLoading}
-            >
-              {isLoading ? '爬取中...' : '开始爬取'}
-            </button>
-          </div>
-        </form>
-        
-        {renderResult()}
-      </div>
+            <div className="action-buttons">
+              <button 
+                type="submit" 
+                className="convert-btn"
+                disabled={isLoading}
+              >
+                {isLoading ? '⏳ 采集中...' : '🔥 开始采集'}
+              </button>
+              <button 
+                type="button" 
+                className="reset-btn"
+                onClick={resetForm}
+                disabled={isLoading}
+              >
+                🔄 重置
+              </button>
+            </div>
+          </form>
+          
+          {renderResult()}
+        </div>
+      </main>
+      <footer className="app-footer platform-footer">
+        <p>智能数据处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
+      </footer>
     </div>
   );
 };

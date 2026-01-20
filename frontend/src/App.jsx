@@ -17,7 +17,7 @@ const App = () => {
           <Route path="/convert/:conversionType" element={<ConversionPage />} />
           {/* Markdown编辑器路由 */}
           <Route path="/markdown-editor" element={<MarkdownEditorPage />} />
-          {/* 媒体爬虫路由 */}
+          {/* 媒体内容采集路由 */}
           <Route path="/media-crawler" element={<MediaCrawlerPage />} />
         </Routes>
       </div>

@@ -671,7 +671,7 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bo
 
 @app.post("/api/crawl/media")
 async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword: str = Form(None), post_id: str = Form(None)):
-    """自媒体平台内容抓取"""
+    """自媒体平台内容采集"""
     try:
         # 验证参数
         if not any([url, keyword, post_id]):
@@ -680,7 +680,7 @@ async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword:
         # 初始化爬虫
         crawler = MediaCrawler()
         
-        # 根据平台和参数执行爬取
+        # 根据平台和参数执行采集
         result = await crawler.crawl(
             platform=platform,
             url=url,
@@ -691,12 +691,12 @@ async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword:
         return {
             "success": True,
             "data": result,
-            "message": "爬取成功"
+            "message": "采集成功"
         }
     except Exception as e:
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"爬取失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"采集失败: {str(e)}")
 
 # 添加通配符路由，将所有非API请求重定向到index.html
 # 注意：这个路由必须放在所有API路由的最后，否则会拦截API请求
