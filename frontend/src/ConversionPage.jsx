@@ -630,7 +630,7 @@ const ConversionPage = () => {
       </main>
       
       <footer className="app-footer">
-        <p>智能文档处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>智能数据处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
   );

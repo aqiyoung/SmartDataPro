@@ -1,6 +1,6 @@
 # NAS Docker 部署指南
 
-本指南将详细介绍如何在 NAS 设备上使用 Docker 部署 DocMagic 智能文档处理平台。
+本指南将详细介绍如何在 NAS 设备上使用 Docker 部署 SmartDataPro 智能数据处理平台。
 
 ## 一、环境准备
 

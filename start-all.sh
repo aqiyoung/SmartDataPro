@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DocMagic 智能文档处理平台启动脚本 (Debian/Ubuntu)
+# SmartDataPro 智能数据处理平台启动脚本 (Debian/Ubuntu)
 # 版本: 2.1.0
 # 功能: 自动检查依赖、安装依赖、后台启动前后端服务，并生成日志
 
@@ -124,7 +124,7 @@ function start_frontend() {
 # 显示启动信息
 function show_start_info() {
     echo -e "\n${GREEN}========================================${NC}"
-    echo -e "${GREEN}      DocMagic 智能文档处理平台已启动      ${NC}"
+    echo -e "${GREEN}      SmartDataPro 智能数据处理平台已启动      ${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo -e "${YELLOW}访问地址：${NC}"
     echo -e "  前端页面: http://localhost:5180"
@@ -141,7 +141,7 @@ function show_start_info() {
 # 主函数
 function main() {
     echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}  DocMagic 智能文档处理平台 - Debian启动脚本  ${NC}"
+    echo -e "${GREEN}  SmartDataPro 智能数据处理平台 - Debian启动脚本  ${NC}"
     echo -e "${GREEN}========================================${NC}\n"
     
     # 清理旧日志

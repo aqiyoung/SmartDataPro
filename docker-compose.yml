@@ -5,7 +5,7 @@ services:
     image: ghcr.io/aqiyoung/docmagic-backend:v2.2.1
     
     # 容器名称
-    container_name: docmagic-backend
+    container_name: smartdatapro-backend
     
     # 端口映射：主机端口:容器端口
     ports:
@@ -16,12 +16,14 @@ services:
       - PYTHONUNBUFFERED=1  # 禁用Python缓冲输出，便于查看日志
       - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/  # Tesseract OCR数据目录
       - DEBUG=1  # 开启调试模式，便于排查问题
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright  # Playwright浏览器缓存目录
     
     # 卷挂载：将主机目录挂载到容器
     volumes:
       - ./tmp:/tmp  # 临时文件目录，使用当前目录下的tmp文件夹
       - ./backend/logs:/app/logs  # 日志文件目录
       - ./backend/data:/app/data  # 数据文件目录
+      - playwright-cache:/ms-playwright  # Playwright浏览器缓存目录
     
     # 健康检查配置 - 调整为更宽松的检查，确保后端能正常启动
     healthcheck:
@@ -33,7 +35,7 @@ services:
     
     # 网络配置
     networks:
-      - docmagic-network
+      - smartdatapro-network
     
     # 重启策略：除非手动停止，否则自动重启
     restart: unless-stopped
@@ -44,7 +46,7 @@ services:
     image: ghcr.io/aqiyoung/docmagic-frontend:v2.2.1
     
     # 容器名称
-    container_name: docmagic-frontend
+    container_name: smartdatapro-frontend
     
     # 端口映射：主机端口:容器端口
     ports:
@@ -76,8 +78,13 @@ services:
 
 # 网络配置
 networks:
-  docmagic-network:
+  smartdatapro-network:
     driver: bridge
-    name: docmagic-network
+    name: smartdatapro-network
     # 启用IPv6支持（可选）
     enable_ipv6: false
+
+# 卷配置
+volumes:
+  # Playwright浏览器缓存卷，用于存储浏览器二进制文件和缓存数据
+  playwright-cache:

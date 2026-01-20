@@ -4,7 +4,7 @@
 # 同时启动前端和后端服务
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "DocMagic 智能文档处理平台 启动脚本" -ForegroundColor Cyan
+Write-Host "SmartDataPro 智能数据处理平台 启动脚本" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 # 定义颜色常量

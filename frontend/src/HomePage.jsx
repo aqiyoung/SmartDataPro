@@ -8,6 +8,7 @@ const HomePage = () => {
     { value: 'web-to-docx', label: '网页转 Word', icon: '🌐', description: '将网页内容转换为Word文档，支持普通网页和微信公众号文章' },
     { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
     { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
+    { value: 'media-crawler', label: '媒体爬虫', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' },
   ];
 
   // 功能特性数据
@@ -26,6 +27,11 @@ const HomePage = () => {
       window.location.pathname = '/markdown-editor';
       return;
     }
+    // 特殊处理媒体爬虫
+    if (conversionType === 'media-crawler') {
+      window.location.pathname = '/media-crawler';
+      return;
+    }
     // 使用普通路由跳转
     window.location.pathname = `/convert/${conversionType}`;
   };
@@ -33,8 +39,8 @@ const HomePage = () => {
   return (
     <div className="home-container">
       <header className="app-header">
-        <h1>智能文档处理平台</h1>
-        <p className="app-subtitle">高效、精准、智能的文档格式转换解决方案</p>
+        <h1>智能数据处理平台</h1>
+        <p className="app-subtitle">高效、精准、智能的数据处理与转换解决方案</p>
       </header>
       
       <main className="home-main">
@@ -68,7 +74,7 @@ const HomePage = () => {
       </main>
       
       <footer className="app-footer">
-        <p>智能文档处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>智能数据处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
   );

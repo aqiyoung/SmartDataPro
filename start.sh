@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DocMagic 智能文档处理平台启动脚本（无 sudo 版本）
+# SmartDataPro 智能数据处理平台启动脚本（无 sudo 版本）
 # 仅启动服务，不安装系统依赖
 
 # 颜色定义
@@ -67,7 +67,7 @@ function start_frontend() {
 # 显示启动信息
 function show_start_info() {
     echo -e "\n${GREEN}========================================${NC}"
-    echo -e "${GREEN}      DocMagic 智能文档处理平台已启动      ${NC}"
+    echo -e "${GREEN}      SmartDataPro 智能数据处理平台已启动      ${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo -e "${YELLOW}访问地址：${NC}"
     echo -e "  前端页面: http://localhost:5180"
@@ -84,7 +84,7 @@ function show_start_info() {
 # 主函数
 function main() {
     echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}  DocMagic 智能文档处理平台 - 无 sudo 启动脚本  ${NC}"
+    echo -e "${GREEN}  SmartDataPro 智能数据处理平台 - 无 sudo 启动脚本  ${NC}"
     echo -e "${GREEN}========================================${NC}\n"
     
     # 清理旧日志

@@ -14,14 +14,15 @@ from src.converters import (
     convert_pdf_to_word,
     convert_markdown_to_docx
 )
+from src.crawlers.media_crawler import MediaCrawler
 import time
 import re
 
 
 
 app = FastAPI(
-    title="智能文档处理平台",
-    description="提供文档格式转换服务，支持多种格式转换",
+    title="智能数据处理平台",
+    description="提供数据处理与转换服务，支持多种格式转换",
     version="2.1.0",
     # 优化FastAPI配置
     docs_url=None,  # 生产环境关闭自动生成的文档
@@ -98,11 +99,11 @@ def root():
         )
     else:
         # 如果前端文件不存在，返回API信息
-        return {"message": "智能文档处理平台 API", "version": "2.1.0"}
+        return {"message": "智能数据处理平台 API", "version": "2.1.0"}
 
 @app.get("/api/")
 def read_api_root():
-    return {"message": "智能文档处理平台", "version": "2.1.0"}
+    return {"message": "智能数据处理平台", "version": "2.1.0"}
 
 @app.post("/api/convert/docx-to-md")
 async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
@@ -667,6 +668,35 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bo
         if 'output_file' in locals() and os.path.exists(output_file):
             os.remove(output_file)
         raise HTTPException(status_code=500, detail=f"转换失败: {str(e)}")
+
+@app.post("/api/crawl/media")
+async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword: str = Form(None), post_id: str = Form(None)):
+    """自媒体平台内容抓取"""
+    try:
+        # 验证参数
+        if not any([url, keyword, post_id]):
+            raise HTTPException(status_code=400, detail="至少需要提供url、keyword或post_id中的一个参数")
+        
+        # 初始化爬虫
+        crawler = MediaCrawler()
+        
+        # 根据平台和参数执行爬取
+        result = await crawler.crawl(
+            platform=platform,
+            url=url,
+            keyword=keyword,
+            post_id=post_id
+        )
+        
+        return {
+            "success": True,
+            "data": result,
+            "message": "爬取成功"
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"爬取失败: {str(e)}")
 
 # 添加通配符路由，将所有非API请求重定向到index.html
 # 注意：这个路由必须放在所有API路由的最后，否则会拦截API请求

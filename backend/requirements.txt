@@ -18,3 +18,4 @@ Pygments
 transformers
 sentencepiece
 torch
+playwright>=1.40.0
