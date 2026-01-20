@@ -639,6 +639,7 @@ const MarkdownEditorPage = () => {
                 <option value="dark_mode">暗黑模式</option>
                 <option value="wechat">微信公众号</option>
                 <option value="github">GitHub 风格</option>
+                <option value="xiaohongshu">小红书</option>
               </select>
             </div>
           </div>
@@ -676,6 +677,7 @@ const MarkdownEditorPage = () => {
                   <option value="wechat">微信公众号</option>
                   <option value="github">GitHub 风格</option>
                   <option value="neurapress">NeuraPress</option>
+                  <option value="xiaohongshu">小红书</option>
                 </select>
                 
                 {/* 导出功能 */}
