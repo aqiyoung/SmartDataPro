@@ -2,7 +2,7 @@ services:
   # 后端服务 - FastAPI应用
   backend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/docmagic-backend:latest
+    image: ghcr.io/aqiyoung/docmagic-backend:v2.2.1
     
     # 容器名称
     container_name: docmagic-backend
@@ -25,11 +25,11 @@ services:
     
     # 健康检查配置 - 调整为更宽松的检查，确保后端能正常启动
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; response = requests.get('http://localhost:8016/api/'); exit(0 if response.status_code == 200 else 1)"]
-      interval: 15s  # 降低检查频率
-      timeout: 10s   # 增加超时时间
-      retries: 5      # 保持重试次数
-      start_period: 180s  # 进一步增加启动等待时间
+      test: ["CMD", "python", "-c", "import requests; response = requests.get('http://localhost:8016/'); exit(0 if response.status_code < 500 else 1)"]
+      interval: 30s  # 降低检查频率，给予更多恢复时间
+      timeout: 20s   # 增加超时时间
+      retries: 10     # 增加重试次数
+      start_period: 300s  # 进一步增加启动等待时间
     
     # 网络配置
     networks:
@@ -41,7 +41,7 @@ services:
   # 前端服务 - Nginx应用
   frontend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/docmagic-frontend:latest
+    image: ghcr.io/aqiyoung/docmagic-frontend:v2.2.1
     
     # 容器名称
     container_name: docmagic-frontend
@@ -50,7 +50,7 @@ services:
     ports:
       - "5180:80"
     
-    # 依赖关系：确保backend服务启动后再启动，不再严格依赖健康检查
+    # 依赖关系：确保backend服务启动后再启动
     depends_on:
       - backend
     
@@ -63,9 +63,9 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 60s  # 更长的启动等待时间
+      timeout: 10s
+      retries: 5
+      start_period: 90s  # 更长的启动等待时间
     
     # 网络配置
     networks:

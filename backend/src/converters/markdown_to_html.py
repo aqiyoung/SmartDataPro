@@ -961,6 +961,144 @@ STYLES = {
             background-color: #2c2c2c;
         }
         """
+    },
+    "xiaohongshu": {
+        "name": "小红书",
+        "css": """
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background-color: #fff;
+            text-align: left;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0 12px 0;
+            color: #444;
+        }
+        h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 16px 0 8px 0;
+            color: #555;
+        }
+        p {
+            margin-bottom: 12px;
+            color: #222;
+        }
+        strong {
+            font-weight: bold;
+            color: #e91e63;
+        }
+        em {
+            font-style: italic;
+            color: #666;
+        }
+        ul, ol {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+            color: #333;
+        }
+        blockquote {
+            margin: 16px 0;
+            padding: 12px 16px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #e91e63;
+            border-radius: 4px;
+            font-style: italic;
+            color: #666;
+        }
+        code {
+            background-color: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid #e9ecef;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #333;
+        }
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e91e63, transparent);
+            margin: 24px 0;
+        }
+        a {
+            color: #e91e63;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+                line-height: 1.6;
+                padding: 16px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            h3 {
+                font-size: 16px;
+            }
+        }
+        """
     }
 }
 
@@ -1050,13 +1188,21 @@ def generate_html_file(html_content, title="Markdown to HTML", style="default", 
                     "a": "color: #1976d2; text-decoration: none; font-weight: 500;"
                 },
                 "dark_mode": {
-                    "code": "background-color: #333; color: #ffcc80; padding: 0.2em 0.4em; border-radius: 4px; font-family: 'Fira Code', monospace;",
-                    "pre": "background-color: #121212; padding: 1.2em; border-radius: 8px; border: 1px solid #333;",
-                    "blockquote": "border-left: 4px solid #64b5f6; padding-left: 1em; color: #bdbdbd; background-color: #263238; border-radius: 4px;",
-                    "th": "border: 1px solid #424242; padding: 10px; background-color: #333;",
-                    "td": "border: 1px solid #424242; padding: 10px;",
-                    "a": "color: #64b5f6; text-decoration: none;"
-                }
+                "code": "background-color: #333; color: #ffcc80; padding: 0.2em 0.4em; border-radius: 4px; font-family: 'Fira Code', monospace;",
+                "pre": "background-color: #121212; padding: 1.2em; border-radius: 8px; border: 1px solid #333;",
+                "blockquote": "border-left: 4px solid #64b5f6; padding-left: 1em; color: #bdbdbd; background-color: #263238; border-radius: 4px;",
+                "th": "border: 1px solid #424242; padding: 10px; background-color: #333;",
+                "td": "border: 1px solid #424242; padding: 10px;",
+                "a": "color: #64b5f6; text-decoration: none;"
+            },
+            "xiaohongshu": {
+                "code": "background-color: #f1f3f4; color: #d63384; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em;",
+                "pre": "background-color: #f8f9fa; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef; overflow-x: auto;",
+                "blockquote": "border-left: 4px solid #e91e63; background-color: #f8f9fa; padding: 12px 16px; color: #666; font-style: italic; border-radius: 4px;",
+                "th": "border: 1px solid #ddd; padding: 8px 12px; background-color: #f8f9fa; font-weight: bold;",
+                "td": "border: 1px solid #ddd; padding: 8px 12px;",
+                "a": "color: #e91e63; text-decoration: none;"
+            }
             }
             
             current_style = inline_styles.get(style, inline_styles["default"])

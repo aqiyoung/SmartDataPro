@@ -208,6 +208,7 @@ const ConversionCard = ({
           <option value="wechat">微信公众号</option>
           <option value="github">GitHub 风格</option>
           <option value="neurapress">NeuraPress</option>
+          <option value="xiaohongshu">小红书</option>
         </select>
       </div>
     );

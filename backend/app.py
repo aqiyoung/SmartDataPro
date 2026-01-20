@@ -75,24 +75,30 @@ def generate_unique_filename(original_filename, suffix):
 
 # 配置静态文件服务
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-# 检查生产构建目录是否存在，如果存在则使用，否则使用开发目录
+# 检查生产构建目录是否存在，如果存在则使用，否则跳过静态文件挂载
 dist_dir = os.path.join(frontend_dir, "dist")
-static_dir = dist_dir if os.path.exists(dist_dir) else frontend_dir
 
-# 无论生产环境还是开发环境，都将静态文件挂载到/static路径
-app.mount("/static", StaticFiles(directory=os.path.join(frontend_dir, "dist" if os.path.exists(dist_dir) else "public")), name="frontend")
+# 只有当dist目录存在时，才挂载静态文件服务，避免容器中目录不存在的错误
+if os.path.exists(dist_dir):
+    app.mount("/static", StaticFiles(directory=dist_dir), name="frontend")
 
 # 根路径重定向到前端
 @app.get("/")
 def root():
-    return FileResponse(
-        os.path.join(frontend_dir, "dist/index.html" if os.path.exists(dist_dir) else "index.html"),
-        headers={
-            "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY",
-            "X-XSS-Protection": "1; mode=block"
-        }
-    )
+    # 检查dist/index.html是否存在
+    index_path = os.path.join(frontend_dir, "dist/index.html") if os.path.exists(dist_dir) else None
+    if index_path and os.path.exists(index_path):
+        return FileResponse(
+            index_path,
+            headers={
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY",
+                "X-XSS-Protection": "1; mode=block"
+            }
+        )
+    else:
+        # 如果前端文件不存在，返回API信息
+        return {"message": "智能文档处理平台 API", "version": "2.1.0"}
 
 @app.get("/api/")
 def read_api_root():
