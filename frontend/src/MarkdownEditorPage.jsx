@@ -570,18 +570,52 @@ const MarkdownEditorPage = () => {
       try {
         const doc = iframe.contentDocument;
         
-        // 直接获取渲染后的纯文本内容
+        // 获取渲染后的HTML内容和纯文本内容
+        const htmlContent = doc.body.innerHTML;
         const plainText = doc.body.textContent || doc.body.innerText;
         
-        // 使用现代的Clipboard API复制纯文本
-        await navigator.clipboard.writeText(plainText);
-        
-        // 显示成功提示
-        createToast('已复制渲染后的纯文本内容到剪贴板');
+        // 使用现代的Clipboard API复制HTML和纯文本，以支持不同粘贴场景
+        if (navigator.clipboard && navigator.clipboard.write) {
+          // 创建ClipboardItem，同时包含HTML和纯文本
+          const clipboardItem = new ClipboardItem({
+            'text/html': new Blob([htmlContent], { type: 'text/html' }),
+            'text/plain': new Blob([plainText], { type: 'text/plain' })
+          });
+          await navigator.clipboard.write([clipboardItem]);
+          createToast('已复制渲染后的内容到剪贴板');
+        } else {
+          // 回退方案：先尝试复制HTML，再复制纯文本
+          try {
+            // 使用execCommand复制HTML（已废弃，但仍有较好的浏览器兼容性）
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
+            
+            const range = document.createRange();
+            range.selectNode(tempDiv);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            if (document.execCommand('copy')) {
+              createToast('已复制渲染后的内容到剪贴板');
+            } else {
+              throw new Error('execCommand copy failed');
+            }
+            
+            window.getSelection().removeAllRanges();
+            document.body.removeChild(tempDiv);
+          } catch (htmlErr) {
+            // 如果复制HTML失败，回退到复制纯文本
+            await navigator.clipboard.writeText(plainText);
+            createToast('已复制渲染后的纯文本内容到剪贴板', 'warning');
+          }
+        }
       } catch (err) {
         console.error('复制失败:', err);
         try {
-          // 简化回退方案：只复制编辑器中的Markdown原始文本
+          // 最终回退方案：只复制编辑器中的Markdown原始文本
           await navigator.clipboard.writeText(markdownText);
           createToast('已复制Markdown原始文本', 'warning');
         } catch (fallbackErr) {

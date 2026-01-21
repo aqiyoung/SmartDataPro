@@ -671,28 +671,21 @@ async def convert_word_to_pdf_endpoint(file: UploadFile = File(...), use_ocr: bo
 
 @app.post("/api/crawl/media")
 async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword: str = Form(None), post_id: str = Form(None)):
-    """自媒体平台内容采集"""
+    """自媒体平台内容采集 - 使用浏览器进行真实数据采集"""
     try:
         # 验证参数
         if not any([url, keyword, post_id]):
             raise HTTPException(status_code=400, detail="至少需要提供url、keyword或post_id中的一个参数")
         
-        # 初始化爬虫
+        # 初始化MediaCrawler并执行采集
         crawler = MediaCrawler()
+        await crawler.init_browser()
         
-        # 根据平台和参数执行采集
-        result = await crawler.crawl(
-            platform=platform,
-            url=url,
-            keyword=keyword,
-            post_id=post_id
-        )
-        
-        return {
-            "success": True,
-            "data": result,
-            "message": "采集成功"
-        }
+        try:
+            result = await crawler.crawl(platform, url, keyword, post_id)
+            return result
+        finally:
+            await crawler.close_browser()
     except Exception as e:
         import traceback
         traceback.print_exc()

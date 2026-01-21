@@ -93,7 +93,8 @@ const MediaCrawlerPage = () => {
   const renderResult = () => {
     if (!result) return null;
 
-    const { data } = result;
+    // 直接使用result对象，而不是result.data
+    const data = result;
     
     return (
       <div className="result-section">
@@ -126,7 +127,7 @@ const MediaCrawlerPage = () => {
                       <p>{item.content}</p>
                       <p><strong>作者:</strong> {item.author}</p>
                       <p><strong>发布时间:</strong> {item.publish_time}</p>
-                      <a href={item.url} target="_blank" rel="noopener noreferrer">查看原文</a>
+                      {item.url && <a href={item.url} target="_blank" rel="noopener noreferrer" className="view-original-link">查看原文</a>}
                     </li>
                   ))}
                 </ul>
