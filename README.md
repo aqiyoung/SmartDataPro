@@ -282,6 +282,13 @@ python main.py  # 启动开发服务器
 
 ## 更新日志
 
+### v2.2.3 (2026-01-23)
+- **项目优化**：
+  - 更新项目命名为SmartDataPro，统一所有配置和文档
+  - 更新README.md，使用SmartDataPro命名 convention
+  - 更新GitHub Actions工作流，使用SmartDataPro镜像名称
+  - 修复各种配置文件中的命名不一致问题
+
 ### v2.2.2 (2026-01-20)
 - **功能增强**：
   - 添加小红书样式支持：在Markdown编辑器中新增小红书样式选项
