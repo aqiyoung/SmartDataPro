@@ -59,8 +59,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # 禁用缓存，确保每次都使用最新代码构建
+          cache-from: 
+          cache-to:
 
   # 构建前端镜像的作业
   build-frontend:
@@ -109,5 +110,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # 禁用缓存，确保每次都使用最新代码构建
+          cache-from: 
+          cache-to:
