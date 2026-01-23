@@ -57,3 +57,6 @@ docker-compose.override.yml
 
 # Submodules and other git repositories
 neurapress/
+
+# Markdown test directory
+md/
