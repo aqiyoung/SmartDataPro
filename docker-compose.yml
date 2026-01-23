@@ -2,7 +2,7 @@ services:
   # 后端服务 - FastAPI应用
   backend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/smartdatapro-backend:v2.2.3
+    image: ghcr.io/aqiyoung/smartdatapro-backend:latest
     
     # 容器名称
     container_name: smartdatapro-backend
@@ -41,7 +41,7 @@ services:
   # 前端服务 - Nginx应用
   frontend:
     # 使用GitHub Container Registry上的镜像
-    image: ghcr.io/aqiyoung/smartdatapro-frontend:v2.2.3
+    image: ghcr.io/aqiyoung/smartdatapro-frontend:latest
     
     # 容器名称
     container_name: smartdatapro-frontend
