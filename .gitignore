@@ -60,3 +60,6 @@ neurapress/
 
 # Markdown test directory
 md/
+
+# Temporary directories for external projects
+temp_neurapress/
