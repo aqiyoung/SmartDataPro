@@ -25,6 +25,8 @@ jobs:
       # 检出代码
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: false
         
       # 设置Docker Buildx，支持多平台构建
       - name: Set up Docker Buildx
@@ -73,6 +75,8 @@ jobs:
       # 检出代码
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: false
         
       # 设置Docker Buildx，支持多平台构建
       - name: Set up Docker Buildx
