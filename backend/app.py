@@ -21,9 +21,9 @@ import re
 
 
 app = FastAPI(
-    title="智能数据处理平台",
-    description="提供数据处理与转换服务，支持多种格式转换",
-    version="2.1.0",
+    title="智能文档处理平台",
+    description="提供文档格式转换服务，支持多种格式转换",
+    version="2.2.3",
     # 优化FastAPI配置
     docs_url=None,  # 生产环境关闭自动生成的文档
     redoc_url=None,  # 生产环境关闭Redoc文档
@@ -99,11 +99,11 @@ def root():
         )
     else:
         # 如果前端文件不存在，返回API信息
-        return {"message": "智能数据处理平台 API", "version": "2.1.0"}
+        return {"message": "智能文档处理平台 API", "version": "2.2.3"}
 
 @app.get("/api/")
 def read_api_root():
-    return {"message": "智能数据处理平台", "version": "2.1.0"}
+    return {"message": "智能文档处理平台", "version": "2.2.3"}
 
 @app.post("/api/convert/docx-to-md")
 async def convert_docx_to_md_endpoint(file: UploadFile = File(...)):
