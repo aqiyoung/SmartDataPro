@@ -9,7 +9,8 @@ const HomePage = () => {
     { value: 'web-to-docx', label: '网页转 Word', icon: '🌐', description: '将网页内容转换为Word文档，支持普通网页和微信公众号文章' },
     { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
     { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
-    { value: 'media-crawler', label: '媒体内容采集', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' }
+    { value: 'media-crawler', label: '媒体内容采集', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' },
+    { value: 'external-md', label: 'md 项目', icon: '🔗', description: 'https://github.com/aqiyoung/md - 原样克隆实现' }
   ];
 
   // 平台核心功能特性数据
@@ -72,6 +73,11 @@ const HomePage = () => {
 
   // 处理转换选项点击
   const handleConversionClick = (conversionType) => {
+    // 特殊处理外部Markdown项目（md项目）
+    if (conversionType === 'external-md') {
+      window.location.pathname = '/external-md';
+      return;
+    }
     // 特殊处理Markdown编辑器
     if (conversionType === 'md-to-html') {
       window.location.pathname = '/markdown-editor';

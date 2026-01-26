@@ -4,6 +4,7 @@ import HomePage from './HomePage.jsx';
 import ConversionPage from './ConversionPage.jsx';
 import MarkdownEditorPage from './MarkdownEditorPage.jsx';
 import MediaCrawlerPage from './MediaCrawlerPage.jsx';
+import MdProjectPage from './MdProjectPage.jsx';
 import './App.css';
 
 const App = () => {
@@ -19,6 +20,8 @@ const App = () => {
           <Route path="/markdown-editor" element={<MarkdownEditorPage />} />
           {/* 媒体内容采集路由 */}
           <Route path="/media-crawler" element={<MediaCrawlerPage />} />
+          {/* 外部MD项目路由 */}
+          <Route path="/external-md" element={<MdProjectPage />} />
         </Routes>
       </div>
     </Router>
