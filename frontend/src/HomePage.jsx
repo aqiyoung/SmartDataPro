@@ -5,12 +5,12 @@ const HomePage = () => {
   // 转换类型选项，与原App.jsx中的conversionOptions保持一致
   const conversionOptions = [
     { value: 'word-to-md', label: 'Word 转 Markdown', icon: '📄', description: '将Word文档转换为简洁的Markdown格式，保留原始排版结构' },
-    { value: 'md-to-html', label: 'Markdown 编辑器', icon: '📝', description: '功能强大的Markdown编辑器，支持实时预览、样式定制和多格式导出' },
+    { value: 'md-to-html', label: 'Markdown 编辑器', icon: '✏️', description: '功能强大的Markdown编辑器，支持实时预览、样式定制和多格式导出' },
     { value: 'web-to-docx', label: '网页转 Word', icon: '🌐', description: '将网页内容转换为Word文档，支持普通网页和微信公众号文章' },
     { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
     { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
     { value: 'media-crawler', label: '媒体内容采集', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' },
-    { value: 'external-md', label: 'md 项目', icon: '🔗', description: 'https://github.com/aqiyoung/md - 原样克隆实现' }
+    { value: 'external-md', label: 'Markdown 专业版', icon: '🌟', description: '功能强大的 Markdown 编辑器，支持实时预览、多种主题、GitHub 图床和多格式导出' }
   ];
 
   // 平台核心功能特性数据
@@ -88,8 +88,8 @@ const HomePage = () => {
       window.location.pathname = '/media-crawler';
       return;
     }
-    // 使用普通路由跳转
-    window.location.pathname = `/convert/${conversionType}`;
+    // 直接跳转到独立的转换页面
+    window.location.pathname = `/${conversionType}`;
   };
 
   return (
@@ -117,9 +117,11 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* 平台核心功能特性展示 */}
+        {/* 平台核心优势展示 */}
         <section className="features-section platform-features">
-          <h2 className="features-title">核心功能特性</h2>
+          <h2 className="features-title">平台核心优势</h2>
+          
+          {/* 核心功能特性 */}
           <div className="features-grid">
             {platformFeatures.map((feature, index) => {
               // 将十六进制颜色转换为RGB
@@ -145,20 +147,15 @@ const HomePage = () => {
                     color: feature.color
                   }}
                 >
-                  <div className="feature-icon">
-                    {feature.icon}
-                  </div>
+                  <div className="feature-icon">{feature.icon}</div>
                   <h3 className="feature-title">{feature.title}</h3>
                   <p className="feature-description">{feature.description}</p>
                 </div>
               );
             })}
           </div>
-        </section>
-
-        {/* 平台优势总结 */}
-        <section className="platform-advantages">
-          <h2>为什么选择我们？</h2>
+          
+          {/* 为什么选择我们 */}
           <div className="advantages-grid">
             <div className="advantage-item">
               <div className="advantage-icon">🏆</div>

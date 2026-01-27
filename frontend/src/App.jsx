@@ -5,6 +5,10 @@ import ConversionPage from './ConversionPage.jsx';
 import MarkdownEditorPage from './MarkdownEditorPage.jsx';
 import MediaCrawlerPage from './MediaCrawlerPage.jsx';
 import MdProjectPage from './MdProjectPage.jsx';
+import WordToMarkdownPage from './WordToMarkdownPage.jsx';
+import WebToWordPage from './WebToWordPage.jsx';
+import PdfToWordPage from './PdfToWordPage.jsx';
+import WordToPdfPage from './WordToPdfPage.jsx';
 import './App.css';
 
 const App = () => {
@@ -22,6 +26,11 @@ const App = () => {
           <Route path="/media-crawler" element={<MediaCrawlerPage />} />
           {/* 外部MD项目路由 */}
           <Route path="/external-md" element={<MdProjectPage />} />
+          {/* 独立转换页面路由 */}
+          <Route path="/word-to-md" element={<WordToMarkdownPage />} />
+          <Route path="/web-to-docx" element={<WebToWordPage />} />
+          <Route path="/pdf-to-word" element={<PdfToWordPage />} />
+          <Route path="/word-to-pdf" element={<WordToPdfPage />} />
         </Routes>
       </div>
     </Router>

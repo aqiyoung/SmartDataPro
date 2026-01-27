@@ -605,6 +605,7 @@ const MdProjectPage = () => {
           </div>
         </div>
         <div className="md-project-menu-right">
+          <button className="md-project-menu-btn" onClick={goHome} title="返回首页">🏠</button>
           <button className="md-project-menu-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
           <button className="md-project-menu-btn" onClick={handleCopy} title="复制到剪贴板"><Icons.Copy /></button>
         </div>

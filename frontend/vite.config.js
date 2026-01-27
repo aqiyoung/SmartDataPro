@@ -11,7 +11,7 @@ export default defineConfig({
     allowedHosts: true, // 允许所有域名访问，解决自定义域名被阻止问题
     proxy: {
       '/api': {
-        target: 'http://localhost:8020',
+        target: 'http://localhost:8016',
         changeOrigin: true
       }
     }

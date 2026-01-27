@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from typing import Optional
 import os
 import tempfile
 import requests
@@ -311,17 +312,37 @@ async def convert_markdown_to_docx_endpoint(file: UploadFile = File(...), style:
 
 
 @app.post("/api/convert/web-to-docx")
-async def convert_web_to_docx_endpoint(url: str = Form(...)):
+async def convert_web_to_docx_endpoint(url: Optional[str] = Form(None), file: Optional[UploadFile] = File(None)):
     """将网页转换为DOCX文件"""
-    print(f"[DEBUG] 收到web-to-docx请求，URL: {url}")
+    print(f"[DEBUG] 收到web-to-docx请求，URL: {url}, 文件: {file.filename if file else None}")
     output_file = None
     
     try:
-        # 验证URL格式
-        import re
-        url_pattern = re.compile(r'^https?://')
-        if not url_pattern.match(url):
-            raise HTTPException(status_code=400, detail="URL格式不正确，请输入以http://或https://开头的URL")
+        # 验证参数
+        if not url and not file:
+            raise HTTPException(status_code=400, detail="请提供URL或选择HTML文件")
+        
+        # 如果提供了URL，验证URL格式
+        if url:
+            import re
+            url_pattern = re.compile(r'^https?://')
+            if not url_pattern.match(url):
+                raise HTTPException(status_code=400, detail="URL格式不正确，请输入以http://或https://开头的URL")
+        
+        # 如果提供了文件，保存到临时目录
+        if file:
+            # 保存上传的文件到临时目录
+            file_extension = os.path.splitext(file.filename)[1].lower()
+            if file_extension not in ['.html', '.htm']:
+                raise HTTPException(status_code=400, detail="只支持HTML格式文件")
+            
+            temp_file_path = os.path.join(TEMP_DIR, file.filename)
+            with open(temp_file_path, "wb") as f:
+                f.write(await file.read())
+            
+            # 将文件路径作为URL传递给转换函数
+            url = f"file://{temp_file_path}"
+            print(f"[DEBUG] 使用文件作为URL: {url}")
         
         # 执行转换，添加超时控制
         import threading
@@ -516,6 +537,11 @@ async def convert_web_to_docx_endpoint(url: str = Form(...)):
         print(f"[DEBUG] 安全文件名: {filename}")
         print(f"[DEBUG] 输出文件路径: {output_file}")
         
+        # 清理上传的临时文件
+        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
+            print(f"[DEBUG] 清理上传的临时文件: {temp_file_path}")
+            os.remove(temp_file_path)
+        
         # 返回转换后的文件，使用FileResponse自动处理文件名编码
         print(f"[DEBUG] 返回响应，状态码: 200")
         return FileResponse(
@@ -555,6 +581,11 @@ async def convert_web_to_docx_endpoint(url: str = Form(...)):
         
         # 清理临时文件
         os.remove(error_file_path)
+        
+        # 清理上传的临时文件
+        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
+            print(f"[DEBUG] 清理上传的临时文件: {temp_file_path}")
+            os.remove(temp_file_path)
         
         return Response(
             content=content,

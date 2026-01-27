@@ -119,8 +119,8 @@ const ConversionPage = () => {
   // 渲染转换界面
   const renderConversionInterface = () => {
     return (
-      <div className="conversion-card" style={{ position: 'relative' }}>
-        <button className="back-home-btn" onClick={goToHomePage} style={{ top: '2rem', left: '2rem' }}>
+      <>
+        <button className="back-home-btn" onClick={goToHomePage} style={{ position: 'absolute', top: '2rem', left: '2rem' }}>
           🏠 返回首页
         </button>
         
@@ -227,7 +227,7 @@ const ConversionPage = () => {
             </div>
           </div>
         )}
-      </div>
+      </>
     );
   };
 
@@ -240,7 +240,7 @@ const ConversionPage = () => {
 
   return (
     <div className="app-container">
-      <main className="app-main">
+      <main className="app-main" style={{ position: 'relative', textAlign: 'center' }}>
         {/* 转换功能区域 - 主要内容 */}
         {renderConversionInterface()}
       </main>

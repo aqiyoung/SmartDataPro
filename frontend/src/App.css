@@ -71,9 +71,8 @@ body {
 /* 首页主体 */
 .home-main {
   flex: 1;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 2rem 0;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -85,21 +84,21 @@ body {
 .conversion-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.8rem;
-  max-width: 1200px;
+  gap: 1.5rem;
+  max-width: 1400px;
   width: 100%;
-  margin: 1rem auto;
+  margin: 2rem auto;
   padding: 0 1rem;
 }
 
 /* 转换选项卡片 */
 .conversion-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-  border-radius: 10px;
-  padding: 0.8rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  border: none;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e0e7ff;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -108,63 +107,76 @@ body {
   text-align: center;
   position: relative;
   overflow: hidden;
-  min-height: 120px;
-  min-width: 160px;
+  min-height: 180px;
+  min-width: 200px;
 }
-
-
 
 /* 卡片悬停效果 */
 .conversion-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.18);
   background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  border-color: #667eea;
 }
 
 /* 卡片图标 */
 .conversion-icon {
-  font-size: 1.6rem;
-  margin-bottom: 0.6rem;
+  font-size: 2rem;
+  margin-bottom: 1rem;
   display: inline-block;
-  padding: 0.5rem;
+  padding: 1rem;
   background: rgba(102, 126, 234, 0.1);
   border-radius: 50%;
   line-height: 1;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border: 2px solid #e0e7ff;
 }
 
 .conversion-card:hover .conversion-icon {
-  transform: scale(1.05) rotate(2deg);
+  transform: scale(1.1) rotate(5deg);
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
 }
 
 /* 卡片标题 */
 .conversion-title {
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #2d3748;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.6rem;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1.2;
   width: 100%;
+  transition: color 0.3s ease;
+}
+
+.conversion-card:hover .conversion-title {
+  color: #667eea;
 }
 
 .conversion-description {
   color: #718096;
-  line-height: 1.2;
-  font-size: 0.65rem;
+  line-height: 1.4;
+  font-size: 0.9rem;
   text-align: center;
   margin: 0;
   max-width: 100%;
   opacity: 1;
-  letter-spacing: 0.1px;
+  letter-spacing: 0.5px;
   width: 100%;
+  transition: color 0.3s ease;
+}
+
+.conversion-card:hover .conversion-description {
+  color: #4a5568;
 }
 
 /* 卡片动画效果 */
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -197,24 +209,52 @@ body {
   animation-delay: 0.5s;
 }
 
+.conversion-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.conversion-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .conversion-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .conversion-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .conversion-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.2rem;
     margin: 1.5rem 0;
   }
   
   .conversion-card {
-    padding: 1.5rem 0.8rem;
+    padding: 1.2rem;
+    min-height: 160px;
   }
   
   .conversion-icon {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
+    padding: 0.8rem;
   }
   
   .conversion-title {
-    font-size: 1.05rem;
+    font-size: 1rem;
+  }
+  
+  .conversion-description {
+    font-size: 0.85rem;
   }
 }
 
@@ -226,15 +266,21 @@ body {
   }
   
   .conversion-card {
-    padding: 1.3rem 0.6rem;
+    padding: 1.3rem 0.8rem;
+    min-height: 150px;
   }
   
   .conversion-icon {
-    font-size: 2rem;
+    font-size: 1.6rem;
+    padding: 0.7rem;
   }
   
   .conversion-title {
     font-size: 1rem;
+  }
+  
+  .conversion-description {
+    font-size: 0.8rem;
   }
 }
 
@@ -541,75 +587,7 @@ body {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* 主题选择器 */
-.theme-selector {
-  margin-bottom: 2rem;
-  text-align: center;
-  background-color: #ffffff;
-  padding: 1.5rem 2rem;
-  border-radius: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-}
 
-.theme-selector label {
-  font-weight: 600;
-  color: #667eea;
-  font-size: 1.1rem;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.theme-selector select {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  border: 2px solid #e0e7ff;
-  border-radius: 16px;
-  background-color: #f8fafc;
-  cursor: pointer;
-  min-width: 240px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  color: #334155;
-  font-weight: 500;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23667eea'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.2rem;
-  padding-right: 3rem;
-}
-
-.theme-selector select:hover {
-  border-color: #667eea;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-  transform: translateY(-1px);
-}
-
-.theme-selector select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
-  background-color: white;
-}
-
-/* 下拉选项样式优化 */
-.theme-selector select option {
-  padding: 12px;
-  background-color: white;
-  color: #334155;
-  font-weight: 500;
-}
-
-.theme-selector select option:hover,
-.theme-selector select option:checked {
-  background-color: #f0f4ff;
-  color: #667eea;
-}
 
 /* Markdown编辑器区域 */
 .markdown-editor-section {
@@ -1135,6 +1113,30 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滑入动画 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 平台首页样式 */
 .platform-home {
   background: #f5f7fa;
@@ -1162,21 +1164,22 @@ body {
 }
 
 .platform-features {
-  margin: 0 auto 2rem;
-  max-width: 100%;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
+  margin: 2rem 0;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 0;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   width: 100%;
+  color: #333;
 }
 
 .platform-features .features-title {
-  color: #666;
+  color: #333;
   text-align: center;
-  font-size: 1.2rem;
-  margin-bottom: 0.8rem;
-  font-weight: 600;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .platform-features .features-grid {
@@ -1246,15 +1249,15 @@ body {
 }
 
 .platform-features .feature-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-  border-radius: 8px;
-  padding: 0.5rem 0.3rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-  border: none;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e0e7ff;
   position: relative;
   overflow: hidden;
-  min-height: 80px;
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1263,43 +1266,45 @@ body {
   box-sizing: border-box;
 }
 
-
-
 .platform-features .feature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: #667eea;
 }
 
 .platform-features .feature-icon {
-  font-size: 0.9rem;
-  margin-bottom: 0.2rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
   display: inline-block;
-  padding: 0.25rem;
-  background: rgba(var(--card-color-rgb), 0.1);
+  padding: 0.8rem;
+  background: #f0f4ff;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e7ff;
 }
 
 .platform-features .feature-card:hover .feature-icon {
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg);
+  background: #667eea;
+  color: white;
 }
 
 .platform-features .feature-title {
-  font-size: 0.65rem;
-  margin-bottom: 0.1rem;
-  color: #2d3748;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.2;
   width: 100%;
   text-align: center;
 }
 
 .platform-features .feature-description {
-  color: #718096;
-  line-height: 1;
-  font-size: 0.5rem;
+  color: #666;
+  line-height: 1.4;
+  font-size: 0.85rem;
   margin-bottom: 0;
-  letter-spacing: 0.1px;
+  letter-spacing: 0.5px;
   max-width: 100%;
   width: 100%;
   display: block;
@@ -1313,10 +1318,9 @@ body {
 /* 平台优势样式 */
 .platform-advantages {
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 1rem;
-  max-width: 100%;
-  margin: 2rem auto 0.5rem;
+  border-radius: 0;
+  padding: 1rem 2rem;
+  margin: 2rem 0 0.5rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   width: 100%;
   min-height: auto;
@@ -1332,43 +1336,58 @@ body {
 
 .advantages-grid {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   text-align: center;
   justify-content: center;
   flex-wrap: wrap;
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 2px solid #f0f0f0;
 }
 
 .advantage-item {
-  padding: 1rem;
+  padding: 2rem 1.5rem;
   flex: 1;
   min-width: 200px;
   max-width: 250px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
   min-height: auto;
 }
 
+.advantage-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: #667eea;
+}
+
 .advantage-icon {
-  font-size: 1.2rem;
-  margin-bottom: 0.4rem;
-  color: #4CAF50;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #667eea;
+  transition: all 0.3s ease;
+}
+
+.advantage-item:hover .advantage-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .advantage-item h3 {
   color: #333;
-  margin-bottom: 0.2rem;
-  font-weight: bold;
-  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .advantage-item p {
   color: #666;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
 }
 
 /* 平台底部样式 */
