@@ -1,20 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 50">
   <!-- 图标部分 - 左侧 -->
-  <g transform="translate(5, 8)">
-    <rect width="24" height="24" rx="5" ry="5" fill="#3b82f6"/>
-    <g fill="white" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700">
-      <text x="6" y="18">S</text>
+  <g transform="translate(10, 10)">
+    <rect width="30" height="30" rx="6" ry="6" fill="#3b82f6"/>
+    <g fill="white" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700">
+      <text x="8" y="24">S</text>
     </g>
   </g>
 
   <!-- 文字部分 -->
-  <g transform="translate(40, 26)">
-    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18" font-weight="600" fill="#1e3a8a">SmartData</text>
-    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#3b82f6" x="110">Pro</text>
+  <g transform="translate(55, 32)">
+    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="24" font-weight="600" fill="#1e3a8a">SmartData</text>
+    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#3b82f6" x="120">Pro</text>
   </g>
   
   <!-- 副标题 -->
-  <g transform="translate(40, 38)">
-    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#64748b">智能数据处理平台</text>
+  <g transform="translate(55, 46)">
+    <text font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#64748b">高效、便捷、智能的数据处理与转换解决方案</text>
   </g>
 </svg>
