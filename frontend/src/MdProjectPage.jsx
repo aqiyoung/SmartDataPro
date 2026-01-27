@@ -51,22 +51,10 @@ const MdProjectPage = () => {
   const [editorWidth, setEditorWidth] = useState(50);
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const textareaRef = useRef(null);
-  const lineNumbersRef = useRef(null);
   const containerRef = useRef(null);
   const dividerRef = useRef(null);
 
-  // 计算并生成行号
-  const generateLineNumbers = (text) => {
-    const lines = text.split('\n');
-    return lines.map((_, index) => index + 1).join('\n');
-  };
 
-  // 同步滚动行号和编辑区
-  const handleScroll = () => {
-    if (textareaRef.current && lineNumbersRef.current) {
-      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
-    }
-  };
 
   // 默认示例文本 - md项目专属
   useEffect(() => {
@@ -604,68 +592,19 @@ const MdProjectPage = () => {
             </div>
           </div>
         </div>
+        
+
         <div className="md-project-menu-right">
           <button className="md-project-menu-btn" onClick={goHome} title="返回首页">🏠</button>
-          <button className="md-project-menu-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
           <button className="md-project-menu-btn" onClick={handleCopy} title="复制到剪贴板"><Icons.Copy /></button>
         </div>
       </div>
 
-      {/* 编辑器主体 - 采用原项目的三栏布局 */}
+      {/* 编辑器主体 - 采用两栏布局，移除左侧文章区域 */}
       <div ref={containerRef} className="md-project-main">
-        {/* 左侧文章滑块 - 原项目的PostSlider */}
-        <div className="md-project-sidebar-left">
-          <div className="md-project-sidebar-header">
-            <h3>文章</h3>
-          </div>
-          <div className="md-project-sidebar-content">
-            <div className="md-project-post-item active">
-              <div className="md-project-post-title">当前文章</div>
-              <div className="md-project-post-meta">
-                <span>{new Date().toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* 中间编辑和预览区 - 占据整个宽度 */}
+        <div className="md-project-center-panel" style={{ width: '100%' }}>
 
-        {/* 中间编辑和预览区 */}
-        <div className="md-project-center-panel">
-          {/* 编辑器工具栏 */}
-          {showEditor && (
-            <div className="md-project-toolbar">
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('# ')} title="一级标题">H1</button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('## ')} title="二级标题">H2</button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('### ')} title="三级标题">H3</button>
-              <div className="md-project-toolbar-divider"></div>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('**', '**')} title="粗体"><Icons.Bold /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('*', '*')} title="斜体"><Icons.Italic /></button>
-              <div className="md-project-toolbar-divider"></div>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('- ')} title="无序列表"><Icons.List /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('1. ')} title="有序列表"><Icons.OrderedList /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('- [ ] ')} title="任务列表"><Icons.TaskList /></button>
-              <div className="md-project-toolbar-divider"></div>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('> ')} title="引用"><Icons.Quote /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('`', '`')} title="行内代码"><Icons.Code /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('```\n', '\n```')} title="代码块"><Icons.CodeBlock /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('$$ ', ' $$')} title="插入公式"><Icons.Sigma /></button>
-              <div className="md-project-toolbar-divider"></div>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('[]()', '')} title="插入链接"><Icons.Link /></button>
-              <button className="md-project-toolbar-btn" onClick={() => document.getElementById('md-image-upload').click()} title="上传图片 (支持 Ctrl+V 粘贴)">
-                {uploading ? '⏳' : <Icons.Image />}
-              </button>
-              <input
-                type="file"
-                id="md-image-upload"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleImageUpload}
-              />
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('| | |\n|---|---|\n| | |', '')} title="插入表格"><Icons.Table /></button>
-              <button className="md-project-toolbar-btn" onClick={() => insertSyntax('\n---\n')} title="分割线"><Icons.Hr /></button>
-              <div className="md-project-toolbar-divider"></div>
-              <button className="md-project-toolbar-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
-            </div>
-          )}
 
           {/* 可调整大小的编辑和预览区 */}
           <div className="md-project-editor-preview-container">
@@ -676,21 +615,12 @@ const MdProjectPage = () => {
                 style={{ width: `${editorWidth}%` }}
               >
                 <div className="md-project-editor-content">
-                  {/* 行号区域 */}
-                  <div 
-                    ref={lineNumbersRef}
-                    className="md-project-line-numbers"
-                  >
-                    {generateLineNumbers(markdownText)}
-                  </div>
-                  
                   {/* 编辑区 */}
                   <textarea
                     ref={textareaRef}
                     className="md-project-textarea"
                     value={markdownText}
                     onChange={handleTextChange}
-                    onScroll={handleScroll}
                     placeholder="在此输入 Markdown 内容..."
                   />
                 </div>
@@ -734,24 +664,7 @@ const MdProjectPage = () => {
           </div>
         </div>
 
-        {/* 右侧面板 - 原项目的RightSlider和CssEditor */}
-        <div className="md-project-sidebar-right">
-          <div className="md-project-sidebar-header">
-            <h3>工具栏</h3>
-          </div>
-          <div className="md-project-sidebar-content">
-            <div className="md-project-tool-item">
-                <button className="md-project-tool-btn" onClick={toggleView} title="切换编辑/预览视图">
-                  {showEditor ? <><Icons.Eye /> 预览模式</> : <><Icons.Pen /> 编辑模式</>}
-                </button>
-              </div>
-            <div className="md-project-tool-item">
-              <button className="md-project-tool-btn" onClick={() => setShowImageModal(true)} title="配置图床">
-                <Icons.Settings /> 图床配置
-              </button>
-            </div>
-          </div>
-        </div>
+
       </div>
       
       {/* 移动端浮动按钮组 - 原项目的移动端浮动按钮 */}
