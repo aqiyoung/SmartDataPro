@@ -54,8 +54,6 @@ const MdProjectPage = () => {
   const containerRef = useRef(null);
   const dividerRef = useRef(null);
 
-
-
   // 默认示例文本 - md项目专属
   useEffect(() => {
     const defaultText = [
@@ -592,10 +590,10 @@ const MdProjectPage = () => {
             </div>
           </div>
         </div>
-        
 
         <div className="md-project-menu-right">
           <button className="md-project-menu-btn" onClick={goHome} title="返回首页">🏠</button>
+          <button className="md-project-menu-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
           <button className="md-project-menu-btn" onClick={handleCopy} title="复制到剪贴板"><Icons.Copy /></button>
         </div>
       </div>
@@ -604,7 +602,6 @@ const MdProjectPage = () => {
       <div ref={containerRef} className="md-project-main">
         {/* 中间编辑和预览区 - 占据整个宽度 */}
         <div className="md-project-center-panel" style={{ width: '100%' }}>
-
 
           {/* 可调整大小的编辑和预览区 */}
           <div className="md-project-editor-preview-container">
@@ -663,7 +660,6 @@ const MdProjectPage = () => {
             </div>
           </div>
         </div>
-
 
       </div>
       
