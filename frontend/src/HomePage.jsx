@@ -97,12 +97,7 @@ const HomePage = () => {
       <header className="app-header platform-header">
         <div className="header-logo-container">
           <img src="/logo.svg" alt="SmartDataPro Logo" className="header-logo" />
-          <div className="header-text">
-            <h1>SmartDataPro</h1>
-            <p className="app-subtitle">智能数据处理平台</p>
-          </div>
         </div>
-        <p className="header-slogan">高效、精准、智能的数据处理与转换解决方案</p>
       </header>
       
       <main className="home-main">
