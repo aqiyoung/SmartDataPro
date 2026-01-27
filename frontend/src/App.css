@@ -1144,23 +1144,56 @@ body {
 }
 
 .platform-header {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem 0;
-  border-radius: 0 0 30px 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.platform-header h1 {
-  color: #333;
-  margin-bottom: 0.5rem;
-  font-size: 2.5rem;
-  font-weight: bold;
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 
-.platform-header .app-subtitle {
-  color: #666;
-  font-size: 1.2rem;
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.header-text h1 {
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
   margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-text .app-subtitle {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+  font-weight: 400;
+}
+
+.header-slogan {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 2px;
 }
 
 .platform-features {

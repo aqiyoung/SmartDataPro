@@ -95,8 +95,14 @@ const HomePage = () => {
   return (
     <div className="home-container platform-home">
       <header className="app-header platform-header">
-        <h1>智能数据处理平台</h1>
-        <p className="app-subtitle">高效、精准、智能的数据处理与转换解决方案</p>
+        <div className="header-logo-container">
+          <img src="/logo.svg" alt="SmartDataPro Logo" className="header-logo" />
+          <div className="header-text">
+            <h1>SmartDataPro</h1>
+            <p className="app-subtitle">智能数据处理平台</p>
+          </div>
+        </div>
+        <p className="header-slogan">高效、精准、智能的数据处理与转换解决方案</p>
       </header>
       
       <main className="home-main">
@@ -182,7 +188,7 @@ const HomePage = () => {
       </main>
       
       <footer className="app-footer platform-footer">
-        <p>智能数据处理平台 © 2026 | 基于 FastAPI 和 React 构建</p>
+        <p>SmartDataPro © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
   );
