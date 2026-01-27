@@ -232,38 +232,77 @@ SmartDataPro/
 ├── backend/            # 后端代码
 │   ├── src/            # 后端源代码
 │   │   ├── converters/ # 转换逻辑
+│   │   │   ├── __init__.py
+│   │   │   ├── docx2md.py          # Word 转 Markdown
 │   │   │   ├── markdown_to_docx.py # Markdown 转 Word
 │   │   │   ├── markdown_to_html.py # Markdown 转 HTML
-│   │   │   ├── web_to_docx.py      # 网页转 Word
-│   │   │   ├── word_to_pdf.py      # Word 转 PDF
 │   │   │   ├── pdf_to_word.py      # PDF 转 Word
-│   │   │   └── docx2md.py          # Word 转 Markdown
+│   │   │   ├── web_to_docx.py      # 网页转 Word
+│   │   │   └── word_to_pdf.py      # Word 转 PDF
 │   │   ├── crawlers/   # 爬虫功能
+│   │   │   ├── __init__.py
 │   │   │   └── media_crawler/ # 媒体内容采集
 │   │   │       └── __init__.py # 媒体爬虫实现
-│   │   └── utils/      # 工具函数
+│   │   ├── utils/      # 工具函数
+│   │   │   └── ocr_engine.py # OCR 引擎
+│   │   └── __init__.py
+│   ├── .gitignore
+│   ├── Dockerfile      # 后端 Dockerfile
 │   ├── app.py          # FastAPI 应用
 │   ├── main.py         # 启动文件
 │   └── requirements.txt # 依赖列表
 ├── frontend/           # 前端代码
+│   ├── public/         # 静态资源
+│   │   ├── favicon.svg # 网站图标
+│   │   ├── logo.svg    # 项目 logo
+│   │   └── vite.svg    # Vite 默认图标
 │   ├── src/            # 前端源代码
+│   │   ├── assets/     # 资源文件
+│   │   │   └── react.svg
 │   │   ├── components/ # 组件
-│   │   ├── pages/      # 页面
+│   │   │   ├── ConversionCard.jsx # 转换卡片组件
+│   │   │   └── MdProjectCore.jsx # Markdown 专业版核心组件
+│   │   ├── utils/      # 工具函数
+│   │   │   ├── mdExtensions.js # Markdown 扩展
+│   │   │   └── mdThemes.js # Markdown 主题
+│   │   ├── App.css     # 主应用样式
+│   │   ├── App.jsx     # 主应用
+│   │   ├── ConversionPage.jsx # 通用转换页面
+│   │   ├── HomePage.jsx # 首页
 │   │   ├── MarkdownEditor.css # Markdown 编辑器样式
 │   │   ├── MarkdownEditorPage.jsx # Markdown 编辑器页面
-│   │   ├── ConversionPage.jsx # 通用转换页面
-│   │   └── HomePage.jsx # 首页
-│   ├── App.jsx         # 主应用
-│   ├── main.jsx        # 入口文件
+│   │   ├── MdProject.css # Markdown 专业版样式
+│   │   ├── MdProjectPage.jsx # Markdown 专业版页面
+│   │   ├── MediaCrawlerPage.jsx # 媒体内容采集页面
+│   │   ├── PdfToWordPage.jsx # PDF 转 Word 页面
+│   │   ├── WebToWordPage.jsx # 网页转 Word 页面
+│   │   ├── WordToMarkdownPage.jsx # Word 转 Markdown 页面
+│   │   ├── WordToPdfPage.jsx # Word 转 PDF 页面
+│   │   ├── index.css   # 全局样式
+│   │   └── main.jsx     # 入口文件
+│   ├── .gitignore
+│   ├── .npmrc
+│   ├── Dockerfile      # 前端 Dockerfile
+│   ├── README.md       # 前端说明
+│   ├── eslint.config.js # ESLint 配置
+│   ├── index.html      # HTML 模板
+│   ├── nginx.conf      # Nginx 配置
+│   ├── package-lock.json
 │   ├── package.json    # 项目配置
-│   └── vite.config.js  # Vite配置
+│   └── vite.config.js  # Vite 配置
 ├── .github/workflows/  # GitHub Actions工作流
 │   └── docker-build-push.yml # Docker构建推送工作流
-├── docker-compose.yml   # Docker Compose配置
+├── .gitignore
+├── LICENSE             # 许可证文件
+├── MEDIACRAWLER_INTEGRATION.md # 媒体爬虫集成说明
+├── NAS_DOCKER_GUIDE.md # NAS Docker 部署指南
 ├── README.md           # 项目说明
+├── docker-compose.yml   # Docker Compose配置
 ├── start-all.cmd       # Windows 启动脚本
+├── start-all.ps1       # PowerShell 脚本
 ├── start-all.sh        # Linux/macOS 启动脚本
-└── start-all.ps1       # PowerShell 脚本
+├── start.sh            # 启动脚本
+└── test_crawler.py     # 爬虫测试脚本
 ```
 
 ## 使用说明
@@ -294,6 +333,16 @@ python main.py  # 启动开发服务器
 ```
 
 ## 更新日志
+
+### v2.2.5 (2026-01-27)
+- **品牌优化**：
+  - 更新项目 logo 设计，采用蓝色渐变背景配合白色"S"字母，提升品牌识别度
+  - 同步更新 favicon 图标，确保与 logo 设计保持一致
+  - 优化 logo 在首页的显示效果，移除重复的文字元素
+- **项目结构完善**：
+  - 更新 README.md 中的项目结构描述，与实际项目结构保持一致
+  - 添加对新增文件和目录的详细说明
+  - 完善前端页面结构，清晰展示各功能模块
 
 ### v2.2.4 (2026-01-27)
 - **UI/UX优化**：
