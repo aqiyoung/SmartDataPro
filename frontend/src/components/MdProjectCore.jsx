@@ -211,7 +211,77 @@ const MdProjectCore = ({
   // 应用主题色样式
   const applyThemeColorStyles = (html, themeColor) => {
     // 为markdown内容添加主题色样式
-    return `<div style="--theme-color: ${themeColor};">${html}</div>`;
+    return `<div style="--theme-color: ${themeColor};">
+      <style>
+        /* 确保标题样式优先于主题样式 */
+        .md-project-core .markdown-content h1 {
+          font-size: 24px !important;
+          font-weight: bold !important;
+          margin: 48px auto 24px !important;
+          text-align: center !important;
+          color: #ffffff !important;
+          background-color: var(--theme-color) !important;
+          padding: 10px 30px !important;
+          border-radius: 20px !important;
+          line-height: 1.3 !important;
+          display: block !important;
+          width: fit-content !important;
+          position: relative !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          float: none !important;
+          clear: both !important;
+        }
+        
+        .md-project-core .markdown-content h2 {
+          font-size: 22px !important;
+          font-weight: bold !important;
+          margin: 36px auto 18px !important;
+          text-align: center !important;
+          color: #ffffff !important;
+          background-color: var(--theme-color) !important;
+          padding: 8px 24px !important;
+          border-radius: 16px !important;
+          line-height: 1.3 !important;
+          display: block !important;
+          width: fit-content !important;
+          float: none !important;
+          clear: both !important;
+        }
+        
+        .md-project-core .markdown-content h3 {
+          font-size: 20px !important;
+          font-weight: bold !important;
+          margin: 32px auto 16px !important;
+          text-align: center !important;
+          color: #ffffff !important;
+          background-color: var(--theme-color) !important;
+          padding: 6px 20px !important;
+          border-radius: 14px !important;
+          line-height: 1.3 !important;
+          display: block !important;
+          width: fit-content !important;
+          float: none !important;
+          clear: both !important;
+        }
+        
+        .md-project-core .markdown-content h4, 
+        .md-project-core .markdown-content h5, 
+        .md-project-core .markdown-content h6 {
+          color: #ffffff !important;
+          background-color: var(--theme-color) !important;
+          padding: 6px 16px !important;
+          border-radius: 12px !important;
+          margin: 20px auto 10px !important;
+          text-align: center !important;
+          display: block !important;
+          width: fit-content !important;
+          float: none !important;
+          clear: both !important;
+        }
+      </style>
+      ${html}
+    </div>`;
   };
 
   // 渲染数学公式

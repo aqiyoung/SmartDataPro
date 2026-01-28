@@ -588,50 +588,84 @@ export const THEMES = {
       },
       block: {
         h1: {
-          'font-size': '28px',
+          'font-size': '24px',
           'font-weight': 'bold',
           'margin': '48px 0 24px 0',
-          'color': '#2c3e50',
-          'text-align': 'center',
-          'padding-bottom': '12px',
-          'border-bottom': '2px solid #eaecef',
+          'text-align': 'center'
+        },
+        'h1::after': {
+          'content': ''
+        },
+        'h1 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '16px 24px',
+          'border-radius': '8px',
           'line-height': '1.3'
         },
         h2: {
-          'font-size': '24px',
+          'font-size': '22px',
           'font-weight': 'bold',
           'margin': '36px 0 18px 0',
-          'color': '#34495e',
-          'padding-bottom': '8px',
-          'border-bottom': '1px solid #eaecef',
+          'text-align': 'center'
+        },
+        'h2 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '14px 20px',
+          'border-radius': '6px',
           'line-height': '1.3'
         },
         h3: {
           'font-size': '20px',
           'font-weight': 'bold',
           'margin': '32px 0 16px 0',
-          'color': '#34495e',
+          'text-align': 'center'
+        },
+        'h3 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '12px 16px',
+          'border-radius': '5px',
           'line-height': '1.3'
         },
         h4: {
           'font-size': '18px',
           'font-weight': 'bold',
           'margin': '28px 0 14px 0',
-          'color': '#34495e',
+          'text-align': 'center'
+        },
+        'h4 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '10px 14px',
+          'border-radius': '4px',
           'line-height': '1.3'
         },
         h5: {
           'font-size': '16px',
           'font-weight': 'bold',
           'margin': '24px 0 12px 0',
-          'color': '#34495e',
+          'text-align': 'center'
+        },
+        'h5 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '8px 12px',
+          'border-radius': '4px',
           'line-height': '1.3'
         },
         h6: {
           'font-size': '14px',
           'font-weight': 'bold',
           'margin': '20px 0 10px 0',
-          'color': '#34495e',
+          'text-align': 'center'
+        },
+        'h6 span': {
+          'color': '#ffffff !important',
+          'background-color': 'var(--theme-color)',
+          'padding': '6px 10px',
+          'border-radius': '3px',
           'line-height': '1.3'
         },
         p: {
@@ -706,52 +740,76 @@ export const THEMES = {
       },
       block: {
         h1: {
-          'font-size': '30px',
+          'font-size': '24px',
           'font-weight': 'bold',
           'margin': '52px 0 26px 0',
-          'color': '#2c3e50',
+          'color': '#ffffff !important',
           'text-align': 'center',
-          'font-style': 'italic',
-          'padding-bottom': '14px',
-          'border-bottom': '2px solid #eaecef',
-          'line-height': '1.3'
+          'padding': '16px 24px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '8px',
+          'line-height': '1.3',
+          'width': '100%'
         },
         h2: {
-          'font-size': '26px',
-          'font-weight': 'bold',
-          'margin': '40px 0 20px 0',
-          'color': '#34495e',
-          'border-bottom': '1px solid #eaecef',
-          'padding-bottom': '10px',
-          'line-height': '1.3'
-        },
-        h3: {
           'font-size': '22px',
           'font-weight': 'bold',
-          'margin': '36px 0 18px 0',
-          'color': '#34495e',
-          'line-height': '1.3'
+          'margin': '40px 0 20px 0',
+          'color': '#ffffff !important',
+          'text-align': 'center',
+          'padding': '14px 20px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '6px',
+          'line-height': '1.3',
+          'width': '100%'
         },
-        h4: {
+        h3: {
           'font-size': '20px',
           'font-weight': 'bold',
-          'margin': '32px 0 16px 0',
-          'color': '#34495e',
-          'line-height': '1.3'
+          'margin': '36px 0 18px 0',
+          'color': '#ffffff !important',
+          'text-align': 'center',
+          'padding': '12px 16px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '5px',
+          'line-height': '1.3',
+          'width': '100%'
         },
-        h5: {
+        h4: {
           'font-size': '18px',
           'font-weight': 'bold',
-          'margin': '28px 0 14px 0',
-          'color': '#34495e',
-          'line-height': '1.3'
+          'margin': '32px 0 16px 0',
+          'color': '#ffffff !important',
+          'text-align': 'center',
+          'padding': '10px 14px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '4px',
+          'line-height': '1.3',
+          'width': '100%'
         },
-        h6: {
+        h5: {
           'font-size': '16px',
           'font-weight': 'bold',
+          'margin': '28px 0 14px 0',
+          'color': '#ffffff !important',
+          'text-align': 'center',
+          'padding': '8px 12px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '4px',
+          'line-height': '1.3',
+          'width': '100%'
+        },
+        h6: {
+          'font-size': '14px',
+          'font-weight': 'bold',
           'margin': '24px 0 12px 0',
-          'color': '#34495e',
-          'line-height': '1.3'
+          'color': '#ffffff !important',
+          'text-align': 'center',
+          'padding': '6px 10px',
+          'background-color': 'var(--theme-color)',
+          'border-radius': '3px',
+          'line-height': '1.3',
+          'width': '100%'
         },
         p: {
           'margin': '18px 0',
