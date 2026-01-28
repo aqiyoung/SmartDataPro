@@ -41,9 +41,20 @@ marked.use(markedToc());
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
-const MdProjectCore = ({ markdownText = '', theme = 'default', showLineNumbers = true }) => {
+const MdProjectCore = ({ 
+  markdownText = '', 
+  theme = 'default', 
+  font = 'sans-serif', 
+  fontSize = 'recommended', 
+  themeColor = '#1e40af', 
+  showLineNumbers = true,
+  macCodeBlock = true,
+  codeLineNumbers = false,
+  wechatLinkReference = false,
+  paragraphIndent = false,
+  paragraphJustify = false
+}) => {
   const [html, setHtml] = useState('');
-  const [readingTime, setReadingTime] = useState(null);
   const containerRef = useRef(null);
 
   // 计算阅读时间
@@ -61,21 +72,42 @@ const MdProjectCore = ({ markdownText = '', theme = 'default', showLineNumbers =
   const renderMarkdown = () => {
     if (!markdownText.trim()) {
       setHtml('');
-      setReadingTime(null);
       return;
     }
 
     try {
-      // 计算阅读时间
-      const readingTimeResult = calculateReadingTime(markdownText);
-      setReadingTime(readingTimeResult);
-
       // 转换Markdown为HTML
       let htmlContent = marked(markdownText);
 
+      // 主题映射
+      const themeMap = {
+        'classic': 'doocs_classic',
+        'elegant': 'doocs_elegant',
+        'clean': 'clean'
+      };
+      const mappedTheme = themeMap[theme] || theme;
+
       // 应用主题样式
-      const themeStyles = THEMES[theme] || THEMES.default;
+      const themeStyles = THEMES[mappedTheme] || THEMES.default;
       htmlContent = applyThemeStyles(htmlContent, themeStyles);
+
+      // 应用字体样式
+      htmlContent = applyFontStyles(htmlContent, font);
+
+      // 应用字号样式
+      htmlContent = applyFontSizeStyles(htmlContent, fontSize);
+
+      // 应用主题色样式
+      htmlContent = applyThemeColorStyles(htmlContent, themeColor);
+
+      // 应用额外的样式设置
+      if (paragraphIndent) {
+        htmlContent = `<div style="text-indent: 2em;">${htmlContent}</div>`;
+      }
+      
+      if (paragraphJustify) {
+        htmlContent = `<div style="text-align: justify;">${htmlContent}</div>`;
+      }
 
       // 渲染数学公式
       htmlContent = renderMathFormulas(htmlContent);
@@ -92,9 +124,94 @@ const MdProjectCore = ({ markdownText = '', theme = 'default', showLineNumbers =
 
   // 应用主题样式
   const applyThemeStyles = (html, themeStyles) => {
-    // 这里可以根据主题样式动态修改HTML内容
-    // 例如添加特定的CSS类或内联样式
+    // 为markdown内容添加主题样式
+    if (themeStyles && themeStyles.css) {
+      // 生成内联样式
+      let baseStyles = '';
+      if (themeStyles.css.base) {
+        baseStyles = Object.entries(themeStyles.css.base)
+          .map(([property, value]) => `${property}: ${value};`)
+          .join(' ');
+      }
+      
+      // 生成样式标签
+      let styleTag = '';
+      if (themeStyles.css.block) {
+        let blockStyles = '';
+        Object.entries(themeStyles.css.block).forEach(([selector, styles]) => {
+          if (styles) {
+            const blockStyle = Object.entries(styles)
+              .map(([property, value]) => {
+                // 替换硬编码的主题色为CSS变量
+                if (property === 'border-bottom' || property === 'border-left' || property === 'color') {
+                  // 检查是否是主题色相关的属性
+                  return `${property}: var(--theme-color, ${value});`;
+                }
+                return `${property}: ${value};`;
+              })
+              .join(' ');
+            blockStyles += `.markdown-content ${selector} { ${blockStyle} }\n`;
+          }
+        });
+        
+        // 添加Mac代码块样式
+        if (macCodeBlock) {
+          blockStyles += `.markdown-content pre { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }\n`;
+        }
+        
+        // 添加代码块行号样式
+        if (codeLineNumbers) {
+          blockStyles += `.markdown-content pre code { counter-reset: line; }\n`;
+          blockStyles += `.markdown-content pre code span.line { counter-increment: line; }\n`;
+          blockStyles += `.markdown-content pre code span.line::before { content: counter(line); display: inline-block; width: 2em; padding-right: 1em; text-align: right; color: #666; border-right: 1px solid #ddd; margin-right: 1em; }\n`;
+        }
+        
+        if (blockStyles) {
+          styleTag = `<style>${blockStyles}</style>`;
+        }
+      }
+      
+      return `${styleTag}<div style="${baseStyles}">${html}</div>`;
+    }
     return html;
+  };
+
+  // 应用字体样式
+  const applyFontStyles = (html, font) => {
+    // 为markdown内容添加字体样式
+    return `<div style="font-family: ${font};">${html}</div>`;
+  };
+
+  // 应用字号样式
+  const applyFontSizeStyles = (html, fontSize) => {
+    // 根据字号设置添加对应的样式
+    let fontSizeValue = '';
+    switch (fontSize) {
+      case 'smaller':
+        fontSizeValue = '12px';
+        break;
+      case 'small':
+        fontSizeValue = '14px';
+        break;
+      case 'recommended':
+        fontSizeValue = '16px';
+        break;
+      case 'large':
+        fontSizeValue = '18px';
+        break;
+      case 'larger':
+        fontSizeValue = '20px';
+        break;
+      default:
+        fontSizeValue = '16px';
+    }
+    return `<div style="font-size: ${fontSizeValue};">${html}</div>`;
+  };
+
+  // 应用主题色样式
+  const applyThemeColorStyles = (html, themeColor) => {
+    // 为markdown内容添加主题色样式
+    return `<div style="--theme-color: ${themeColor};">${html}</div>`;
   };
 
   // 渲染数学公式
@@ -122,10 +239,10 @@ const MdProjectCore = ({ markdownText = '', theme = 'default', showLineNumbers =
     });
   };
 
-  // 当Markdown文本或主题变化时重新渲染
+  // 当Markdown文本或样式相关属性变化时重新渲染
   useEffect(() => {
     renderMarkdown();
-  }, [markdownText, theme]);
+  }, [markdownText, theme, font, fontSize, themeColor, macCodeBlock, codeLineNumbers, wechatLinkReference, paragraphIndent, paragraphJustify]);
 
   // 处理代码块的动态加载
   useEffect(() => {
@@ -146,11 +263,6 @@ const MdProjectCore = ({ markdownText = '', theme = 'default', showLineNumbers =
 
   return (
     <div className="md-project-core">
-      {readingTime && (
-        <div className="reading-time">
-          <p>字数: {readingTime.words}，阅读大约需 {readingTime.minutes} 分钟</p>
-        </div>
-      )}
       <div 
         ref={containerRef}
         className={`markdown-content theme-${theme}`}

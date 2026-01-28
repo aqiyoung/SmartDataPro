@@ -11,28 +11,15 @@ import axios from 'axios';
 import './MdProject.css';
 import MdProjectCore from './components/MdProjectCore';
 
-// SVG Icons
-const Icons = {
-  Bold: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>,
-  Italic: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>,
-  List: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>,
-  OrderedList: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>,
-  TaskList: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>,
-  Quote: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>,
-  Code: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>,
-  Link: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>,
-  Image: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
-  Table: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"></path></svg>,
-  Hr: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
-  CodeBlock: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>,
-  Sigma: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 4H6l8 8-8 8h12"></path></svg>,
-  Settings: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>,
-  Eye: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
-  Pen: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>,
-  Copy: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>,
-  Download: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>,
-  Upload: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>,
-};
+// 导入 CodeMirror 用于编辑器语法高亮
+import CodeMirror from '@uiw/react-codemirror';
+import { markdown } from '@codemirror/lang-markdown';
+import { githubDark } from '@uiw/codemirror-theme-github';
+import { highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, highlightActiveLine, keymap, rectangularSelection, crosshairCursor, lineNumbers } from '@codemirror/view';
+import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
+import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { historyKeymap } from '@codemirror/commands';
 
 const MdProjectPage = () => {
   const [markdownText, setMarkdownText] = useState('');
@@ -49,7 +36,20 @@ const MdProjectPage = () => {
   const [showEditor, setShowEditor] = useState(true);
   const [isResizing, setIsResizing] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50);
-  const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const [showStylePanel, setShowStylePanel] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState('classic');
+  const [currentFont, setCurrentFont] = useState('sans-serif');
+  const [currentFontSize, setCurrentFontSize] = useState('smaller');
+  const [currentThemeColor, setCurrentThemeColor] = useState('#1e40af');
+  const [currentHeadingStyle, setCurrentHeadingStyle] = useState('h2');
+  const [currentHeadingFormat, setCurrentHeadingFormat] = useState('default');
+  const [currentCodeTheme, setCurrentCodeTheme] = useState('github-dark');
+  const [currentCaptionFormat, setCurrentCaptionFormat] = useState('title-first');
+  const [macCodeBlock, setMacCodeBlock] = useState(true);
+  const [codeLineNumbers, setCodeLineNumbers] = useState(false);
+  const [wechatLinkReference, setWechatLinkReference] = useState(false);
+  const [paragraphIndent, setParagraphIndent] = useState(false);
+  const [paragraphJustify, setParagraphJustify] = useState(false);
   const textareaRef = useRef(null);
   const containerRef = useRef(null);
   const dividerRef = useRef(null);
@@ -527,8 +527,9 @@ const MdProjectPage = () => {
 
   return (
     <div className="md-project-page">
-      {/* 顶部传统菜单栏 */}
+      {/* 顶部导航栏 - 匹配 doocs/md 设计 */}
       <div className="md-project-menu-bar">
+        {/* 左侧传统菜单 */}
         <div className="md-project-menu">
           <div className="md-project-menu-item">文件
             <div className="md-project-submenu">
@@ -567,21 +568,168 @@ const MdProjectPage = () => {
           </div>
           <div className="md-project-menu-item">样式
             <div className="md-project-submenu">
-              <button className="md-project-submenu-item" onClick={() => setTheme('default')}>默认样式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('clean')}>简洁模式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('modern')}>现代模式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('book')}>书籍模式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('docs')}>文档模式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('tech_blue')}>科技蓝</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('dark_mode')}>暗黑模式</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('github')}>GitHub 风格</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('wechat')}>微信公众号</button>
-              <button className="md-project-submenu-item" onClick={() => setTheme('xiaohongshu')}>小红书</button>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>主题</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item" onClick={() => setTheme('default')}>经典</button>
+                  <button className="md-project-submenu-item" onClick={() => setTheme('modern')}>优雅</button>
+                  <button className="md-project-submenu-item" onClick={() => setTheme('clean')}>
+                    <span>简洁</span>
+                    <span style={{ marginLeft: 'auto' }}>✓</span>
+                  </button>
+                  <button className="md-project-submenu-item" onClick={() => setTheme('doocs_classic')}>Doocs 经典</button>
+                  <button className="md-project-submenu-item" onClick={() => setTheme('doocs_elegant')}>Doocs 优雅</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>字体</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">默认字体</button>
+                  <button className="md-project-submenu-item">微软雅黑</button>
+                  <button className="md-project-submenu-item">宋体</button>
+                  <button className="md-project-submenu-item">楷体</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>字号</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">小</button>
+                  <button className="md-project-submenu-item">中</button>
+                  <button className="md-project-submenu-item">大</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>主题色</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">默认</button>
+                  <button className="md-project-submenu-item">蓝色</button>
+                  <button className="md-project-submenu-item">绿色</button>
+                  <button className="md-project-submenu-item">红色</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>代码块主题</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">默认</button>
+                  <button className="md-project-submenu-item">暗色</button>
+                  <button className="md-project-submenu-item">亮色</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>图注格式</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">默认</button>
+                  <button className="md-project-submenu-item">编号</button>
+                  <button className="md-project-submenu-item">自定义</button>
+                </div>
+              </div>
+              <button className="md-project-submenu-item" onClick={() => alert('自定义主题色功能')}>自定义主题色</button>
+              <button className="md-project-submenu-item" onClick={() => alert('自定义CSS功能')}>自定义CSS</button>
+              <div className="md-project-submenu-item" style={{ display: 'flex', alignItems: 'center' }}>
+                <input type="checkbox" checked={true} style={{ marginRight: '8px' }} />
+                <span>Mac代码块</span>
+              </div>
+              <button className="md-project-submenu-item" onClick={() => alert('重置样式功能')}>重置</button>
             </div>
           </div>
           <div className="md-project-menu-item">视图
             <div className="md-project-submenu">
-              <button className="md-project-submenu-item" onClick={toggleView}>{showEditor ? '预览模式' : '编辑模式'}</button>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>外观</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">浅色主题</button>
+                  <button className="md-project-submenu-item">深色主题</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>编辑模式</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item">分屏模式</button>
+                  <button className="md-project-submenu-item">全屏模式</button>
+                </div>
+              </div>
+              <div className="md-project-submenu-item" style={{ cursor: 'pointer', position: 'relative' }} onMouseEnter={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'flex';
+              }} onMouseLeave={(e) => {
+                const submenu = e.currentTarget.querySelector('.md-project-submenu');
+                if (submenu) submenu.style.display = 'none';
+              }}>
+                <span>预览模式</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10px' }}>▶</span>
+                <div className="md-project-submenu" style={{ left: '100%', top: 0, display: 'none' }}>
+                  <button className="md-project-submenu-item" onClick={() => {
+                    // 切换到移动端预览模式
+                    alert('已切换到移动端预览模式');
+                  }}>移动端</button>
+                  <button className="md-project-submenu-item" onClick={() => {
+                    // 切换到电脑端预览模式
+                    alert('已切换到电脑端预览模式');
+                  }}>
+                    <span>电脑端</span>
+                    <span style={{ marginLeft: 'auto' }}>✓</span>
+                  </button>
+                </div>
+              </div>
+              <button className="md-project-submenu-item" onClick={() => alert('浮动目录功能')}>浮动目录</button>
+              <button className="md-project-submenu-item" onClick={() => alert('样式面板功能')}>样式面板</button>
+              <button className="md-project-submenu-item" onClick={() => alert('CSS 编辑器功能')}>CSS 编辑器</button>
             </div>
           </div>
           <div className="md-project-menu-item">帮助
@@ -591,40 +739,73 @@ const MdProjectPage = () => {
           </div>
         </div>
 
-        <div className="md-project-menu-right">
-          <button className="md-project-menu-btn" onClick={goHome} title="返回首页">🏠</button>
-          <button className="md-project-menu-btn" onClick={() => setShowImageModal(true)} title="配置 GitHub 图床"><Icons.Settings /></button>
-          <button className="md-project-menu-btn" onClick={handleCopy} title="复制到剪贴板"><Icons.Copy /></button>
+        {/* 右侧图二样式按钮 */}
+        <div className="md-project-header-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button className="md-project-simple-btn" onClick={handleCopy} title="复制到剪贴板">
+            📋 复制
+          </button>
+          <button className="md-project-simple-btn" onClick={handleSaveAsWord} title="发布文档">
+            📤 发布
+          </button>
+          <button 
+            className="md-project-simple-btn style-btn" 
+            onClick={() => setShowStylePanel(!showStylePanel)}
+            title="样式设置"
+          >
+            ⚙️ 样式
+          </button>
         </div>
       </div>
 
-      {/* 编辑器主体 - 采用两栏布局，移除左侧文章区域 */}
+      {/* 编辑器主体 - 两栏布局，移除左侧文章区域 */}
       <div ref={containerRef} className="md-project-main">
         {/* 中间编辑和预览区 - 占据整个宽度 */}
         <div className="md-project-center-panel" style={{ width: '100%' }}>
 
-          {/* 可调整大小的编辑和预览区 */}
+          {/* 可调整大小的编辑、预览和样式区 */}
           <div className="md-project-editor-preview-container">
             {/* 左侧编辑区 */}
             {showEditor && (
               <div 
                 className="md-project-pane md-project-editor"
-                style={{ width: `${editorWidth}%` }}
+                style={{ width: showStylePanel ? `${editorWidth * 0.8}%` : `${editorWidth}%` }}
               >
                 <div className="md-project-editor-content">
-                  {/* 编辑区 */}
-                  <textarea
-                    ref={textareaRef}
-                    className="md-project-textarea"
+                  {/* CodeMirror 编辑器，支持语法高亮 */}
+                  <CodeMirror
                     value={markdownText}
-                    onChange={handleTextChange}
+                    onChange={(value) => setMarkdownText(value)}
                     placeholder="在此输入 Markdown 内容..."
+                    extensions={[
+                      lineNumbers(),
+                      highlightActiveLineGutter(),
+                      highlightSpecialChars(),
+                      foldGutter(),
+                      drawSelection(),
+                      dropCursor(),
+                      indentOnInput(),
+                      syntaxHighlighting(defaultHighlightStyle),
+                      bracketMatching(),
+                      closeBrackets(),
+                      rectangularSelection(),
+                      crosshairCursor(),
+                      highlightActiveLine(),
+                      highlightSelectionMatches(),
+                      markdown(),
+                      keymap.of([
+                        ...closeBracketsKeymap,
+                        ...searchKeymap,
+                        ...historyKeymap,
+                        ...foldKeymap
+                      ])
+                    ]}
+                    className="md-project-codemirror"
                   />
                 </div>
               </div>
             )}
             
-            {/* 分隔条 */}
+            {/* 分隔条1 */}
             {showEditor && (
               <div 
                 ref={dividerRef}
@@ -634,17 +815,25 @@ const MdProjectPage = () => {
               />
             )}
             
-            {/* 右侧预览区 */}
+            {/* 中间预览区 */}
             <div 
               className="md-project-pane md-project-preview"
-              style={{ width: showEditor ? `${100 - editorWidth}%` : '100%' }}
+              style={{ width: showStylePanel ? showEditor ? `${(100 - editorWidth) * 0.8}%` : '80%' : showEditor ? `${100 - editorWidth}%` : '100%' }}
             >
               {/* 预览内容区 */}
               <div className="md-project-preview-content">
                 <MdProjectCore 
                   markdownText={markdownText} 
-                  theme={theme} 
-                  showLineNumbers={true} 
+                  theme={currentTheme} 
+                  font={currentFont}
+                  fontSize={currentFontSize}
+                  themeColor={currentThemeColor}
+                  showLineNumbers={true}
+                  macCodeBlock={macCodeBlock}
+                  codeLineNumbers={codeLineNumbers}
+                  wechatLinkReference={wechatLinkReference}
+                  paragraphIndent={paragraphIndent}
+                  paragraphJustify={paragraphJustify}
                 />
               </div>
               
@@ -658,18 +847,413 @@ const MdProjectPage = () => {
                 ↑
               </button>
             </div>
+            
+            {/* 分隔条2 */}
+            {showStylePanel && (
+              <div 
+                className="md-project-resizer"
+                style={{ cursor: 'ew-resize' }}
+              />
+            )}
+            
+            {/* 右侧样式设置区 */}
+            {showStylePanel && (
+              <div 
+                className="md-project-pane md-project-style-panel"
+                style={{ width: '20%' }}
+              >
+                <div className="md-project-style-panel-header">
+                  <h3>样式设置</h3>
+                  <button className="md-project-style-panel-close" onClick={() => setShowStylePanel(false)}>×</button>
+                </div>
+                <div className="md-project-style-panel-content">
+                  {/* 主题选择 */}
+                  <div className="md-project-style-section">
+                    <label>主题</label>
+                    <div className="md-project-style-buttons-three">
+                      <button 
+                        className={`md-project-style-radio-btn ${currentTheme === 'classic' ? 'active' : ''}`}
+                        onClick={() => setCurrentTheme('classic')}
+                      >
+                        经典
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentTheme === 'elegant' ? 'active' : ''}`}
+                        onClick={() => setCurrentTheme('elegant')}
+                      >
+                        优雅
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentTheme === 'clean' ? 'active' : ''}`}
+                        onClick={() => setCurrentTheme('clean')}
+                      >
+                        简洁
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 字体选择 */}
+                  <div className="md-project-style-section">
+                    <label>字体</label>
+                    <div className="md-project-style-buttons-three">
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFont === 'sans-serif' ? 'active' : ''}`}
+                        onClick={() => setCurrentFont('sans-serif')}
+                      >
+                        无衬线
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFont === 'serif' ? 'active' : ''}`}
+                        onClick={() => setCurrentFont('serif')}
+                      >
+                        衬线
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFont === 'monospace' ? 'active' : ''}`}
+                        onClick={() => setCurrentFont('monospace')}
+                      >
+                        等宽
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 字号选择 */}
+                  <div className="md-project-style-section">
+                    <label>字号</label>
+                    <div className="md-project-style-buttons-five">
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFontSize === 'smaller' ? 'active' : ''}`}
+                        onClick={() => setCurrentFontSize('smaller')}
+                      >
+                        更小
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFontSize === 'small' ? 'active' : ''}`}
+                        onClick={() => setCurrentFontSize('small')}
+                      >
+                        稍小
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFontSize === 'recommended' ? 'active' : ''}`}
+                        onClick={() => setCurrentFontSize('recommended')}
+                      >
+                        推荐
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFontSize === 'large' ? 'active' : ''}`}
+                        onClick={() => setCurrentFontSize('large')}
+                      >
+                        稍大
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentFontSize === 'larger' ? 'active' : ''}`}
+                        onClick={() => setCurrentFontSize('larger')}
+                      >
+                        更大
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 主题色选择 */}
+                  <div className="md-project-style-section">
+                    <label>主题色</label>
+                    <div className="md-project-style-color-grid">
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#1e40af' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#1e40af', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#1e40af')}
+                      >
+                        经典蓝
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#047857' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#047857', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#047857')}
+                      >
+                        翡翠绿
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#f97316' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#f97316', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#f97316')}
+                      >
+                        活力橘
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#eab308' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#eab308', color: '#000' }}
+                        onClick={() => setCurrentThemeColor('#eab308')}
+                      >
+                        柠檬黄
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#8b5cf6' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#8b5cf6', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#8b5cf6')}
+                      >
+                        薰衣紫
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#06b6d4' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#06b6d4', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#06b6d4')}
+                      >
+                        天空蓝
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#d97706' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#d97706', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#d97706')}
+                      >
+                        玫瑰金
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#4d7c0f' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#4d7c0f', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#4d7c0f')}
+                      >
+                        橄榄绿
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#1f2937' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#1f2937', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#1f2937')}
+                      >
+                        石墨黑
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#6b7280' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#6b7280', color: '#fff' }}
+                        onClick={() => setCurrentThemeColor('#6b7280')}
+                      >
+                        雾烟灰
+                      </button>
+                      <button 
+                        className={`md-project-style-color-btn ${currentThemeColor === '#f9a8d4' ? 'active' : ''}`}
+                        style={{ backgroundColor: '#f9a8d4', color: '#000' }}
+                        onClick={() => setCurrentThemeColor('#f9a8d4')}
+                      >
+                        樱花粉
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 自定义主题色 */}
+                  <div className="md-project-style-section">
+                    <label>自定义主题色</label>
+                    <div style={{ marginTop: '8px' }}>
+                      <input 
+                        type="color" 
+                        value={currentThemeColor} 
+                        onChange={(e) => setCurrentThemeColor(e.target.value)}
+                        style={{ width: '60px', height: '36px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* 标题样式 */}
+                  <div className="md-project-style-section">
+                    <label>标题样式</label>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                      <select 
+                        className="md-project-style-select" 
+                        style={{ flex: 1 }}
+                        value={currentHeadingStyle}
+                        onChange={(e) => setCurrentHeadingStyle(e.target.value)}
+                      >
+                        <option value="h1">一级标题</option>
+                        <option value="h2">二级标题</option>
+                        <option value="h3">三级标题</option>
+                      </select>
+                      <select 
+                        className="md-project-style-select" 
+                        style={{ flex: 1 }}
+                        value={currentHeadingFormat}
+                        onChange={(e) => setCurrentHeadingFormat(e.target.value)}
+                      >
+                        <option value="default">默认</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {/* 代码主题 */}
+                  <div className="md-project-style-section">
+                    <label>代码主题</label>
+                    <select 
+                      className="md-project-style-select"
+                      value={currentCodeTheme}
+                      onChange={(e) => setCurrentCodeTheme(e.target.value)}
+                    >
+                      <option value="github-dark">github-dark</option>
+                      <option value="github-light">github-light</option>
+                      <option value="monokai">monokai</option>
+                      <option value="nord">nord</option>
+                    </select>
+                  </div>
+                  
+                  {/* 图注格式 */}
+                  <div className="md-project-style-section">
+                    <label>图注格式</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${currentCaptionFormat === 'title-first' ? 'active' : ''}`}
+                        onClick={() => setCurrentCaptionFormat('title-first')}
+                      >
+                        title 优先
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentCaptionFormat === 'alt-first' ? 'active' : ''}`}
+                        onClick={() => setCurrentCaptionFormat('alt-first')}
+                      >
+                        alt 优先
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentCaptionFormat === 'only-title' ? 'active' : ''}`}
+                        onClick={() => setCurrentCaptionFormat('only-title')}
+                      >
+                        只显示 title
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentCaptionFormat === 'only-alt' ? 'active' : ''}`}
+                        onClick={() => setCurrentCaptionFormat('only-alt')}
+                      >
+                        只显示 alt
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${currentCaptionFormat === 'none' ? 'active' : ''}`}
+                        onClick={() => setCurrentCaptionFormat('none')}
+                      >
+                        不显示
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Mac 代码块 */}
+                  <div className="md-project-style-section">
+                    <label>Mac 代码块</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${macCodeBlock ? 'active' : ''}`}
+                        onClick={() => setMacCodeBlock(true)}
+                      >
+                        开启
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${!macCodeBlock ? 'active' : ''}`}
+                        onClick={() => setMacCodeBlock(false)}
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 代码块行号 */}
+                  <div className="md-project-style-section">
+                    <label>代码块行号</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${codeLineNumbers ? 'active' : ''}`}
+                        onClick={() => setCodeLineNumbers(true)}
+                      >
+                        开启
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${!codeLineNumbers ? 'active' : ''}`}
+                        onClick={() => setCodeLineNumbers(false)}
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 微信外链底部引用 */}
+                  <div className="md-project-style-section">
+                    <label>微信外链底部引用</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${wechatLinkReference ? 'active' : ''}`}
+                        onClick={() => setWechatLinkReference(true)}
+                      >
+                        开启
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${!wechatLinkReference ? 'active' : ''}`}
+                        onClick={() => setWechatLinkReference(false)}
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 段落首行缩进 */}
+                  <div className="md-project-style-section">
+                    <label>段落首行缩进</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${paragraphIndent ? 'active' : ''}`}
+                        onClick={() => setParagraphIndent(true)}
+                      >
+                        开启
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${!paragraphIndent ? 'active' : ''}`}
+                        onClick={() => setParagraphIndent(false)}
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 段落两端对齐 */}
+                  <div className="md-project-style-section">
+                    <label>段落两端对齐</label>
+                    <div className="md-project-style-buttons">
+                      <button 
+                        className={`md-project-style-radio-btn ${paragraphJustify ? 'active' : ''}`}
+                        onClick={() => setParagraphJustify(true)}
+                      >
+                        开启
+                      </button>
+                      <button 
+                        className={`md-project-style-radio-btn ${!paragraphJustify ? 'active' : ''}`}
+                        onClick={() => setParagraphJustify(false)}
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 重置按钮 */}
+                  <div className="md-project-style-section">
+                    <button 
+                      className="md-project-style-reset-btn"
+                      onClick={() => {
+                        setCurrentTheme('classic');
+                        setCurrentFont('sans-serif');
+                        setCurrentFontSize('smaller');
+                        setCurrentThemeColor('#1e40af');
+                        setCurrentHeadingStyle('h2');
+                        setCurrentHeadingFormat('default');
+                        setCurrentCodeTheme('github-dark');
+                        setCurrentCaptionFormat('title-first');
+                        setMacCodeBlock(true);
+                        setCodeLineNumbers(false);
+                        setWechatLinkReference(false);
+                        setParagraphIndent(false);
+                        setParagraphJustify(false);
+                      }}
+                    >
+                      重置
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
       </div>
       
-      {/* 移动端浮动按钮组 - 原项目的移动端浮动按钮 */}
-      <div className="md-project-mobile-fab">
-        <button className="md-project-fab-btn" onClick={toggleView} title={showEditor ? "切换到预览模式" : "切换到编辑模式"}>
-          {showEditor ? <Icons.Eye /> : <Icons.Pen />}
-        </button>
-      </div>
-
       {/* 底部状态栏 */}
       <footer className="md-project-footer">
         <div className="md-project-footer-left">

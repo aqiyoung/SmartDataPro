@@ -20,7 +20,7 @@ export const THEMES = {
           'color': '#2c3e50',
           'margin-top': '1.5em',
           'margin-bottom': '0.5em',
-          'border-bottom': '2px solid #3498db',
+          'border-bottom': '2px solid #333333',
           'padding-bottom': '0.3em'
         },
         h2: {
@@ -35,7 +35,7 @@ export const THEMES = {
           'margin': '1em 0'
         },
         blockquote: {
-          'border-left': '4px solid #3498db',
+          'border-left': '4px solid #333333',
           'padding-left': '1em',
           'margin': '1em 0',
           'color': '#666',
@@ -138,25 +138,25 @@ export const THEMES = {
           'color': '#1a202c',
           'margin-top': '1.8em',
           'margin-bottom': '0.8em',
-          'color': '#2b6cb0'
+          'color': '#333333'
         },
         h2: {
           'font-size': '2em',
           'color': '#1a202c',
           'margin-top': '1.5em',
           'margin-bottom': '0.8em',
-          'border-bottom': '2px solid #e2e8f0',
+          'border-bottom': '2px solid #333333',
           'padding-bottom': '0.5em'
         },
         p: {
           'margin': '1.5em 0'
         },
         blockquote: {
-          'border-left': '4px solid #2b6cb0',
+          'border-left': '4px solid #333333',
           'padding': '1em 1.5em',
           'margin': '1.5em 0',
           'color': '#4a5568',
-          'background-color': '#ebf8ff',
+          'background-color': '#f5f5f5',
           'border-radius': '0 6px 6px 0'
         },
         pre: {
@@ -570,6 +570,220 @@ export const THEMES = {
           'font-family': '"Courier New", monospace',
           'font-size': '0.9em',
           'color': '#d63384'
+        }
+      }
+    }
+  },
+  // doocs/md 风格主题
+  doocs_classic: {
+    name: "Doocs 经典",
+    css: {
+      base: {
+        'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif',
+        'font-size': '16px',
+        'line-height': '1.8',
+        'color': '#333',
+        'background-color': '#ffffff',
+        'text-align': 'justify'
+      },
+      block: {
+        h1: {
+          'font-size': '28px',
+          'font-weight': 'bold',
+          'margin': '48px 0 24px 0',
+          'color': '#2c3e50',
+          'text-align': 'center',
+          'padding-bottom': '12px',
+          'border-bottom': '2px solid #eaecef',
+          'line-height': '1.3'
+        },
+        h2: {
+          'font-size': '24px',
+          'font-weight': 'bold',
+          'margin': '36px 0 18px 0',
+          'color': '#34495e',
+          'padding-bottom': '8px',
+          'border-bottom': '1px solid #eaecef',
+          'line-height': '1.3'
+        },
+        h3: {
+          'font-size': '20px',
+          'font-weight': 'bold',
+          'margin': '32px 0 16px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h4: {
+          'font-size': '18px',
+          'font-weight': 'bold',
+          'margin': '28px 0 14px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h5: {
+          'font-size': '16px',
+          'font-weight': 'bold',
+          'margin': '24px 0 12px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h6: {
+          'font-size': '14px',
+          'font-weight': 'bold',
+          'margin': '20px 0 10px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        p: {
+          'margin': '16px 0',
+          'text-indent': '2em',
+          'line-height': '1.8'
+        },
+        blockquote: {
+          'margin': '20px 0',
+          'padding': '15px 20px',
+          'background-color': '#f8f9fa',
+          'border-left': '4px solid #333333',
+          'border-radius': '4px',
+          'color': '#666',
+          'font-size': '15px'
+        },
+        pre: {
+          'margin': '20px 0',
+          'padding': '16px',
+          'background-color': '#f6f8fa',
+          'border-radius': '6px',
+          'overflow-x': 'auto',
+          'font-size': '14px',
+          'line-height': '1.5',
+          'box-shadow': '0 2px 4px rgba(0,0,0,0.1)'
+        },
+        code: {
+          'padding': '0.2em 0.4em',
+          'margin': '0',
+          'font-size': '0.9em',
+          'background-color': '#f1f3f4',
+          'border-radius': '3px',
+          'font-family': 'ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace'
+        },
+        table: {
+          'width': '100%',
+          'border-collapse': 'collapse',
+          'margin': '20px 0',
+          'font-size': '14px'
+        },
+        th: {
+          'background-color': '#f8f9fa',
+          'border': '1px solid #e0e0e0',
+          'padding': '10px',
+          'text-align': 'left',
+          'font-weight': 'bold'
+        },
+        td: {
+          'border': '1px solid #e0e0e0',
+          'padding': '10px',
+          'text-align': 'left'
+        },
+        img: {
+          'max-width': '100%',
+          'height': 'auto',
+          'border-radius': '4px',
+          'margin': '16px 0'
+        }
+      }
+    }
+  },
+  doocs_elegant: {
+    name: "Doocs 优雅",
+    css: {
+      base: {
+        'font-family': '"Georgia", "Times New Roman", "Microsoft YaHei", serif',
+        'font-size': '16px',
+        'line-height': '1.9',
+        'color': '#333',
+        'background-color': '#faf9f6',
+        'text-align': 'justify'
+      },
+      block: {
+        h1: {
+          'font-size': '30px',
+          'font-weight': 'bold',
+          'margin': '52px 0 26px 0',
+          'color': '#2c3e50',
+          'text-align': 'center',
+          'font-style': 'italic',
+          'padding-bottom': '14px',
+          'border-bottom': '2px solid #eaecef',
+          'line-height': '1.3'
+        },
+        h2: {
+          'font-size': '26px',
+          'font-weight': 'bold',
+          'margin': '40px 0 20px 0',
+          'color': '#34495e',
+          'border-bottom': '1px solid #eaecef',
+          'padding-bottom': '10px',
+          'line-height': '1.3'
+        },
+        h3: {
+          'font-size': '22px',
+          'font-weight': 'bold',
+          'margin': '36px 0 18px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h4: {
+          'font-size': '20px',
+          'font-weight': 'bold',
+          'margin': '32px 0 16px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h5: {
+          'font-size': '18px',
+          'font-weight': 'bold',
+          'margin': '28px 0 14px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        h6: {
+          'font-size': '16px',
+          'font-weight': 'bold',
+          'margin': '24px 0 12px 0',
+          'color': '#34495e',
+          'line-height': '1.3'
+        },
+        p: {
+          'margin': '18px 0',
+          'text-indent': '2em',
+          'line-height': '1.9'
+        },
+        blockquote: {
+          'margin': '24px 0',
+          'padding': '20px 24px',
+          'background-color': '#f5f5f5',
+          'border-left': '4px solid #95a5a6',
+          'border-radius': '4px',
+          'color': '#7f8c8d',
+          'font-style': 'italic',
+          'font-size': '15px'
+        },
+        pre: {
+          'margin': '24px 0',
+          'padding': '18px',
+          'background-color': '#ecf0f1',
+          'border-radius': '6px',
+          'overflow-x': 'auto',
+          'font-size': '14px',
+          'line-height': '1.5'
+        },
+        code: {
+          'padding': '0.2em 0.4em',
+          'margin': '0',
+          'font-size': '0.9em',
+          'background-color': '#ecf0f1',
+          'border-radius': '3px',
+          'font-family': '"Courier New", Courier, monospace'
         }
       }
     }
