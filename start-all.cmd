@@ -15,7 +15,7 @@ echo.
 echo [1/2] 启动后端服务...
 cd backend
 start "Backend Server" python main.py
-echo 后端服务已启动，运行在 http://localhost:8016/
+echo 后端服务已启动，运行在 http://localhost:8017/
 
 :: 等待后端服务初始化
 timeout /t 2 /nobreak >nul
@@ -35,7 +35,7 @@ echo ========================================
 echo 🎉 所有服务已成功启动！
 echo ========================================
 echo 前端访问地址: http://localhost:5180/
-echo 后端访问地址: http://localhost:8016/
+echo 后端访问地址: http://localhost:8017/
 echo ========================================
 echo 按任意键关闭所有服务并退出...
 echo ========================================

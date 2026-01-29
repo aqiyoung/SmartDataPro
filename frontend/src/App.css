@@ -12,7 +12,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #ffffff;
-  color: #333;
+  color: #000000;
   line-height: 1.6;
   min-height: 100vh;
 }
@@ -28,9 +28,11 @@ body {
 /* 应用头部 */
 .app-header {
   background: #ffffff;
-  color: #667eea;
-  padding: 2rem 0;
-  text-align: center;
+  color: #000000;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 0;
   position: static;
@@ -41,14 +43,14 @@ body {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
 }
 
 .app-subtitle {
   font-size: 1.1rem;
   opacity: 0.8;
   font-weight: 400;
-  color: #666666;
+  color: #000000;
 }
 
 /* 应用主体 */
@@ -143,7 +145,7 @@ body {
 .conversion-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #000000;
   margin-bottom: 0.6rem;
   text-align: center;
   line-height: 1.2;
@@ -152,11 +154,11 @@ body {
 }
 
 .conversion-card:hover .conversion-title {
-  color: #667eea;
+  color: #4caf50;
 }
 
 .conversion-description {
-  color: #718096;
+  color: #000000;
   line-height: 1.4;
   font-size: 0.9rem;
   text-align: center;
@@ -169,7 +171,7 @@ body {
 }
 
 .conversion-card:hover .conversion-description {
-  color: #4a5568;
+  color: #000000;
 }
 
 /* 卡片动画效果 */
@@ -296,7 +298,7 @@ body {
 }
 
 .features-title {
-  color: #333333;
+  color: #000000;
   font-size: 1.5rem;
   margin-bottom: 2rem;
   font-weight: 600;
@@ -381,13 +383,13 @@ body {
 .feature-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #333333;
+  color: #000000;
   margin-bottom: 0.6rem;
   text-align: center;
 }
 
 .feature-description {
-  color: #6b7280;
+  color: #000000;
   font-size: 0.85rem;
   line-height: 1.5;
   text-align: center;
@@ -435,24 +437,24 @@ body {
   display: inline-block;
   margin-right: 1rem;
   font-weight: 500;
-  color: #667eea;
+  color: #000000;
   font-size: 1rem;
 }
 
 .conversion-selector select {
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
-  border: 2px solid #e0e7ff;
+  border: 2px solid #e8f5e9;
   border-radius: 16px;
   background-color: #f8fafc;
   cursor: pointer;
   min-width: 240px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  color: #334155;
+  color: #000000;
   font-weight: 500;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23667eea'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1.2rem;
@@ -460,16 +462,16 @@ body {
 }
 
 .conversion-selector select:hover {
-  border-color: #667eea;
+  border-color: #4caf50;
   background-color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
   transform: translateY(-1px);
 }
 
 .conversion-selector select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
   background-color: white;
 }
 
@@ -477,14 +479,14 @@ body {
 .conversion-selector select option {
   padding: 12px;
   background-color: white;
-  color: #334155;
+  color: #000000;
   font-weight: 500;
 }
 
 .conversion-selector select option:hover,
 .conversion-selector select option:checked {
-  background-color: #f0f4ff;
-  color: #667eea;
+  background-color: #e8f5e9;
+  color: #000000;
 }
 .conversion-card {
   background-color: #ffffff;
@@ -504,13 +506,13 @@ body {
 .conversion-card h3 {
   font-size: 2.0rem;
   margin-bottom: 0.5rem;
-  color: #667eea;
+  color: #000000;
   font-weight: 700;
   text-align: center;
 }
 
 .conversion-card p {
-  color: #666;
+  color: #000000;
   margin-bottom: 2rem;
   font-size: 1rem;
   opacity: 0.8;
@@ -526,7 +528,7 @@ body {
 .file-btn {
   display: inline-block;
   padding: 1rem 2.5rem;
-  background-color: #667eea;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 16px;
@@ -536,13 +538,13 @@ body {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .file-btn:hover {
-  background-color: #5568d3;
+  background-color: #388e3c;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
 .file-btn input[type="file"] {
@@ -557,7 +559,7 @@ body {
 
 .file-name {
   margin-top: 0.8rem;
-  color: #666;
+  color: #000000;
   font-size: 0.9rem;
 }
 
@@ -583,8 +585,8 @@ body {
 
 .url-input-section input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 
@@ -608,7 +610,7 @@ body {
 
 .editor-container h4, .preview-container h4 {
   margin-bottom: 0.8rem;
-  color: #667eea;
+  color: #000000;
   font-size: 1rem;
   font-weight: 600;
   text-align: left;
@@ -630,8 +632,8 @@ body {
 
 .editor-container textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .html-preview {
@@ -679,39 +681,39 @@ body {
 }
 
 .upload-btn {
-  background-color: #667eea;
+  background-color: #4caf50;
   color: white;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 .upload-btn:hover {
-  background-color: #5568d3;
+  background-color: #388e3c;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
 .copy-btn {
-  background-color: #f0f4ff;
-  color: #667eea;
-  border: 2px solid #e0e7ff;
+  background-color: #e8f5e9;
+  color: #4caf50;
+  border: 2px solid #c8e6c9;
 }
 
 .copy-btn:hover {
-  background-color: #e0e7ff;
-  border-color: #c7d2fe;
+  background-color: #c8e6c9;
+  border-color: #a5d6a7;
   transform: translateY(-1px);
 }
 
 .download-btn {
-  background-color: #667eea;
+  background-color: #4caf50;
   color: white;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 .download-btn:hover {
-  background-color: #5568d3;
+  background-color: #388e3c;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
 .editor-section textarea {
@@ -730,8 +732,8 @@ body {
 
 .editor-section textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .preview-content {
@@ -807,33 +809,33 @@ body {
 }
 
 .convert-btn {
-  background-color: #667eea;
+  background-color: #4caf50;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .convert-btn:hover {
-  background-color: #5568d3;
+  background-color: #388e3c;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
 .reset-btn {
-  background-color: #f0f4ff;
-  color: #667eea;
-  border: 2px solid #e0e7ff;
+  background-color: #e8f5e9;
+  color: #4caf50;
+  border: 2px solid #c8e6c9;
 }
 
 .reset-btn:hover {
-  background-color: #e0e7ff;
-  border-color: #c7d2fe;
+  background-color: #c8e6c9;
+  border-color: #a5d6a7;
   transform: translateY(-2px);
 }
 
 /* 应用底部 */
 .app-footer {
   background: #ffffff;
-  color: #666666;
+  color: #000000;
   padding: 1.5rem 0;
   text-align: center;
   font-size: 0.85rem;
@@ -846,7 +848,7 @@ body {
 /* 返回首页按钮 */
 .back-home-btn {
   background-color: transparent;
-  color: #667eea;
+  color: #000000;
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1.2rem;
@@ -867,8 +869,8 @@ body {
 }
 
 .back-home-btn:hover {
-  background-color: #f0f4ff;
-  color: #667eea;
+  background-color: #e8f5e9;
+  color: #000000;
   transform: translateY(0);
   box-shadow: none;
   text-decoration: none;
@@ -1175,22 +1177,23 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #000000;
+  background: none;
+  -webkit-background-clip: none;
+  -webkit-text-fill-color: #000000;
+  background-clip: none;
 }
 
 .header-text .app-subtitle {
   font-size: 0.85rem;
-  color: #999;
+  color: #000000;
   margin: 0;
   font-weight: 400;
 }
 
 .header-slogan {
   font-size: 0.95rem;
-  color: #666;
+  color: #000000;
   margin: 0;
   font-weight: 400;
   letter-spacing: 2px;
@@ -1207,7 +1210,7 @@ body {
 }
 
 .platform-features .features-title {
-  color: #333;
+  color: #000000;
   text-align: center;
   font-size: 2rem;
   margin-bottom: 2rem;
@@ -1302,7 +1305,7 @@ body {
 .platform-features .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  border-color: #667eea;
+  border-color: #4caf50;
 }
 
 .platform-features .feature-icon {
@@ -1310,22 +1313,22 @@ body {
   margin-bottom: 0.8rem;
   display: inline-block;
   padding: 0.8rem;
-  background: #f0f4ff;
+  background: #e8f5e9;
   border-radius: 50%;
   transition: all 0.3s ease;
-  border: 1px solid #e0e7ff;
+  border: 1px solid #c8e6c9;
 }
 
 .platform-features .feature-card:hover .feature-icon {
   transform: scale(1.1) rotate(5deg);
-  background: #667eea;
+  background: #4caf50;
   color: white;
 }
 
 .platform-features .feature-title {
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #000000;
   font-weight: 700;
   line-height: 1.2;
   width: 100%;
@@ -1333,7 +1336,7 @@ body {
 }
 
 .platform-features .feature-description {
-  color: #666;
+  color: #000000;
   line-height: 1.4;
   font-size: 0.85rem;
   margin-bottom: 0;
@@ -1361,7 +1364,7 @@ body {
 
 .platform-advantages h2 {
   text-align: center;
-  color: #333;
+  color: #000000;
   font-size: 1.2rem;
   margin-bottom: 0.8rem;
   font-weight: bold;
@@ -1394,13 +1397,13 @@ body {
 .advantage-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  border-color: #667eea;
+  border-color: #4caf50;
 }
 
 .advantage-icon {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #667eea;
+  color: #4caf50;
   transition: all 0.3s ease;
 }
 
@@ -1409,14 +1412,14 @@ body {
 }
 
 .advantage-item h3 {
-  color: #333;
+  color: #000000;
   margin-bottom: 0.8rem;
   font-weight: 700;
   font-size: 1.1rem;
 }
 
 .advantage-item p {
-  color: #666;
+  color: #000000;
   font-size: 0.9rem;
   margin: 0;
   line-height: 1.4;
@@ -1426,7 +1429,7 @@ body {
 /* 平台底部样式 */
 .platform-footer {
   background: rgba(255, 255, 255, 0.95);
-  color: #666;
+  color: #000000;
   text-align: center;
   padding: 1.5rem;
   margin-top: 0.5rem;
@@ -1445,7 +1448,7 @@ body {
 
 .result-section h3 {
   margin: 0 0 20px 0;
-  color: #667eea;
+  color: #000000;
   font-size: 1.3rem;
   font-weight: 600;
   text-align: left;
@@ -1460,14 +1463,14 @@ body {
 
 .result-content p {
   margin: 0 0 12px 0;
-  color: #4a5568;
+  color: #000000;
   font-size: 0.95rem;
   line-height: 1.6;
   text-align: left;
 }
 
 .result-content strong {
-  color: #2d3748;
+  color: #000000;
   font-weight: 600;
 }
 
@@ -1480,7 +1483,7 @@ body {
 
 .result-data h4 {
   margin: 0 0 15px 0;
-  color: #667eea;
+  color: #000000;
   font-size: 1.1rem;
   font-weight: 600;
   text-align: left;
@@ -1488,7 +1491,7 @@ body {
 
 .result-data h5 {
   margin: 0 0 10px 0;
-  color: #4a5568;
+  color: #000000;
   font-size: 1rem;
   font-weight: 500;
   text-align: left;
@@ -1516,14 +1519,14 @@ body {
 }
 
 .search-result-item a {
-  color: #667eea;
+  color: #000000;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .search-result-item a:hover {
-  color: #5568d3;
+  color: #000000;
   text-decoration: underline;
 }
 
@@ -1536,7 +1539,7 @@ body {
 
 .comments-section h5 {
   margin: 0 0 15px 0;
-  color: #667eea;
+  color: #000000;
   font-size: 1rem;
   font-weight: 500;
 }
@@ -1555,7 +1558,7 @@ body {
 
 .comment-time {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: #000000;
   margin: 5px 0 0 0;
 }
 
@@ -1570,7 +1573,7 @@ body {
 
 .form-group label {
   font-weight: 600;
-  color: #667eea;
+  color: #000000;
   font-size: 1rem;
   margin: 0;
   white-space: nowrap;
@@ -1582,4 +1585,351 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* 书签页面样式 */
+.bookmark-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.bookmark-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 2rem;
+  color: #000000;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: #000000;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 0.5rem;
+}
+
+/* 表单样式 */
+.bookmark-form-section {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookmark-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.bookmark-form .form-group label {
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+}
+
+.bookmark-form .form-group input,
+.bookmark-form .form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.bookmark-form .form-group input:focus,
+.bookmark-form .form-group textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.save-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.save-btn:hover {
+  background: #388e3c;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+/* 书签列表样式 */
+.bookmark-list-section {
+  margin-bottom: 2rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+}
+
+.bookmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.bookmark-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bookmark-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+
+.bookmark-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.bookmark-card-title {
+  font-size: 1.2rem;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.bookmark-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.edit-btn:hover {
+  background: #218838;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+.bookmark-card-url {
+  display: block;
+  color: #000000;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  word-break: break-all;
+  font-size: 0.9rem;
+}
+
+.bookmark-card-url:hover {
+  text-decoration: underline;
+  color: #000000;
+}
+
+.bookmark-card-description {
+  color: #000000;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.bookmark-card-date {
+  color: #000000;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+/* 响应式设计 - 书签页面 */
+@media (max-width: 768px) {
+  .bookmark-main {
+    padding: 1rem;
+  }
+  
+  .bookmark-form-section {
+    padding: 1rem;
+  }
+  
+  .bookmark-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+}
+
+/* 错误提示样式 */
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* 加载状态样式 */
+.loading-state {
+  text-align: center;
+  padding: 4rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+}
+
+/* 禁用状态样式 */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input:disabled,
+textarea:disabled {
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* 书签链接容器样式 */
+.bookmark-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* 书签链接项样式 */
+.bookmark-link-item {
+  background: #f8f9fa;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.bookmark-link-item:hover {
+  background: #e8f5e9;
+  border-color: #4caf50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+/* 书签链接样式 */
+.bookmark-link {
+  color: #000000;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.bookmark-link:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+/* 管理书签按钮样式 */
+.admin-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.admin-btn:hover {
+  background: #388e3c;
+}
+
+/* 查看前端书签按钮样式 */
+.view-bookmarks-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.view-bookmarks-btn:hover {
+  background: #218838;
 }

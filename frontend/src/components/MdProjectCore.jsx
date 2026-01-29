@@ -224,19 +224,29 @@ const MdProjectCore = ({
           padding: 10px 30px !important;
           border-radius: 20px !important;
           line-height: 1.3 !important;
-          display: block !important;
-          width: fit-content !important;
-          position: relative !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
+          display: inline-block !important;
           float: none !important;
           clear: both !important;
+        }
+        
+        .md-project-core .markdown-content h1::before {
+          content: "" !important;
+          display: block !important;
+          width: 100% !important;
+          height: 0 !important;
+        }
+        
+        .md-project-core .markdown-content h1::after {
+          content: "" !important;
+          display: block !important;
+          width: 100% !important;
+          height: 0 !important;
         }
         
         .md-project-core .markdown-content h2 {
           font-size: 22px !important;
           font-weight: bold !important;
-          margin: 36px auto 18px !important;
+          margin: 36px 0 18px 0 !important;
           text-align: center !important;
           color: #ffffff !important;
           background-color: var(--theme-color) !important;
@@ -245,6 +255,8 @@ const MdProjectCore = ({
           line-height: 1.3 !important;
           display: block !important;
           width: fit-content !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
           float: none !important;
           clear: both !important;
         }
@@ -252,15 +264,17 @@ const MdProjectCore = ({
         .md-project-core .markdown-content h3 {
           font-size: 20px !important;
           font-weight: bold !important;
-          margin: 32px auto 16px !important;
-          text-align: center !important;
-          color: #ffffff !important;
-          background-color: var(--theme-color) !important;
-          padding: 6px 20px !important;
-          border-radius: 14px !important;
-          line-height: 1.3 !important;
+          margin: 32px 0 16px 0 !important;
+          text-align: left !important;
+          color: #000000 !important;
+          background-color: transparent !important;
+          padding: 0 !important;
+          border-radius: 0 !important;
+          line-height: 1.4 !important;
           display: block !important;
-          width: fit-content !important;
+          width: 100% !important;
+          border-bottom: 1px solid #f0f0f0 !important;
+          padding-bottom: 6px !important;
           float: none !important;
           clear: both !important;
         }

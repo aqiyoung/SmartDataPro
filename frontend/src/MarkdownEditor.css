@@ -98,17 +98,17 @@
   
   /* 标题文字 - 确保可见 */
   .md-logo span {
-    display: inline-block !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    color: #333 !important; /* 确保颜色与背景对比明显 */
-    text-align: center !important;
-    white-space: nowrap !important;
-    max-width: 200px !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    background-color: transparent !important; /* 确保背景透明 */
-  }
+  display: inline-block !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #000000 !important; /* 确保颜色与背景对比明显 */
+  text-align: center !important;
+  white-space: nowrap !important;
+  max-width: 200px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: transparent !important; /* 确保背景透明 */
+}
   
   /* 确保标题不被其他元素遮挡 */
   .md-navbar-left,
@@ -787,7 +787,7 @@
   border-radius: 8px;
   font-size: 0.9rem;
   background-color: white;
-  color: #333;
+  color: #000000;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -850,7 +850,7 @@
   gap: 12px;
   padding: 12px 20px;
   cursor: pointer;
-  color: #333;
+  color: #000000;
   transition: all 0.2s ease;
   font-size: 0.9rem;
   border-radius: 8px;
@@ -860,7 +860,7 @@
 
 .dropdown-item:hover {
   background-color: #f0f4f8;
-  color: #2c3e50;
+  color: #000000;
   transform: translateX(4px);
 }
 
@@ -937,7 +937,7 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 0.85rem;
-  color: #333;
+  color: #000000;
   background-color: white;
   cursor: pointer;
   outline: none;
@@ -983,7 +983,7 @@
 .md-logo {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #333;
+  color: #000000;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1001,7 +1001,7 @@
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 0.9rem;
-  color: #333;
+  color: #000000;
   background-color: white;
   cursor: pointer;
   outline: none;
@@ -1017,7 +1017,7 @@
   border-radius: 6px;
   font-size: 0.9rem;
   background-color: white;
-  color: #333;
+  color: #000000;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1068,7 +1068,7 @@
   background: transparent;
   border-radius: 4px;
   cursor: pointer;
-  color: #555;
+  color: #000000;
   font-weight: 600;
   font-size: 13px;
   transition: all 0.2s ease;
@@ -1082,7 +1082,7 @@
 
 .toolbar-btn:hover {
   background-color: #eaeaea;
-  color: #000;
+  color: #000000;
 }
 
 .toolbar-divider {
@@ -1126,7 +1126,7 @@
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 16px;
   line-height: 1.6;
-  color: #333;
+  color: #000000;
   background-color: #fff;
   box-sizing: border-box;
 }
@@ -1143,7 +1143,7 @@
   padding: 0 10px;
   background-color: #f9f9f9;
   border-bottom: 1px solid #eee;
-  color: #555;
+  color: #000000;
   font-size: 0.9rem;
   z-index: 5;
   position: relative;
@@ -1159,7 +1159,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #666;
+  color: #000000;
   padding: 4px;
   border-radius: 4px;
   font-size: 1.1rem;

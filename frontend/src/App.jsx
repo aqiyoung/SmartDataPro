@@ -9,6 +9,8 @@ import WordToMarkdownPage from './WordToMarkdownPage.jsx';
 import WebToWordPage from './WebToWordPage.jsx';
 import PdfToWordPage from './PdfToWordPage.jsx';
 import WordToPdfPage from './WordToPdfPage.jsx';
+import BookmarkPage from './BookmarkPage.jsx';
+import BookmarkAdminPage from './BookmarkAdminPage.jsx';
 import './App.css';
 
 const App = () => {
@@ -31,6 +33,10 @@ const App = () => {
           <Route path="/web-to-docx" element={<WebToWordPage />} />
           <Route path="/pdf-to-word" element={<PdfToWordPage />} />
           <Route path="/word-to-pdf" element={<WordToPdfPage />} />
+          {/* 网址收藏管理路由 */}
+          <Route path="/bookmarks" element={<BookmarkPage />} />
+          {/* 书签管理后台路由 */}
+          <Route path="/bookmark-admin" element={<BookmarkAdminPage />} />
         </Routes>
       </div>
     </Router>

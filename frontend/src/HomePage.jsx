@@ -10,7 +10,8 @@ const HomePage = () => {
     { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
     { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
     { value: 'media-crawler', label: '媒体内容采集', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' },
-    { value: 'external-md', label: 'Markdown 专业版', icon: '🌟', description: '功能强大的 Markdown 编辑器，支持实时预览、多种主题、GitHub 图床和多格式导出' }
+    { value: 'external-md', label: '微信公众号专用', icon: '🌟', description: '专为微信公众号文章排版设计的 Markdown 编辑器，支持实时预览、公众号样式、GitHub 图床和多格式导出' },
+    { value: 'bookmarks', label: '网址收藏管理', icon: '🔖', description: '管理和收藏常用网址，支持添加、编辑、删除和分类管理' }
   ];
 
   // 平台核心功能特性数据
@@ -86,6 +87,11 @@ const HomePage = () => {
     // 特殊处理媒体内容采集
     if (conversionType === 'media-crawler') {
       window.location.pathname = '/media-crawler';
+      return;
+    }
+    // 特殊处理网址收藏管理
+    if (conversionType === 'bookmarks') {
+      window.location.pathname = '/bookmarks';
       return;
     }
     // 直接跳转到独立的转换页面

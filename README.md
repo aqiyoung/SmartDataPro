@@ -261,7 +261,7 @@ SmartDataPro/
 │   │   │   └── react.svg
 │   │   ├── components/ # 组件
 │   │   │   ├── ConversionCard.jsx # 转换卡片组件
-│   │   │   └── MdProjectCore.jsx # Markdown 专业版核心组件
+│   │   │   └── MdProjectCore.jsx # 微信公众号专用核心组件
 │   │   ├── utils/      # 工具函数
 │   │   │   ├── mdExtensions.js # Markdown 扩展
 │   │   │   └── mdThemes.js # Markdown 主题
@@ -271,8 +271,8 @@ SmartDataPro/
 │   │   ├── HomePage.jsx # 首页
 │   │   ├── MarkdownEditor.css # Markdown 编辑器样式
 │   │   ├── MarkdownEditorPage.jsx # Markdown 编辑器页面
-│   │   ├── MdProject.css # Markdown 专业版样式
-│   │   ├── MdProjectPage.jsx # Markdown 专业版页面
+│   │   ├── MdProject.css # 微信公众号专用样式
+│   │   ├── MdProjectPage.jsx # 微信公众号专用页面
 │   │   ├── MediaCrawlerPage.jsx # 媒体内容采集页面
 │   │   ├── PdfToWordPage.jsx # PDF 转 Word 页面
 │   │   ├── WebToWordPage.jsx # 网页转 Word 页面
@@ -335,8 +335,8 @@ python main.py  # 启动开发服务器
 ## 更新日志
 
 ### v2.2.6 (2026-01-28)
-- **Markdown 专业版优化**：
-  - 重构 Markdown 专业版界面，实现三栏布局（编辑区、样式控制面板、预览区）
+- **微信公众号专用优化**：
+  - 重构微信公众号专用界面，实现三栏布局（编辑区、样式控制面板、预览区）
   - 优化样式控制面板，添加主题选择、字体设置、字号调整等功能
   - 实现完整的深色主题支持
   - 添加多种 Markdown 扩展功能，如警告块、脚注、标记等
@@ -376,10 +376,10 @@ python main.py  # 启动开发服务器
   - 改进响应式设计，添加多断点适配，确保在不同设备上的最佳显示效果
   - 增强卡片动画效果，为所有卡片添加递增的延迟动画
 - **功能优化**：
-  - 将"md 项目"重命名为"Markdown 专业版"，提升品牌辨识度
-  - 更新"Markdown 专业版"的描述，突出核心功能特性
+  - 将"md 项目"重命名为"微信公众号专用"，提升品牌辨识度
+  - 更新"微信公众号专用"的描述，突出核心功能特性
   - 优化卡片图标，提升视觉一致性和美观度
-  - 为"Markdown 专业版"添加返回首页的控件，提升用户体验
+  - 为"微信公众号专用"添加返回首页的控件，提升用户体验
 - **代码优化**：
   - 修复图标显示问题，确保所有图标在不同设备上正确显示
   - 优化样式代码，统一卡片样式定义

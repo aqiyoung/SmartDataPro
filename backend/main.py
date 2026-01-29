@@ -8,7 +8,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "app:app",
         host="0.0.0.0",
-        port=8016,
+        port=8017,
         reload=False,
         log_level="info",
         # 优化Uvicorn服务器配置

@@ -57,13 +57,13 @@ const MdProjectPage = () => {
   // 默认示例文本 - md项目专属
   useEffect(() => {
     const defaultText = [
-      '# Markdown 项目 (md)',
+      '## Markdown 项目 (md)',
       '',
-      '## 📁 项目介绍',
+      '### 📁 项目介绍',
       '',
-      '这是一个基于 GitHub 项目 [https://github.com/aqiyoung/md](https://github.com/aqiyoung/md) 的原样克隆实现。',
+      '这是一个基于 GitHub 项目 `https://github.com/aqiyoung/md`  的原样克隆实现。',
       '',
-      '## 🎯 核心功能',
+      '### 🎯 核心功能',
       '',
       '- ✅ **完整 Markdown 支持** - 支持所有基础语法',
       '- ✅ **实时预览** - 编辑内容即时渲染',
@@ -72,14 +72,14 @@ const MdProjectPage = () => {
       '- ✅ **导出功能** - 支持导出 HTML 和 Word',
       '- ✅ **代码高亮** - 支持多种编程语言',
       '',
-      '## 📝 快速开始',
+      '### 📝 快速开始',
       '',
       '1. 在左侧编辑区输入 Markdown 内容',
       '2. 右侧实时预览渲染效果',
       '3. 选择喜欢的主题样式',
       '4. 导出或复制结果',
       '',
-      '## 💡 使用示例',
+      '### 💡 使用示例',
       '',
       '```markdown',
       '# 标题',
@@ -741,6 +741,9 @@ const MdProjectPage = () => {
 
         {/* 右侧图二样式按钮 */}
         <div className="md-project-header-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button className="md-project-simple-btn" onClick={goHome} title="返回首页">
+            🏠 返回首页
+          </button>
           <button className="md-project-simple-btn" onClick={handleCopy} title="复制到剪贴板">
             📋 复制
           </button>

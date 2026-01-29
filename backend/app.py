@@ -722,11 +722,156 @@ async def crawl_media(platform: str = Form(...), url: str = Form(None), keyword:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"采集失败: {str(e)}")
 
+# 书签管理API
+
+# 书签存储文件路径
+BOOKMARKS_FILE = os.path.join(os.path.dirname(__file__), "bookmarks.json")
+
+# 确保书签文件存在
+def ensure_bookmarks_file():
+    """确保书签文件存在，如果不存在则创建"""
+    if not os.path.exists(BOOKMARKS_FILE):
+        with open(BOOKMARKS_FILE, "w", encoding="utf-8") as f:
+            f.write("[]")
+
+# 读取书签
+def read_bookmarks():
+    """读取所有书签"""
+    ensure_bookmarks_file()
+    with open(BOOKMARKS_FILE, "r", encoding="utf-8") as f:
+        import json
+        return json.load(f)
+
+# 写入书签
+def write_bookmarks(bookmarks):
+    """写入书签"""
+    ensure_bookmarks_file()
+    with open(BOOKMARKS_FILE, "w", encoding="utf-8") as f:
+        import json
+        json.dump(bookmarks, f, ensure_ascii=False, indent=2)
+
+@app.get("/api/v1/bookmarks")
+def get_bookmarks():
+    """获取所有书签"""
+    try:
+        bookmarks = read_bookmarks()
+        return {"success": True, "data": bookmarks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取书签失败: {str(e)}")
+
+@app.post("/api/v1/bookmarks")
+def add_bookmark(bookmark: dict = Body(...)):
+    """添加新书签"""
+    try:
+        # 验证书签数据
+        if not bookmark.get("title") or not bookmark.get("url"):
+            raise HTTPException(status_code=400, detail="书签标题和URL不能为空")
+        
+        # 读取现有书签
+        bookmarks = read_bookmarks()
+        
+        # 添加新书签
+        new_bookmark = {
+            "id": str(uuid.uuid4()),
+            "title": bookmark["title"],
+            "url": bookmark["url"],
+            "description": bookmark.get("description", ""),
+            "createdAt": bookmark.get("createdAt", time.strftime("%Y-%m-%d %H:%M:%S"))
+        }
+        
+        bookmarks.append(new_bookmark)
+        write_bookmarks(bookmarks)
+        
+        return {"success": True, "data": new_bookmark}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"添加书签失败: {str(e)}")
+
+@app.put("/api/v1/bookmarks/{bookmark_id}")
+def update_bookmark(bookmark_id: str, bookmark: dict = Body(...)):
+    """更新书签"""
+    try:
+        # 读取现有书签
+        bookmarks = read_bookmarks()
+        
+        # 查找书签
+        found = False
+        for i, b in enumerate(bookmarks):
+            if b["id"] == bookmark_id:
+                # 更新书签
+                bookmarks[i] = {
+                    **b,
+                    "title": bookmark.get("title", b["title"]),
+                    "url": bookmark.get("url", b["url"]),
+                    "description": bookmark.get("description", b.get("description", ""))
+                }
+                found = True
+                break
+        
+        if not found:
+            raise HTTPException(status_code=404, detail="书签不存在")
+        
+        write_bookmarks(bookmarks)
+        
+        return {"success": True, "data": bookmarks[i]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"更新书签失败: {str(e)}")
+
+@app.delete("/api/v1/bookmarks/{bookmark_id}")
+def delete_bookmark(bookmark_id: str):
+    """删除书签"""
+    try:
+        # 读取现有书签
+        bookmarks = read_bookmarks()
+        
+        # 过滤掉要删除的书签
+        new_bookmarks = [b for b in bookmarks if b["id"] != bookmark_id]
+        
+        if len(new_bookmarks) == len(bookmarks):
+            raise HTTPException(status_code=404, detail="书签不存在")
+        
+        write_bookmarks(new_bookmarks)
+        
+        return {"success": True, "message": "书签删除成功"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"删除书签失败: {str(e)}")
+
 # 添加通配符路由，将所有非API请求重定向到index.html
 # 注意：这个路由必须放在所有API路由的最后，否则会拦截API请求
-@app.get("/{rest_of_path:path}")
-def catch_all(rest_of_path: str):
-    # 其他请求返回index.html，由React Router处理
+# 为根路径添加单独的路由
+@app.get("/")
+def root():
+    # 检查dist/index.html是否存在
+    index_path = os.path.join(frontend_dir, "dist/index.html") if os.path.exists(dist_dir) else None
+    if index_path and os.path.exists(index_path):
+        return FileResponse(
+            index_path,
+            headers={
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY",
+                "X-XSS-Protection": "1; mode=block"
+            }
+        )
+    else:
+        # 如果前端文件不存在，返回API信息
+        return {"message": "智能文档处理平台 API", "version": "2.2.3"}
+
+# 为特定的前端路由添加路由
+@app.get("/external-md")
+@app.get("/markdown-editor")
+@app.get("/media-crawler")
+@app.get("/word-to-md")
+@app.get("/web-to-docx")
+@app.get("/pdf-to-word")
+@app.get("/word-to-pdf")
+@app.get("/bookmarks")
+def frontend_routes():
+    # 返回index.html，由React Router处理
     return FileResponse(
         os.path.join(frontend_dir, "dist/index.html" if os.path.exists(dist_dir) else "index.html"),
         headers={
