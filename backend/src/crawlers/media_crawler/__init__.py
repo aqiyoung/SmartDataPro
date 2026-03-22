@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.crawler")
 import asyncio
 from typing import Dict, Any, Optional
 from playwright.async_api import async_playwright
@@ -33,10 +35,10 @@ class MediaCrawler:
                     "--disable-extensions"
                 ]
             )
-            print("浏览器初始化成功")
+            logger.info("Browser initialized successfully")
             return self.browser
         except Exception as e:
-            print(f"浏览器初始化失败: {str(e)}")
+            logger.error(f"Browser init failed: {e}")
             raise
     
     async def close_browser(self):
@@ -85,10 +87,10 @@ class MediaCrawler:
                     return await self._crawl_bilibili_by_url(url)
             
             # 浏览器不可用，返回模拟数据
-            print(f"浏览器不可用，使用模拟数据返回{platform}URL采集结果")
+            logger.warning(f"Browser unavailable, returning mock data for {platform} URL crawl")
         except Exception as e:
             # 任何异常都使用模拟数据
-            print(f"采集真实数据失败，使用模拟数据: {str(e)}")
+            logger.warning(f"Real data crawl failed, using mock data: {e}")
         
         # 为不同平台生成真实的模拟数据
         real_data_by_platform = {
@@ -440,10 +442,10 @@ class MediaCrawler:
                     return await self._crawl_weibo_by_keyword(keyword)
             
             # 浏览器不可用，返回模拟数据
-            print(f"浏览器不可用，使用模拟数据返回{platform}关键词搜索结果")
+            logger.warning(f"Browser unavailable, returning mock data for {platform} keyword search")
         except Exception as e:
             # 任何异常都使用模拟数据
-            print(f"采集真实数据失败，使用模拟数据: {str(e)}")
+            logger.warning(f"Real data crawl failed, using mock data: {e}")
         
         # 为不同平台生成真实的模拟数据
         real_data = {
@@ -817,10 +819,10 @@ class MediaCrawler:
                     return await self._crawl_bilibili_by_post_id(post_id)
             
             # 浏览器不可用，返回模拟数据
-            print(f"浏览器不可用，使用模拟数据返回{platform}帖子ID采集结果")
+            logger.warning(f"Browser unavailable, returning mock data for {platform} post crawl")
         except Exception as e:
             # 任何异常都使用模拟数据
-            print(f"采集真实数据失败，使用模拟数据: {str(e)}")
+            logger.warning(f"Real data crawl failed, using mock data: {e}")
         
         # 为不同平台生成真实的模拟数据
         real_post_data = {

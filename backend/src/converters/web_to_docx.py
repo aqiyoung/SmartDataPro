@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -62,8 +64,8 @@ class WebToDocxConverter:
             self.local_file_path = url
             # 对于本地文件，base_url设置为文件所在目录的绝对路径
             self.base_url = f"file:///{os.path.dirname(os.path.abspath(url))}/"
-            print(f"[DEBUG] 检测到本地HTML文件: {url}")
-            print(f"[DEBUG] 本地文件base_url: {self.base_url}")
+            logger.info(f"[DEBUG] 检测到本地HTML文件: {url}")
+            logger.info(f"[DEBUG] 本地文件base_url: {self.base_url}")
         else:
             self.base_url = self._get_base_url(url)
         
@@ -202,23 +204,23 @@ class WebToDocxConverter:
             
             # 检查是否为本地HTML文件
             if self.is_local_file:
-                print(f"[DEBUG] 读取本地HTML文件: {self.local_file_path}")
+                logger.info(f"[DEBUG] 读取本地HTML文件: {self.local_file_path}")
                 
                 # 读取本地HTML文件内容
                 with open(self.local_file_path, "r", encoding="utf-8") as f:
                     self.html_content = f.read()
                 
-                print(f"[DEBUG] 本地HTML文件读取成功，内容长度: {len(self.html_content)} 字符")
+                logger.info(f"[DEBUG] 本地HTML文件读取成功，内容长度: {len(self.html_content)} 字符")
                 self._update_progress("本地HTML文件读取完成", 20)
                 return True
             
             # 网络URL处理
-            print(f"[DEBUG] 开始下载HTML: {self.url}")
-            print(f"[DEBUG] 超时设置: {self.timeout} 秒")
+            logger.info(f"[DEBUG] 开始下载HTML: {self.url}")
+            logger.info(f"[DEBUG] 超时设置: {self.timeout} 秒")
             
             # 检查URL格式是否正确
             if not self.url.startswith(('http://', 'https://')):
-                print(f"[DEBUG] URL格式错误: {self.url}")
+                logger.info(f"[DEBUG] URL格式错误: {self.url}")
                 self._update_progress(f"URL格式错误: {self.url}", 0)
                 return False
             
@@ -228,7 +230,7 @@ class WebToDocxConverter:
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "zh-CN,zh;q=0.8",
             }
-            print(f"[DEBUG] 使用简化请求头: {simple_headers}")
+            logger.info(f"[DEBUG] 使用简化请求头: {simple_headers}")
             
             try:
                 # 尝试使用简单的请求方式
@@ -240,55 +242,55 @@ class WebToDocxConverter:
                     allow_redirects=True
                 )
                 
-                print(f"[DEBUG] HTTP状态码: {response.status_code}")
+                logger.info(f"[DEBUG] HTTP状态码: {response.status_code}")
                 response.raise_for_status()
                 
                 # 处理响应编码
                 if response.encoding is None:
                     response.encoding = response.apparent_encoding
-                print(f"[DEBUG] 响应编码: {response.encoding}")
+                logger.info(f"[DEBUG] 响应编码: {response.encoding}")
                 
                 # 读取响应内容，限制最大长度为1MB
                 max_content_length = 1024 * 1024  # 1MB
                 self.html_content = response.text[:max_content_length]
-                print(f"[DEBUG] 响应内容长度: {len(self.html_content)} 字符")
+                logger.info(f"[DEBUG] 响应内容长度: {len(self.html_content)} 字符")
                 
                 # 如果内容被截断，添加标记
                 if len(self.html_content) == max_content_length:
                     self.html_content += "<!-- 内容被截断 -->"
-                    print(f"[DEBUG] 响应内容超过 {max_content_length} 字符，已截断")
+                    logger.info(f"[DEBUG] 响应内容超过 {max_content_length} 字符，已截断")
                 
                 self._update_progress("网页内容下载完成", 20)
-                print(f"[DEBUG] HTML下载成功")
+                logger.info(f"[DEBUG] HTML下载成功")
                 return True
             except requests.exceptions.RequestException as e:
-                print(f"[DEBUG] HTML下载请求异常: {str(e)}")
+                logger.info(f"[DEBUG] HTML下载请求异常: {str(e)}")
                 import traceback
                 traceback.print_exc()
                 self._update_progress(f"网页下载失败: {str(e)}", 0)
                 return False
             except Exception as e:
-                print(f"[DEBUG] 获取HTML内容失败: {str(e)}")
+                logger.info(f"[DEBUG] 获取HTML内容失败: {str(e)}")
                 import traceback
                 traceback.print_exc()
                 self._update_progress(f"获取HTML内容失败: {str(e)}", 0)
                 return False
         except FileNotFoundError as e:
-            print(f"[DEBUG] 本地HTML文件未找到: {str(e)}")
+            logger.info(f"[DEBUG] 本地HTML文件未找到: {str(e)}")
             self._update_progress(f"本地HTML文件未找到: {str(e)}", 0)
             return False
         except UnicodeDecodeError as e:
-            print(f"[DEBUG] 本地HTML文件编码错误: {str(e)}")
+            logger.info(f"[DEBUG] 本地HTML文件编码错误: {str(e)}")
             self._update_progress(f"本地HTML文件编码错误: {str(e)}", 0)
             return False
         except requests.exceptions.RequestException as e:
-            print(f"[DEBUG] HTML下载请求异常: {str(e)}")
+            logger.info(f"[DEBUG] HTML下载请求异常: {str(e)}")
             import traceback
             traceback.print_exc()
             self._update_progress(f"网页下载失败: {str(e)}", 0)
             return False
         except Exception as e:
-            print(f"[DEBUG] 获取HTML内容失败: {str(e)}")
+            logger.info(f"[DEBUG] 获取HTML内容失败: {str(e)}")
             import traceback
             traceback.print_exc()
             self._update_progress(f"获取HTML内容失败: {str(e)}", 0)
@@ -297,19 +299,19 @@ class WebToDocxConverter:
     def _parse_html(self):
         """解析HTML内容，特别优化微信公众号文章处理"""
         try:
-            print(f"[DEBUG] 开始解析HTML")
+            logger.info(f"[DEBUG] 开始解析HTML")
             self._update_progress("正在解析网页内容...", 30)
             
             # 检查HTML内容是否存在
             if not self.html_content:
-                print(f"[DEBUG] HTML内容为空")
+                logger.info(f"[DEBUG] HTML内容为空")
                 return False
             
             self.soup = BeautifulSoup(self.html_content, "html.parser")
-            print(f"[DEBUG] BeautifulSoup初始化完成")
+            logger.info(f"[DEBUG] BeautifulSoup初始化完成")
             
             # 预处理：在HTML阶段就移除所有列表编号，从源头解决问题
-            print(f"[DEBUG] 开始预处理HTML，移除所有列表编号")
+            logger.info(f"[DEBUG] 开始预处理HTML，移除所有列表编号")
             
             # 1. 处理所有列表项
             all_li = self.soup.find_all("li")
@@ -326,11 +328,11 @@ class WebToDocxConverter:
                         if cleaned_text != text:
                             child.replace_with(cleaned_text)
             
-            print(f"[DEBUG] HTML预处理完成，移除了所有列表编号")
+            logger.info(f"[DEBUG] HTML预处理完成，移除了所有列表编号")
 
             # 获取标题 - 特别优化微信公众号文章
             self.title = "网页内容"
-            print(f"[DEBUG] 默认标题: {self.title}")
+            logger.info(f"[DEBUG] 默认标题: {self.title}")
             
             # 尝试从微信公众号特定位置获取标题
             if self.soup:
@@ -351,7 +353,7 @@ class WebToDocxConverter:
                         "h3"   # 三级标题
                     ]
                     
-                    print(f"[DEBUG] 尝试获取标题")
+                    logger.info(f"[DEBUG] 尝试获取标题")
                     for selector in wechat_title_selectors:
                         title_element = self.soup.select_one(selector)
                         if title_element and title_element.get_text():
@@ -359,10 +361,10 @@ class WebToDocxConverter:
                             # 过滤掉过短的标题
                             if len(title_text) > 3:
                                 self.title = title_text
-                                print(f"[DEBUG] 从选择器 {selector} 获取到标题: {self.title}")
+                                logger.info(f"[DEBUG] 从选择器 {selector} 获取到标题: {self.title}")
                                 break
                 except Exception as e:
-                    print(f"[DEBUG] 获取标题失败: {str(e)}")
+                    logger.info(f"[DEBUG] 获取标题失败: {str(e)}")
             
             if not self.title or self.title == "网页内容" or len(self.title) <= 3:
                 # 尝试从meta标签获取标题
@@ -381,10 +383,10 @@ class WebToDocxConverter:
                             meta_content = meta_title.get("content").strip()
                             if meta_content and len(meta_content) > 3:
                                 self.title = meta_content
-                                print(f"[DEBUG] 从meta标签 {selector} 获取到标题: {self.title}")
+                                logger.info(f"[DEBUG] 从meta标签 {selector} 获取到标题: {self.title}")
                                 break
                 except Exception as e:
-                    print(f"[DEBUG] 从meta标签获取标题失败: {str(e)}")
+                    logger.info(f"[DEBUG] 从meta标签获取标题失败: {str(e)}")
             
             # 最终检查，如果标题仍不满意，尝试从body中提取第一个有意义的文本作为标题
             if not self.title or self.title == "网页内容" or len(self.title) <= 3:
@@ -397,10 +399,10 @@ class WebToDocxConverter:
                         for line in lines:
                             if line and len(line) > 3 and len(line) < 100:
                                 self.title = line.strip()
-                                print(f"[DEBUG] 从body文本中提取到标题: {self.title}")
+                                logger.info(f"[DEBUG] 从body文本中提取到标题: {self.title}")
                                 break
                 except Exception as e:
-                    print(f"[DEBUG] 从body提取标题失败: {str(e)}")
+                    logger.info(f"[DEBUG] 从body提取标题失败: {str(e)}")
             
             # 确保标题不是默认值
             if not self.title or self.title == "网页内容" or len(self.title) <= 3:
@@ -412,18 +414,18 @@ class WebToDocxConverter:
                     for part in reversed(path_parts):
                         if part and len(part) > 3:
                             self.title = part.replace("-", " ").replace("_", " ").capitalize()
-                            print(f"[DEBUG] 从URL中提取到标题: {self.title}")
+                            logger.info(f"[DEBUG] 从URL中提取到标题: {self.title}")
                             break
                 except Exception as e:
-                    print(f"[DEBUG] 从URL提取标题失败: {str(e)}")
+                    logger.info(f"[DEBUG] 从URL提取标题失败: {str(e)}")
 
             # 获取主要内容 - 特别优化微信公众号文章
             self.content = None
-            print(f"[DEBUG] 开始获取主要内容")
+            logger.info(f"[DEBUG] 开始获取主要内容")
             
             # 如果是本地文件，直接使用body作为内容，跳过复杂的提取逻辑
             if self.is_local_file and self.soup.body:
-                print(f"[DEBUG] 本地文件，直接使用body作为主要内容")
+                logger.info(f"[DEBUG] 本地文件，直接使用body作为主要内容")
                 self.content = self.soup.body
                 # 移除不需要的标签 (仅移除script和style，保留其他结构)
                 for tag in self.content.find_all(["script", "style", "meta", "link", "title"]):
@@ -437,12 +439,12 @@ class WebToDocxConverter:
                                     "header", "noscript", "meta", "link", "input", "textarea", 
                                     "button", "select", "option", "fieldset", "legend", "label"]
                     
-                    print(f"[DEBUG] 移除不需要的标签: {unwanted_tags}")
+                    logger.info(f"[DEBUG] 移除不需要的标签: {unwanted_tags}")
                     for tag in self.soup.find_all(unwanted_tags):
                         try:
                             tag.decompose()
                         except Exception as e:
-                            print(f"[DEBUG] 移除标签 {tag.name} 失败: {str(e)}")
+                            logger.info(f"[DEBUG] 移除标签 {tag.name} 失败: {str(e)}")
                             continue
                     
                     # 移除微信公众号特定的广告和无用元素
@@ -456,13 +458,13 @@ class WebToDocxConverter:
                         "div[class*='profile']", "div[class*='wechat-ad']"
                     ]
                     
-                    print(f"[DEBUG] 移除微信公众号广告元素")
+                    logger.info(f"[DEBUG] 移除微信公众号广告元素")
                     for selector in wechat_ad_selectors:
                         try:
                             for tag in self.soup.select(selector):
                                 tag.decompose()
                         except Exception as e:
-                            print(f"[DEBUG] 移除广告元素 {selector} 失败: {str(e)}")
+                            logger.info(f"[DEBUG] 移除广告元素 {selector} 失败: {str(e)}")
                             continue
                     
                     # 尝试获取微信公众号文章的主要内容容器
@@ -476,21 +478,21 @@ class WebToDocxConverter:
                         "div[class*='content']"
                     ]
                     
-                    print(f"[DEBUG] 尝试获取内容容器")
+                    logger.info(f"[DEBUG] 尝试获取内容容器")
                     for selector in wechat_content_selectors:
                         content_element = self.soup.select_one(selector)
                         if content_element:
                             # 检查内容是否为空
                             if content_element.get_text(strip=True):
                                 self.content = content_element
-                                print(f"[DEBUG] 使用选择器 {selector} 获取到内容")
+                                logger.info(f"[DEBUG] 使用选择器 {selector} 获取到内容")
                                 break
             
-            print(f"[DEBUG] 获取内容结果: {'成功' if self.content else '失败'}")
+            logger.info(f"[DEBUG] 获取内容结果: {'成功' if self.content else '失败'}")
             
             # 只有在非本地文件且确实获取失败时，才尝试文本提取兜底
             if not self.is_local_file and (not self.content or not self.content.get_text(strip=True)):
-                print(f"[DEBUG] 传统方式获取的内容为空，尝试直接提取纯文本")
+                logger.info(f"[DEBUG] 传统方式获取的内容为空，尝试直接提取纯文本")
                 # ... (保留原有的兜底逻辑)
                 try:
                     import re
@@ -505,24 +507,24 @@ class WebToDocxConverter:
             
             # 如果仍然没有获取到内容，尝试直接从soup.body获取
             if not self.content:
-                print(f"[DEBUG] 尝试从soup.body获取内容")
+                logger.info(f"[DEBUG] 尝试从soup.body获取内容")
                 if self.soup and hasattr(self.soup, 'body') and self.soup.body:
                     self.content = self.soup.body
-                    print(f"[DEBUG] 从soup.body获取到内容")
+                    logger.info(f"[DEBUG] 从soup.body获取到内容")
             
             # 最后的备用方案
             if not self.content or not self.content.get_text(strip=True):
-                print(f"[DEBUG] 所有方法都未获取到内容，使用默认内容")
+                logger.info(f"[DEBUG] 所有方法都未获取到内容，使用默认内容")
                 if not self.soup:
                     self.soup = BeautifulSoup()
                 self.content = self.soup.new_tag("div")
                 self.content.string = "无法获取网页内容"
 
-            print(f"[DEBUG] HTML解析完成，获取到标题: {self.title}，内容: {'成功' if self.content else '失败'}")
+            logger.info(f"[DEBUG] HTML解析完成，获取到标题: {self.title}，内容: {'成功' if self.content else '失败'}")
             self._update_progress("网页内容解析完成", 40)
             return True
         except Exception as e:
-            print(f"[DEBUG] HTML解析失败: {str(e)}")
+            logger.info(f"[DEBUG] HTML解析失败: {str(e)}")
             import traceback
             traceback.print_exc()
             self._update_progress(f"网页解析失败: {str(e)}", 0)
@@ -539,7 +541,7 @@ class WebToDocxConverter:
             img_url = img_url.strip()
             
             if not img_url or img_url == "#" or "javascript:" in img_url or "data:" in img_url:
-                print(f"[DEBUG] 跳过无效图片URL: {img_url}")
+                logger.info(f"[DEBUG] 跳过无效图片URL: {img_url}")
                 return None
             
             # 构建完整URL或路径
@@ -556,7 +558,7 @@ class WebToDocxConverter:
                     if os.path.exists(local_img_path):
                         final_img_url = local_img_path
                         is_local_image = True
-                        print(f"[DEBUG] 本地图片路径: {final_img_url}")
+                        logger.info(f"[DEBUG] 本地图片路径: {final_img_url}")
                     else:
                         # 尝试使用base_url构建完整URL
                         final_img_url = urljoin(self.base_url, img_url)
@@ -568,7 +570,7 @@ class WebToDocxConverter:
                     if os.name == 'nt':  # Windows系统
                         final_img_url = final_img_url.replace('/', '\\')
                     is_local_image = True
-                    print(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
+                    logger.info(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
             else:
                 # 网络文件处理
                 if not img_url.startswith(("http://", "https://")):
@@ -577,7 +579,7 @@ class WebToDocxConverter:
             # 检查图片URL是否已经被处理过
             for existing_img in self.downloaded_images:
                 if img_url == existing_img['url'] or final_img_url == existing_img['final_url']:
-                    print(f"[DEBUG] 图片已下载，跳过: {img_url}")
+                    logger.info(f"[DEBUG] 图片已下载，跳过: {img_url}")
                     return existing_img['path']
 
             # 提取文件名，保留原始文件扩展名
@@ -600,7 +602,7 @@ class WebToDocxConverter:
                 # 本地图片直接复制
                 import shutil
                 shutil.copy2(final_img_url, img_path)
-                print(f"[DEBUG] 本地图片复制成功: {final_img_url} -> {img_path}")
+                logger.info(f"[DEBUG] 本地图片复制成功: {final_img_url} -> {img_path}")
             else:
                 # 网络图片下载，增强重试机制和防盗链处理
                 import urllib3
@@ -639,13 +641,13 @@ class WebToDocxConverter:
                 
                 # 验证响应是否为图片
                 if 'image' not in response.headers.get('Content-Type', ''):
-                    print(f"[DEBUG] 响应不是图片，跳过: {final_img_url}")
+                    logger.info(f"[DEBUG] 响应不是图片，跳过: {final_img_url}")
                     return None
 
                 # 保存图片
                 with open(img_path, "wb") as f:
                     f.write(response.content)
-                print(f"[DEBUG] 网络图片下载成功: {final_img_url} -> {img_path}")
+                logger.info(f"[DEBUG] 网络图片下载成功: {final_img_url} -> {img_path}")
 
             # 记录下载的图片信息
             self.downloaded_images.append(
@@ -654,7 +656,7 @@ class WebToDocxConverter:
 
             return img_path
         except Exception as e:
-            print(f"图片下载/复制失败: {img_url}, 错误: {str(e)}")
+            logger.info(f"图片下载/复制失败: {img_url}, 错误: {str(e)}")
             import traceback
             traceback.print_exc()
             return None
@@ -724,7 +726,7 @@ class WebToDocxConverter:
                             self._download_image(final_img_url, i)
                 except Exception as e:
                     # 跳过无法处理的图片
-                    print(f"处理图片时出错: {str(e)}")
+                    logger.info(f"处理图片时出错: {str(e)}")
                     continue
 
                 # 更新进度
@@ -737,7 +739,7 @@ class WebToDocxConverter:
             return True
         except Exception as e:
             self._update_progress(f"图片下载失败: {str(e)}", 0)
-            print(f"图片下载详细错误: {str(e)}")
+            logger.info(f"图片下载详细错误: {str(e)}")
             return False
 
     def _create_word_document(self):
@@ -790,43 +792,43 @@ class WebToDocxConverter:
             return
             
         try:
-            print(f"\n=== 开始处理内容 ===")
-            print(f"内容元素: {self.content.name if hasattr(self.content, 'name') else '未知'}")
+            logger.info(f"\n=== 开始处理内容 ===")
+            logger.info(f"内容元素: {self.content.name if hasattr(self.content, 'name') else '未知'}")
             
             # 首先尝试处理HTML结构，保留格式和图片
-            print("处理HTML结构，保留排版和图片")
+            logger.info("处理HTML结构，保留排版和图片")
             self._process_block_element(self.content)
             
             # 关键改进：如果_process_block_element没有添加任何内容，确保添加文本
             # 检查文档段落数量（至少应该有标题、信息行）
             if len(self.doc.paragraphs) <= 2:
-                print("处理HTML结构后没有添加足够内容，尝试提取纯文本")
+                logger.info("处理HTML结构后没有添加足够内容，尝试提取纯文本")
                 # 直接从内容中提取所有文本
                 full_text = self.content.get_text(separator="\n", strip=True)
-                print(f"提取的文本长度: {len(full_text)} 字符")
+                logger.info(f"提取的文本长度: {len(full_text)} 字符")
                 
                 # 清理文本
                 full_text = self._clean_text(full_text)
                 
                 if full_text:
-                    print("添加提取的纯文本到文档")
+                    logger.info("添加提取的纯文本到文档")
                     self.doc.add_paragraph(full_text)
                 else:
-                    print("提取的文本为空，尝试其他方式获取内容")
+                    logger.info("提取的文本为空，尝试其他方式获取内容")
                     # 尝试从整个soup中提取文本
                     if hasattr(self, 'soup') and self.soup:
                         soup_text = self.soup.get_text(separator="\n", strip=True)
-                        print(f"从整个soup提取的文本长度: {len(soup_text)} 字符")
+                        logger.info(f"从整个soup提取的文本长度: {len(soup_text)} 字符")
                         # 使用通用清理函数清理文本
                         soup_text = self._clean_text(soup_text)
                         if soup_text:
                             self.doc.add_paragraph(soup_text)
                         else:
-                            print("无法获取任何文本内容")
+                            logger.info("无法获取任何文本内容")
                             self.doc.add_paragraph("无法获取网页内容")
             
         except Exception as e:
-            print(f"处理内容时发生异常: {str(e)}")
+            logger.info(f"处理内容时发生异常: {str(e)}")
             # 最后的备用方案
             try:
                 # 尝试提取纯文本作为备用
@@ -1109,7 +1111,7 @@ class WebToDocxConverter:
                 
                 return optimized_path
         except Exception as e:
-            print(f"图片优化失败: {e}")
+            logger.info(f"图片优化失败: {e}")
             # 优化失败，返回原图片
             return img_path
     
@@ -1155,7 +1157,7 @@ class WebToDocxConverter:
                 if optimized_img_path != img_path and os.path.exists(optimized_img_path):
                     os.remove(optimized_img_path)
         except Exception as e:
-            print(f"行内图片处理失败: {e}")
+            logger.info(f"行内图片处理失败: {e}")
             import traceback
             traceback.print_exc()
 
@@ -1191,7 +1193,7 @@ class WebToDocxConverter:
                         
             self.doc.add_paragraph() # 表格后空一行
         except Exception as e:
-            print(f"表格处理失败: {e}")
+            logger.info(f"表格处理失败: {e}")
 
     def _process_block_element(self, element):
         """处理块级元素，递归提取内容"""
@@ -1206,7 +1208,7 @@ class WebToDocxConverter:
             else:
                 return
             
-            print(f"[DEBUG] 处理元素 {element.name}, 子节点数: {len(children)}")
+            logger.info(f"[DEBUG] 处理元素 {element.name}, 子节点数: {len(children)}")
                 
             for i, child in enumerate(children):
                 try:
@@ -1220,7 +1222,7 @@ class WebToDocxConverter:
                         if text:
                             # 只有当文本不仅仅是标点符号或非常短时才打印日志，避免日志过多
                             if len(text) > 1:
-                                print(f"[DEBUG] 处理文本节点: {text[:20]}...")
+                                logger.info(f"[DEBUG] 处理文本节点: {text[:20]}...")
                             self.doc.add_paragraph(text)
                         continue
 
@@ -1228,7 +1230,7 @@ class WebToDocxConverter:
                     if child.name is None:
                         continue
                         
-                    print(f"[DEBUG] 处理子元素 {i}: {child.name}")
+                    logger.info(f"[DEBUG] 处理子元素 {i}: {child.name}")
 
                     # 专门处理图片元素，确保块级图片也能得到优化处理
                     if child.name == "img":
@@ -1261,7 +1263,7 @@ class WebToDocxConverter:
                                 # 如果需要，可以清空p然后重新添加
                                 pass
                         except Exception as h_e:
-                            print(f"[DEBUG] 标题处理失败: {h_e}")
+                            logger.info(f"[DEBUG] 标题处理失败: {h_e}")
                             pass
                             
                     elif child.name == "p":
@@ -1377,13 +1379,13 @@ class WebToDocxConverter:
                             self._process_inline_content(child, p)
                             
                 except Exception as inner_e:
-                    print(f"[DEBUG] 处理子元素 {child.name if hasattr(child, 'name') else 'text'} 失败: {inner_e}")
+                    logger.info(f"[DEBUG] 处理子元素 {child.name if hasattr(child, 'name') else 'text'} 失败: {inner_e}")
                     import traceback
                     traceback.print_exc()
                     continue
                     
         except Exception as e:
-            print(f"[DEBUG] 处理块级元素失败: {e}")
+            logger.info(f"[DEBUG] 处理块级元素失败: {e}")
             import traceback
             traceback.print_exc()
             pass
@@ -1537,7 +1539,7 @@ class WebToDocxConverter:
                         # 递归处理嵌套列表，嵌套级别+1
                         self._add_list_to_document(nested_list, level+1)
         except Exception as e:
-            print(f"处理列表时出错: {str(e)}")
+            logger.info(f"处理列表时出错: {str(e)}")
             import traceback
             traceback.print_exc()
 
@@ -1551,15 +1553,15 @@ class WebToDocxConverter:
             import requests
             import re
             
-            print(f"[DEBUG] _add_image_to_document 调用，传入URL: {img_url}")
-            print(f"[DEBUG] 当前已下载图片数量: {len(self.downloaded_images)}")
+            logger.info(f"[DEBUG] _add_image_to_document 调用，传入URL: {img_url}")
+            logger.info(f"[DEBUG] 当前已下载图片数量: {len(self.downloaded_images)}")
             
             # 简化图片插入逻辑
             # 遍历已下载的图片，查找匹配项
             img_path = None
             
             for i, img_info in enumerate(self.downloaded_images):
-                print(f"[DEBUG] 检查已下载图片 {i+1}/{len(self.downloaded_images)}: {img_info['url']}")
+                logger.info(f"[DEBUG] 检查已下载图片 {i+1}/{len(self.downloaded_images)}: {img_info['url']}")
                 
                 # 检查多种匹配方式
                 if (img_url == img_info['url'] or 
@@ -1569,12 +1571,12 @@ class WebToDocxConverter:
                     # 忽略查询参数的匹配
                     re.sub(r'\?.+$', '', img_url) == re.sub(r'\?.+$', '', img_info['url'])):
                     img_path = img_info['path']
-                    print(f"[DEBUG] 找到匹配的已下载图片: {img_url} -> {img_path}")
+                    logger.info(f"[DEBUG] 找到匹配的已下载图片: {img_url} -> {img_path}")
                     break
             
             # 如果没有找到匹配的图片，尝试直接处理
             if not img_path or not os.path.exists(img_path):
-                print(f"[DEBUG] 未找到匹配的已下载图片，尝试直接下载")
+                logger.info(f"[DEBUG] 未找到匹配的已下载图片，尝试直接下载")
                 
                 # 处理URL中的特殊字符
                 processed_img_url = re.sub(r'&amp;', '&', img_url)
@@ -1589,11 +1591,11 @@ class WebToDocxConverter:
                 # 直接下载并插入图片
                 img_index = len(self.downloaded_images) + 1
                 img_path = self._download_image(final_img_url, img_index)
-                print(f"[DEBUG] 直接下载图片结果: {img_path}")
+                logger.info(f"[DEBUG] 直接下载图片结果: {img_path}")
                 
                 # 如果下载成功，更新img_info
                 if img_path and os.path.exists(img_path):
-                    print(f"[DEBUG] 直接下载图片成功，路径: {img_path}")
+                    logger.info(f"[DEBUG] 直接下载图片成功，路径: {img_path}")
             
             # 初始化变量，避免NameError
             is_local_image = False
@@ -1607,34 +1609,34 @@ class WebToDocxConverter:
                     # file://协议转换为本地路径
                     final_img_url = img_url.replace("file:///", "").replace("file://", "")
                     is_local_image = True
-                    print(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
+                    logger.info(f"[DEBUG] file://协议图片转换为本地路径: {final_img_url}")
                 elif not img_url.startswith(("http://", "https://")):
                     # 检查是否为本地文件路径
                     local_img_path = os.path.join(os.path.dirname(self.local_file_path), img_url)
                     if os.path.exists(local_img_path):
                         final_img_url = local_img_path
                         is_local_image = True
-                        print(f"[DEBUG] 本地相对路径图片: {final_img_url}")
+                        logger.info(f"[DEBUG] 本地相对路径图片: {final_img_url}")
             
             # 尝试将图片添加到文档
             if img_path and os.path.exists(img_path):
                 try:
                     # 添加图片到文档，保持原始尺寸比例
                     self.doc.add_picture(img_path, width=Inches(5.0))
-                    print(f"[DEBUG] 成功在原位置添加图片: {processed_img_url}")
+                    logger.info(f"[DEBUG] 成功在原位置添加图片: {processed_img_url}")
                     return
                 except Exception as e:
-                    print(f"[DEBUG] 使用本地图片插入失败: {str(e)}")
+                    logger.info(f"[DEBUG] 使用本地图片插入失败: {str(e)}")
             
             # 如果未找到图片或插入失败，处理本地文件情况
             if is_local_image and os.path.exists(final_img_url):
                 try:
                     # 直接使用本地图片路径
                     self.doc.add_picture(final_img_url, width=Inches(5.0))
-                    print(f"[DEBUG] 直接使用本地图片: {final_img_url}")
+                    logger.info(f"[DEBUG] 直接使用本地图片: {final_img_url}")
                     return
                 except Exception as e:
-                    print(f"[DEBUG] 直接使用本地图片失败: {str(e)}")
+                    logger.info(f"[DEBUG] 直接使用本地图片失败: {str(e)}")
             
             # 对于网络图片，如果未下载或插入失败，尝试直接下载并插入
             else:
@@ -1643,7 +1645,7 @@ class WebToDocxConverter:
                     img_headers = self.headers.copy()
                     img_headers['Referer'] = self.url
                     
-                    print(f"[DEBUG] 直接下载图片: {final_img_url}")
+                    logger.info(f"[DEBUG] 直接下载图片: {final_img_url}")
                     # 使用带重试机制的会话
                     import urllib3
                     from requests.adapters import HTTPAdapter
@@ -1665,7 +1667,7 @@ class WebToDocxConverter:
                     
                     # 检查是否为图片文件
                     if not response.headers.get('Content-Type', '').startswith('image/'):
-                        print(f"[DEBUG] 不是图片文件: {final_img_url}, Content-Type: {response.headers.get('Content-Type')}")
+                        logger.info(f"[DEBUG] 不是图片文件: {final_img_url}, Content-Type: {response.headers.get('Content-Type')}")
                         # 预留图片空间
                         placeholder_para = self.doc.add_paragraph("[图片占位符]")
                         placeholder_para.space_before = Pt(12)
@@ -1692,9 +1694,9 @@ class WebToDocxConverter:
                     try:
                         # 添加图片到文档，保持原始尺寸比例
                         self.doc.add_picture(temp_file_path, width=Inches(5.0))
-                        print(f"[DEBUG] 成功直接添加图片到文档: {final_img_url}")
+                        logger.info(f"[DEBUG] 成功直接添加图片到文档: {final_img_url}")
                     except Exception as e:
-                        print(f"[DEBUG] 直接添加图片到文档失败: {str(e)}")
+                        logger.info(f"[DEBUG] 直接添加图片到文档失败: {str(e)}")
                         # 预留图片空间
                         placeholder_para = self.doc.add_paragraph("[图片占位符]")
                         placeholder_para.space_before = Pt(12)
@@ -1709,21 +1711,21 @@ class WebToDocxConverter:
                         self.downloaded_images.append(
                             {"url": processed_img_url, "path": local_img_path, "name": img_name, "final_url": final_img_url}
                         )
-                        print(f"[DEBUG] 图片已保存到本地: {local_img_path}")
+                        logger.info(f"[DEBUG] 图片已保存到本地: {local_img_path}")
                     finally:
                         # 删除临时文件
                         os.unlink(temp_file_path)
                 except Exception as direct_e:
-                    print(f"[DEBUG] 直接下载图片失败: {str(direct_e)}")
+                    logger.info(f"[DEBUG] 直接下载图片失败: {str(direct_e)}")
             
             # 所有方法都失败，添加占位符
             placeholder_para = self.doc.add_paragraph("[图片占位符]")
             placeholder_para.space_before = Pt(12)
             placeholder_para.space_after = Pt(12)
             placeholder_para.add_run(f" (无法处理: {processed_img_url})")
-            print(f"[DEBUG] 无法处理图片，添加占位符: {processed_img_url}")
+            logger.info(f"[DEBUG] 无法处理图片，添加占位符: {processed_img_url}")
         except Exception as e:
-            print(f"[DEBUG] 处理图片时发生异常: {str(e)}")
+            logger.info(f"[DEBUG] 处理图片时发生异常: {str(e)}")
             # 预留图片空间
             placeholder_para = self.doc.add_paragraph("[图片占位符]")
             placeholder_para.space_before = Pt(12)
@@ -1777,8 +1779,8 @@ class WebToDocxConverter:
         start_time = time.time()
         max_execution_time = 120  # 最大执行时间限制为120秒
         
-        print("[DEBUG] 开始执行转换过程")
-        print(f"[DEBUG] 最大执行时间: {max_execution_time} 秒")
+        logger.info("[DEBUG] 开始执行转换过程")
+        logger.info(f"[DEBUG] 最大执行时间: {max_execution_time} 秒")
         
         try:
             # 执行转换步骤，每个步骤都检查执行时间
@@ -1787,7 +1789,7 @@ class WebToDocxConverter:
             
             success = self._download_html()
             if not success:
-                print("[DEBUG] HTML下载失败，使用后备转换逻辑")
+                logger.info("[DEBUG] HTML下载失败，使用后备转换逻辑")
                 # 从URL中提取有意义的部分作为标题
                 try:
                     from urllib.parse import urlparse
@@ -1801,7 +1803,7 @@ class WebToDocxConverter:
                             fallback_title = part.replace("-", " ").replace("_", " ").capitalize()
                             break
                 except Exception as e:
-                    print(f"[DEBUG] 从URL提取标题失败: {str(e)}")
+                    logger.info(f"[DEBUG] 从URL提取标题失败: {str(e)}")
                     fallback_title = "网页转换结果"
                     
                 # HTML下载失败，使用简单的后备转换逻辑，使用从URL提取的标题
@@ -1815,7 +1817,7 @@ class WebToDocxConverter:
             
             success = self._parse_html()
             if not success:
-                print("[DEBUG] HTML解析失败，使用后备解析逻辑")
+                logger.info("[DEBUG] HTML解析失败，使用后备解析逻辑")
                 # HTML解析失败，使用简单的后备解析逻辑
                 # 保持之前的标题，不要重置为默认值
                 # self.title = "简单转换结果"
@@ -1824,17 +1826,17 @@ class WebToDocxConverter:
             if time.time() - start_time > max_execution_time:
                 return {"success": False, "message": "转换超时"}
             
-            print("[DEBUG] 开始下载图片")
+            logger.info("[DEBUG] 开始下载图片")
             if not self._download_all_images():
                 # 图片下载失败不影响整体转换
-                print("[DEBUG] 图片下载失败，但继续执行")
+                logger.info("[DEBUG] 图片下载失败，但继续执行")
             
             if time.time() - start_time > max_execution_time:
                 return {"success": False, "message": "转换超时"}
             
             success = self._create_word_document()
             if not success:
-                print("[DEBUG] Word文档创建失败，使用极简后备逻辑")
+                logger.info("[DEBUG] Word文档创建失败，使用极简后备逻辑")
                 # Word文档创建失败，使用极简后备逻辑
                 self.doc = Document()
                 self.doc.add_heading("极简转换结果", level=1)
@@ -1852,7 +1854,7 @@ class WebToDocxConverter:
                 return {"success": False, "message": "Word文档保存失败"}
 
             end_time = time.time()
-            print(f"[DEBUG] 转换完成，总耗时: {end_time - start_time:.2f} 秒")
+            logger.info(f"[DEBUG] 转换完成，总耗时: {end_time - start_time:.2f} 秒")
 
             return {
                 "success": True,
@@ -1864,13 +1866,13 @@ class WebToDocxConverter:
                 "execution_time": end_time - start_time
             }
         except Exception as e:
-            print(f"[DEBUG] 转换过程中发生异常: {str(e)}")
+            logger.info(f"[DEBUG] 转换过程中发生异常: {str(e)}")
             import traceback
             traceback.print_exc()
             
             # 最终后备逻辑，确保返回一个有效的Word文档
             try:
-                print("[DEBUG] 使用最终后备逻辑")
+                logger.info("[DEBUG] 使用最终后备逻辑")
                 self.doc = Document()
                 self.doc.add_heading("应急转换结果", level=1)
                 self.doc.add_paragraph(f"URL: {self.url}")
@@ -1895,7 +1897,7 @@ class WebToDocxConverter:
                     "execution_time": time.time() - start_time
                 }
             except Exception as backup_e:
-                print(f"[DEBUG] 最终后备逻辑也失败了: {str(backup_e)}")
+                logger.info(f"[DEBUG] 最终后备逻辑也失败了: {str(backup_e)}")
                 traceback.print_exc()
                 return {
                     "success": False,
@@ -1955,19 +1957,19 @@ def main():
     """
     import sys
     if len(sys.argv) < 2:
-        print("使用方法: python web_to_docx.py <网页URL> [输出文件路径]")
+        logger.info("使用方法: python web_to_docx.py <网页URL> [输出文件路径]")
         return
     
     url = sys.argv[1]
     output_file = sys.argv[2] if len(sys.argv) > 2 else None
     
-    print(f"正在转换网页: {url}")
+    logger.info(f"正在转换网页: {url}")
     result = convert_web_to_docx(url, output_file)
     
     if result["success"]:
-        print(f"转换成功！输出文件: {result['output_file']}")
+        logger.info(f"转换成功！输出文件: {result['output_file']}")
     else:
-        print(f"转换失败: {result['message']}")
+        logger.info(f"转换失败: {result['message']}")
 
 
 if __name__ == "__main__":

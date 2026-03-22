@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -1238,7 +1240,7 @@ def generate_html_file(html_content, title="Markdown to HTML", style="default", 
                 
             html_content = str(soup)
         except Exception as e:
-            print(f"内联样式处理失败: {e}")
+            logger.info(f"内联样式处理失败: {e}")
             # 失败则保持原样
 
     return f"""<!DOCTYPE html>
@@ -1326,7 +1328,7 @@ def markdown_content_to_html(markdown_content):
         return markdown.markdown(markdown_content, extensions=extensions, extension_configs=extension_configs)
     except Exception as e:
         # 如果扩展加载失败，回退到基础模式
-        print(f"高级Markdown扩展加载失败，回退到基础模式: {e}")
+        logger.info(f"高级Markdown扩展加载失败，回退到基础模式: {e}")
         try:
             import markdown
             return markdown.markdown(markdown_content, extensions=["fenced_code", "tables"])
@@ -1344,7 +1346,7 @@ def write_html_file(html_content, output_file_path):
         
         with open(output_file_path, "w", encoding="utf-8") as f:
             f.write(html_content)
-        print(f"HTML文件已成功生成: {output_file_path}")
+        logger.info(f"HTML文件已成功生成: {output_file_path}")
     except Exception as e:
         raise Exception(f"写入HTML文件错误: {e}")
 
@@ -1431,9 +1433,9 @@ def main():
     result = convert_markdown_to_html(args.input_file, args.output_file)
 
     if result["success"]:
-        print(f"转换完成! 输出文件: {result['output_file']}")
+        logger.info(f"转换完成! 输出文件: {result['output_file']}")
     else:
-        print("转换失败!")
+        logger.info("转换失败!")
 
 
 if __name__ == "__main__":

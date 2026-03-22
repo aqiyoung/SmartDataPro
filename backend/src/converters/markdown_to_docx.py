@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 
 import os
 import tempfile

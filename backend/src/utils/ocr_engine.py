@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 # -*- coding: utf-8 -*-
 """
 OCR 引擎封装 - 支持图片增强、表格优化
@@ -62,7 +64,7 @@ def preprocess_image(image):
         return image
             
     except Exception as e:
-        print(f"图像预处理失败: {str(e)}")
+        logger.info(f"图像预处理失败: {str(e)}")
         return image
 
 def perform_ocr(image, lang='chi_sim+eng', mode='auto'):
@@ -89,7 +91,7 @@ def perform_ocr(image, lang='chi_sim+eng', mode='auto'):
         text = pytesseract.image_to_string(processed_image, lang=lang, config=config)
         return text
     except Exception as e:
-        print(f"OCR 识别出错: {e}")
+        logger.info(f"OCR 识别出错: {e}")
         return ""
 
 def check_environment():

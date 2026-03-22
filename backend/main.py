@@ -1,21 +1,31 @@
-import uvicorn
+import os
 import logging
+import uvicorn
 
-# 设置日志级别，生产环境使用INFO级别以提高性能
-logging.basicConfig(level=logging.INFO)
+# 从环境变量读取配置
+host = os.getenv("HOST", "0.0.0.0")
+port = int(os.getenv("PORT", "8016"))
+log_level = os.getenv("LOG_LEVEL", "info").lower()
+workers = int(os.getenv("WORKERS", "1"))
+
+logging.basicConfig(
+    level=getattr(logging, log_level.upper(), logging.INFO),
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("smartdatapro")
 
 if __name__ == "__main__":
+    logger.info(f"Starting SmartDataPro on {host}:{port}")
     uvicorn.run(
         "app:app",
-        host="0.0.0.0",
-        port=8016,
+        host=host,
+        port=port,
         reload=False,
-        log_level="info",
-        # 优化Uvicorn服务器配置
-        workers=1,  # Docker容器中使用1个工作进程，避免资源竞争
-        backlog=1024,  # 连接队列大小
-        timeout_keep_alive=65,  # 保持连接的超时时间
-        limit_concurrency=500,  # 限制并发连接数
-        limit_max_requests=100000,  # 每个工作进程处理的最大请求数
-        forwarded_allow_ips="*"  # 允许所有IP的转发请求
+        log_level=log_level,
+        workers=workers,
+        backlog=1024,
+        timeout_keep_alive=65,
+        limit_concurrency=500,
+        limit_max_requests=100000,
     )

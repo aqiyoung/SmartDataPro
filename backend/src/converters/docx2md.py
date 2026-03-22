@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -107,7 +109,7 @@ class Docx2MdConverter:
                         "size": len(image_data),
                     }
                 except Exception as e:
-                    print(f"图片提取错误: {e}")
+                    logger.info(f"图片提取错误: {e}")
 
     def _collect_image_paragraphs(self):
         """收集包含图片的段落"""
@@ -318,18 +320,18 @@ def convert_docx_to_md(input_file, output_file=None, options=None):
     if file_extension == '.doc':
         # 使用mammoth库处理.doc格式文件
         try:
-            print(f"开始转换.doc文件: {input_file}")
+            logger.info(f"开始转换.doc文件: {input_file}")
             with open(input_file, "rb") as doc_file:
-                print(f"正在读取.doc文件: {input_file}")
+                logger.info(f"正在读取.doc文件: {input_file}")
                 result = mammoth.convert_to_markdown(doc_file)
                 markdown_content = result.value
-                print(f".doc文件转换成功，内容长度: {len(markdown_content)}字符")
+                logger.info(f".doc文件转换成功，内容长度: {len(markdown_content)}字符")
                 
             # 保存Markdown内容
-            print(f"正在保存转换结果到: {output_file}")
+            logger.info(f"正在保存转换结果到: {output_file}")
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(markdown_content)
-            print(f"转换结果保存成功: {output_file}")
+            logger.info(f"转换结果保存成功: {output_file}")
             
             return {
                 "output_file": output_file,
@@ -338,14 +340,14 @@ def convert_docx_to_md(input_file, output_file=None, options=None):
                 "success": True
             }
         except Exception as e:
-            print(f".doc文件转换失败: {str(e)}")
+            logger.info(f".doc文件转换失败: {str(e)}")
             import traceback
             traceback.print_exc()
             raise Exception(f"转换.doc文件失败: {str(e)}")
     elif file_extension == '.docx':
         # 使用Docx2MdConverter处理.docx格式文件
         try:
-            print(f"开始转换.docx文件: {input_file}")
+            logger.info(f"开始转换.docx文件: {input_file}")
             # 创建转换器实例
             converter = Docx2MdConverter(
                 docx_file=input_file,
@@ -361,10 +363,10 @@ def convert_docx_to_md(input_file, output_file=None, options=None):
             result = converter.convert()
             result["output_file"] = output_file  # 确保返回指定的输出文件路径
             result["success"] = True
-            print(f".docx文件转换成功: {output_file}")
+            logger.info(f".docx文件转换成功: {output_file}")
             return result
         except Exception as e:
-            print(f".docx文件转换失败: {str(e)}")
+            logger.info(f".docx文件转换失败: {str(e)}")
             import traceback
             traceback.print_exc()
             # 转换失败，直接抛出异常

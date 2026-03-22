@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("smartdatapro.converters")
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -56,9 +58,9 @@ def register_chinese_fonts():
                 pdfmetrics.registerFont(TTFont('Chinese', font_path))
                 return True
             except Exception as e:
-                print(f"注册字体失败: {font_path}, 错误: {e}")
+                logger.info(f"注册字体失败: {font_path}, 错误: {e}")
     
-    print("未找到可用的中文字体，中文显示可能会有问题")
+    logger.info("未找到可用的中文字体，中文显示可能会有问题")
     return False
 
 # 注册中文字体
@@ -107,7 +109,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
         raise Exception(f"不支持的文件格式: {file_extension}，仅支持DOC和DOCX格式")
 
     try:
-        print(f"开始转换Word文件: {input_file}")
+        logger.info(f"开始转换Word文件: {input_file}")
         
         # 创建PDF文档
         doc = SimpleDocTemplate(
@@ -179,7 +181,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                         if text:
                             # 跳过匹配"第X页"格式的段落
                             if re.match(r'^第\d+页$', text):
-                                print(f"跳过页码段落: {text}")
+                                logger.info(f"跳过页码段落: {text}")
                                 continue
                             
                             # 检查是否是标题
@@ -242,7 +244,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                                                     # 重置流位置
                                                     img_stream.seek(0)
                                             except Exception as pil_e:
-                                                print(f"PIL处理图片失败 (ID: {img_id}): {pil_e}")
+                                                logger.info(f"PIL处理图片失败 (ID: {img_id}): {pil_e}")
                                                 # 如果PIL都打不开，那reportlab肯定也挂，跳过
                                                 continue
                                                 
@@ -271,7 +273,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                                             
                                             # 如果启用了OCR，对图片执行OCR
                                             if use_ocr:
-                                                print(f"对图片执行OCR (ID: {img_id})")
+                                                logger.info(f"对图片执行OCR (ID: {img_id})")
                                                 ocr_text = perform_ocr(image_data, lang=ocr_lang)
                                                 if ocr_text.strip():
                                                     story.append(Paragraph("[图像OCR结果]:", normal_style))
@@ -279,7 +281,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                                             
                                             story.append(Spacer(1, 0.1 * inch))
                                     except Exception as e:
-                                        print(f"处理图片失败 (ID: {img_id}): {str(e)}")
+                                        logger.info(f"处理图片失败 (ID: {img_id}): {str(e)}")
                                         
                 elif element.tag.endswith('tbl'):  # 表格
                     # 查找对应的表格对象
@@ -341,12 +343,12 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
                             story.append(p)
                             story.append(Spacer(1, 0.1 * inch))
             except Exception as e:
-                print(f"处理.doc文件时出错: {str(e)}")
+                logger.info(f"处理.doc文件时出错: {str(e)}")
                 raise Exception(f"转换.doc文件失败: {str(e)}")
         
         # 构建PDF文档
         doc.build(story)
-        print(f"Word文件转换成功: {output_file}")
+        logger.info(f"Word文件转换成功: {output_file}")
         
         return {
             "output_file": output_file,
@@ -354,7 +356,7 @@ def convert_word_to_pdf(input_file, output_file=None, options=None):
             "ocr_used": use_ocr
         }
     except Exception as e:
-        print(f"Word文件转换失败: {str(e)}")
+        logger.info(f"Word文件转换失败: {str(e)}")
         import traceback
         traceback.print_exc()
         raise Exception(f"转换Word文件失败: {str(e)}")
