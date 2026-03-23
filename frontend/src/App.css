@@ -1953,3 +1953,249 @@ textarea:disabled {
 .view-bookmarks-btn:hover {
   background: #218838;
 }
+
+/* ===== Landing Page ===== */
+.landing-page {
+  min-height: 100vh;
+  background: #1a2530;
+  color: #e0e6ed;
+}
+
+/* 顶部导航 */
+.landing-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(26, 37, 48, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.landing-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.8rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.landing-logo-img {
+  height: 32px;
+}
+.landing-logo-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.landing-nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+.landing-nav-links a {
+  color: #8899aa;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+.landing-nav-links a:hover {
+  color: #4fc3f7;
+}
+
+/* Hero 区域 */
+.landing-hero {
+  padding: 8rem 2rem 4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.landing-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(79,195,247,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.landing-hero-content {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.landing-hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 1.2rem;
+}
+.landing-hero-title .highlight {
+  background: linear-gradient(135deg, #4fc3f7, #81d4fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.landing-hero-subtitle {
+  font-size: 1.15rem;
+  color: #8899aa;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+.landing-hero-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+}
+.badge {
+  background: rgba(79,195,247,0.1);
+  border: 1px solid rgba(79,195,247,0.25);
+  color: #81d4fa;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+.landing-cta-btn {
+  background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+  color: #fff;
+  border: none;
+  padding: 0.9rem 2.5rem;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(79,195,247,0.3);
+}
+.landing-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(79,195,247,0.4);
+}
+
+/* 功能区域 */
+.landing-features {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+.landing-category {
+  margin-bottom: 3rem;
+}
+.landing-category-header {
+  margin-bottom: 1.5rem;
+}
+.landing-category-header h2 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+.landing-category-header p {
+  color: #6b7c8d;
+  font-size: 0.95rem;
+}
+.landing-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+.landing-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 1.8rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.landing-card:hover {
+  background: rgba(79,195,247,0.06);
+  border-color: rgba(79,195,247,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+.landing-card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+.landing-card-title {
+  font-size: 1.15rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.landing-card-desc {
+  color: #7a8b9c;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.landing-card-arrow {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: rgba(79,195,247,0.4);
+  font-size: 1.2rem;
+  transition: all 0.25s;
+}
+.landing-card:hover .landing-card-arrow {
+  color: #4fc3f7;
+  transform: translateX(4px);
+}
+
+/* 关于区域 */
+.landing-about {
+  padding: 4rem 2rem;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.landing-about-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+.landing-about-inner h2 {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 2.5rem;
+}
+.landing-about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+.landing-about-item {
+  padding: 1.5rem;
+}
+.landing-about-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+.landing-about-item h3 {
+  color: #fff;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.landing-about-item p {
+  color: #7a8b9c;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* 底部 */
+.landing-footer {
+  text-align: center;
+  padding: 2rem;
+  color: #4a5568;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}

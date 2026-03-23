@@ -1,194 +1,137 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 const HomePage = () => {
-  // 转换类型选项，与原App.jsx中的conversionOptions保持一致
-  const conversionOptions = [
-    { value: 'word-to-md', label: 'Word 转 Markdown', icon: '📄', description: '将Word文档转换为简洁的Markdown格式，保留原始排版结构' },
-    { value: 'md-to-html', label: 'Markdown 编辑器', icon: '✏️', description: '功能强大的Markdown编辑器，支持实时预览、样式定制和多格式导出' },
-    { value: 'web-to-docx', label: '网页转 Word', icon: '🌐', description: '将网页内容转换为Word文档，支持普通网页和微信公众号文章' },
-    { value: 'pdf-to-word', label: 'PDF 转 Word', icon: '📄', description: '将PDF文档转换为Word文档，保留原始排版结构' },
-    { value: 'word-to-pdf', label: 'Word 转 PDF', icon: '📄', description: '将Word文档转换为PDF文档，保留原始排版结构' },
-    { value: 'media-crawler', label: '媒体内容采集', icon: '🐛', description: '支持小红书、抖音、快手等多平台内容抓取，可直接转换为Markdown或Word' },
-    { value: 'external-md', label: '微信公众号专用', icon: '🌟', description: '专为微信公众号文章排版设计的 Markdown 编辑器，支持实时预览、公众号样式、GitHub 图床和多格式导出' },
-    { value: 'bookmarks', label: '网址收藏管理', icon: '🔖', description: '管理和收藏常用网址，支持添加、编辑、删除和分类管理' }
-  ];
+  const navigate = useNavigate();
 
-  // 平台核心功能特性数据
-  const platformFeatures = [
-    { 
-      icon: '⚡', 
-      title: '高效数据处理', 
-      description: '采用先进的转换算法，快速完成各种文档格式转换，处理速度提升300%', 
-      color: '#4CAF50' 
+  // 功能分类
+  const categories = [
+    {
+      title: '📄 文档转换',
+      description: '多种格式之间自由转换',
+      items: [
+        { path: '/word-to-md', icon: '📄', label: 'Word → Markdown', desc: '保留排版结构的格式转换' },
+        { path: '/web-to-docx', icon: '🌐', label: '网页 → Word', desc: '网页和公众号文章转文档' },
+        { path: '/pdf-to-word', icon: '📑', label: 'PDF → Word', desc: 'PDF文档可编辑化' },
+        { path: '/word-to-pdf', icon: '📋', label: 'Word → PDF', desc: '文档转为PDF格式' },
+      ]
     },
-    { 
-      icon: '🎨', 
-      title: '样式定制', 
-      description: '提供多种HTML样式主题，支持自定义样式，满足不同场景的文档需求', 
-      color: '#2196F3' 
+    {
+      title: '✏️ 内容编辑',
+      description: '强大的编辑工具',
+      items: [
+        { path: '/markdown-editor', icon: '✏️', label: 'Markdown 编辑器', desc: '实时预览、多格式导出' },
+        { path: '/external-md', icon: '🌟', label: '微信公众号专用', desc: '专为公众号排版设计' },
+      ]
     },
-    { 
-      icon: '🔒', 
-      title: '安全可靠', 
-      description: '本地转换模式，保护您的文档隐私安全，数据永不泄露', 
-      color: '#FF9800' 
-    },
-    { 
-      icon: '👁️', 
-      title: '实时预览', 
-      description: '支持Markdown和HTML文件在线预览，随时查看转换效果，所见即所得', 
-      color: '#9C27B0' 
-    },
-    { 
-      icon: '📱', 
-      title: '响应式设计', 
-      description: '适配各种设备，无论是电脑、平板还是手机，都能流畅使用', 
-      color: '#F44336' 
-    },
-    { 
-      icon: '🐛', 
-      title: '媒体内容采集', 
-      description: '支持小红书、抖音、快手等多平台内容采集，直接转换为Markdown或Word', 
-      color: '#00BCD4' 
-    },
-    { 
-      icon: '📄', 
-      title: '多格式支持', 
-      description: '支持Word、PDF、Markdown、HTML等多种格式的相互转换', 
-      color: '#795548' 
-    },
-    { 
-      icon: '🌐', 
-      title: '网页内容转换', 
-      description: '支持普通网页和微信公众号文章转换为Word文档，保留原始排版', 
-      color: '#673AB7' 
-    },
-    { 
-      icon: '🔄', 
-      title: '批量处理', 
-      description: '支持批量上传和转换文件，提高工作效率，节省时间', 
-      color: '#3F51B5' 
+    {
+      title: '🛠️ 实用工具',
+      description: '更多便捷功能',
+      items: [
+        { path: '/media-crawler', icon: '🐛', label: '媒体内容采集', desc: '小红书、抖音、B站等平台抓取' },
+        { path: '/bookmarks', icon: '🔖', label: '网址收藏管理', desc: '管理和收藏常用网址' },
+      ]
     }
   ];
-
-  // 处理转换选项点击
-  const handleConversionClick = (conversionType) => {
-    // 特殊处理外部Markdown项目（md项目）
-    if (conversionType === 'external-md') {
-      window.location.pathname = '/external-md';
-      return;
-    }
-    // 特殊处理Markdown编辑器
-    if (conversionType === 'md-to-html') {
-      window.location.pathname = '/markdown-editor';
-      return;
-    }
-    // 特殊处理媒体内容采集
-    if (conversionType === 'media-crawler') {
-      window.location.pathname = '/media-crawler';
-      return;
-    }
-    // 特殊处理网址收藏管理
-    if (conversionType === 'bookmarks') {
-      window.location.pathname = '/bookmarks';
-      return;
-    }
-    // 直接跳转到独立的转换页面
-    window.location.pathname = `/${conversionType}`;
-  };
 
   return (
-    <div className="home-container platform-home">
-      <header className="app-header platform-header">
-        <div className="header-logo-container">
-          <img src="/logo.svg" alt="SmartDataPro Logo" className="header-logo" />
+    <div className="landing-page">
+      {/* 顶部导航 */}
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <div className="landing-logo">
+            <img src="/logo.svg" alt="SmartDataPro" className="landing-logo-img" />
+            <span className="landing-logo-text">SmartDataPro</span>
+          </div>
+          <div className="landing-nav-links">
+            <a href="#features">功能</a>
+            <a href="#about">关于</a>
+          </div>
         </div>
       </header>
-      
-      <main className="home-main">
-        {/* 转换功能选项卡片 */}
-        <section className="conversion-section">
-          <div className="conversion-grid">
-            {conversionOptions.map((option) => (
-              <div 
-                key={option.value} 
-                className="conversion-card"
-                onClick={() => handleConversionClick(option.value)}
-              >
-                <div className="conversion-icon">{option.icon}</div>
-                <h3 className="conversion-title">{option.label}</h3>
-                <p className="conversion-description">{option.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
-        {/* 平台核心优势展示 */}
-        <section className="features-section platform-features">
-          <h2 className="features-title">平台核心优势</h2>
-          
-          {/* 核心功能特性 */}
-          <div className="features-grid">
-            {platformFeatures.map((feature, index) => {
-              // 将十六进制颜色转换为RGB
-              const hexToRgb = (hex) => {
-                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                return result ? {
-                  r: parseInt(result[1], 16),
-                  g: parseInt(result[2], 16),
-                  b: parseInt(result[3], 16)
-                } : null;
-              };
-              
-              const rgb = hexToRgb(feature.color);
-              const rgbStr = rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : '76, 175, 80';
-              
-              return (
+      {/* Hero 区域 */}
+      <section className="landing-hero">
+        <div className="landing-hero-content">
+          <h1 className="landing-hero-title">
+            智能数据<span className="highlight">处理平台</span>
+          </h1>
+          <p className="landing-hero-subtitle">
+            基于 FastAPI 和 React 构建，支持文档、网页、视频等多种格式之间的转换与处理
+          </p>
+          <div className="landing-hero-badges">
+            <span className="badge">📄 文档转换</span>
+            <span className="badge">🌐 网页处理</span>
+            <span className="badge">🐛 内容采集</span>
+            <span className="badge">✏️ Markdown 编辑</span>
+          </div>
+          <button 
+            className="landing-cta-btn"
+            onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+          >
+            开始使用 ↓
+          </button>
+        </div>
+      </section>
+
+      {/* 功能区域 */}
+      <section className="landing-features" id="features">
+        {categories.map((cat, ci) => (
+          <div key={ci} className="landing-category">
+            <div className="landing-category-header">
+              <h2>{cat.title}</h2>
+              <p>{cat.description}</p>
+            </div>
+            <div className="landing-card-grid">
+              {cat.items.map((item, ii) => (
                 <div 
-                  key={index} 
-                  className="feature-card" 
-                  style={{
-                    '--card-color': feature.color,
-                    '--card-color-rgb': rgbStr,
-                    color: feature.color
-                  }}
+                  key={ii} 
+                  className="landing-card"
+                  onClick={() => navigate(item.path)}
                 >
-                  <div className="feature-icon">{feature.icon}</div>
-                  <h3 className="feature-title">{feature.title}</h3>
-                  <p className="feature-description">{feature.description}</p>
+                  <div className="landing-card-icon">{item.icon}</div>
+                  <h3 className="landing-card-title">{item.label}</h3>
+                  <p className="landing-card-desc">{item.desc}</p>
+                  <div className="landing-card-arrow">→</div>
                 </div>
-              );
-            })}
-          </div>
-          
-          {/* 为什么选择我们 */}
-          <div className="advantages-grid">
-            <div className="advantage-item">
-              <div className="advantage-icon">🏆</div>
-              <h3>专业可靠</h3>
-              <p>专注于文档转换领域，技术成熟，服务稳定</p>
-            </div>
-            <div className="advantage-item">
-              <div className="advantage-icon">⚡</div>
-              <h3>高效便捷</h3>
-              <p>操作简单，转换速度快，节省您的宝贵时间</p>
-            </div>
-            <div className="advantage-item">
-              <div className="advantage-icon">🔒</div>
-              <h3>安全保障</h3>
-              <p>本地转换模式，数据隐私有保障</p>
-            </div>
-            <div className="advantage-item">
-              <div className="advantage-icon">📈</div>
-              <h3>持续更新</h3>
-              <p>不断优化功能，添加新特性，提升用户体验</p>
+              ))}
             </div>
           </div>
-        </section>
-      </main>
-      
-      <footer className="app-footer platform-footer">
+        ))}
+      </section>
+
+      {/* 关于区域 */}
+      <section className="landing-about" id="about">
+        <div className="landing-about-inner">
+          <h2>为什么选择 SmartDataPro？</h2>
+          <div className="landing-about-grid">
+            <div className="landing-about-item">
+              <div className="landing-about-icon">⚡</div>
+              <h3>高效处理</h3>
+              <p>先进的转换算法，快速完成各种格式转换</p>
+            </div>
+            <div className="landing-about-item">
+              <div className="landing-about-icon">🔒</div>
+              <h3>本地处理</h3>
+              <p>数据本地处理，保护隐私安全</p>
+            </div>
+            <div className="landing-about-item">
+              <div className="landing-about-icon">📱</div>
+              <h3>响应式设计</h3>
+              <p>适配各种设备，随时随地使用</p>
+            </div>
+            <div className="landing-about-item">
+              <div className="landing-about-icon">🎨</div>
+              <h3>样式丰富</h3>
+              <p>多种主题样式，满足不同需求</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 底部 */}
+      <footer className="landing-footer">
         <p>SmartDataPro © 2026 | 基于 FastAPI 和 React 构建</p>
       </footer>
     </div>
