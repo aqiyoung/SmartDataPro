@@ -42,7 +42,6 @@ const HomePage = () => {
         <div className="landing-header-inner">
           <div className="landing-logo">
             <img src="/logo.svg" alt="SmartDataPro" className="landing-logo-img" />
-            <span className="landing-logo-text">SmartDataPro</span>
           </div>
           <div className="landing-nav-links">
             <a href="#features">功能</a>
